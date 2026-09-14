@@ -3,19 +3,19 @@ import { supabase, escapeHtml, toast } from './app.js';
 const params = new URLSearchParams(location.search);
 const classId = params.get('class');
 const enrollmentId = params.get('student');
-
 const grade = score => score >= 70 ? 'A' : score >= 60 ? 'B' : score >= 50 ? 'C' : score >= 45 ? 'D' : score >= 40 ? 'E' : 'F';
 const initials = (a,b) => `${(a||'')[0]||''}${(b||'')[0]||''}`.toUpperCase();
 const esc = escapeHtml;
 
-async function currentTerm(){
-  const {data,error}=await supabase.from('terms').select('id,name,session_id,academic_sessions(name)').eq('is_current',true).maybeSingle();
-  if(error) throw error; return data;
+function renderContent(html){
+  const shell=document.querySelector('#app-shell');
+  if(shell) shell.dataset.content=html;
+  const content=document.querySelector('.page-content');
+  if(content) content.innerHTML=html;
 }
 
 export async function renderResultsPage(){
-  const shell=document.querySelector('#app-shell');
-  shell.dataset.content=`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">ACADEMIC RESULTS</span><h1>Results by Class</h1><p>Select a class to view every student in that class, then open an individual student's result.</p></div></div><div class="result-toolbar"><button class="btn secondary" id="refresh-results">↻ Refresh</button></div><div id="class-results-grid" class="result-class-grid"><div class="result-loading"><span class="spinner"></span><b>Loading classes…</b><small>Preparing result records</small></div></div></div>`;
+  renderContent(`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">ACADEMIC RESULTS</span><h1>Results by Class</h1><p>Select a class to view every student in that class, then open an individual student's result.</p></div></div><div class="result-toolbar"><button class="btn secondary" id="refresh-results">↻ Refresh</button></div><div id="class-results-grid" class="result-class-grid"><div class="result-loading"><span class="spinner"></span><b>Loading classes…</b><small>Preparing result records</small></div></div></div>`);
   await loadClasses();
   document.querySelector('#refresh-results')?.addEventListener('click',loadClasses);
 }
@@ -34,9 +34,9 @@ async function loadClasses(){
 }
 
 export async function renderClassResults(){
-  const shell=document.querySelector('#app-shell');
-  shell.dataset.content=`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">CLASS RESULTS</span><h1 id="class-title">Loading class…</h1><p>All active students in this class are listed below.</p></div><a class="btn hero-add" href="results.html">← Back to Classes</a></div><div class="result-toolbar"><div id="class-summary" class="result-summary">Loading students…</div><button class="btn secondary" id="refresh-class">↻ Refresh</button></div><div id="student-result-list" class="student-result-list"><div class="result-loading"><span class="spinner"></span><b>Loading students…</b><small>Preparing the class result list</small></div></div></div>`;
-  await loadClassStudents(); document.querySelector('#refresh-class')?.addEventListener('click',loadClassStudents);
+  renderContent(`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">CLASS RESULTS</span><h1 id="class-title">Loading class…</h1><p>All active students in this class are listed below.</p></div><a class="btn hero-add" href="results.html">← Back to Classes</a></div><div class="result-toolbar"><div id="class-summary" class="result-summary">Loading students…</div><button class="btn secondary" id="refresh-class">↻ Refresh</button></div><div id="student-result-list" class="student-result-list"><div class="result-loading"><span class="spinner"></span><b>Loading students…</b><small>Preparing the class result list</small></div></div></div>`);
+  await loadClassStudents();
+  document.querySelector('#refresh-class')?.addEventListener('click',loadClassStudents);
 }
 
 async function loadClassStudents(){
@@ -44,7 +44,7 @@ async function loadClassStudents(){
   box.innerHTML='<div class="result-loading"><span class="spinner"></span><b>Loading students…</b><small>Please wait</small></div>';
   try{
     const {data:c,error:ce}=await supabase.from('classes').select('id,name,level').eq('id',classId).maybeSingle(); if(ce)throw ce; if(!c)throw new Error('Class not found');
-    document.querySelector('#class-title').textContent=c.name; 
+    document.querySelector('#class-title').textContent=c.name;
     const {data:enrollments,error:e}=await supabase.from('enrollments').select('id,student_id,status,students(first_name,middle_name,last_name,student_id,photo_url)').eq('class_id',classId).eq('status','ACTIVE').order('created_at'); if(e)throw e;
     const ids=(enrollments||[]).map(x=>x.id); let results=[];
     if(ids.length){const r=await supabase.from('results').select('enrollment_id,term_id,subject_id,ca_score,exam_score,total,grade,status').in('enrollment_id',ids); if(r.error)throw r.error; results=r.data||[]}
@@ -55,12 +55,13 @@ async function loadClassStudents(){
 }
 
 export async function renderStudentResult(){
-  const shell=document.querySelector('#app-shell');
-  shell.dataset.content=`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">STUDENT RESULT</span><h1 id="student-name">Loading result…</h1><p id="student-meta">Preparing academic record</p></div><a class="btn hero-add" href="result-pages.html?class=${encodeURIComponent(classId||'')}">← Back to Students</a></div><div id="student-result-content"><div class="result-loading"><span class="spinner"></span><b>Loading student result…</b><small>Preparing subjects and scores</small></div></div></div>`;
+  renderContent(`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">STUDENT RESULT</span><h1 id="student-name">Loading result…</h1><p id="student-meta">Preparing academic record</p></div><a class="btn hero-add" href="result-pages.html?class=${encodeURIComponent(classId||'')}">← Back to Students</a></div><div id="student-result-content"><div class="result-loading"><span class="spinner"></span><b>Loading student result…</b><small>Preparing subjects and scores</small></div></div></div>`);
   try{
-    const {data:e,error:ee}=await supabase.from('enrollments').select('id,class_id,students(first_name,middle_name,last_name,student_id,exam_number),classes(name,level)').eq('id',enrollmentId).maybeSingle(); if(ee)throw ee;if(!e)throw new Error('Student record not found');
+    const {data:e,error:ee}=await supabase.from('enrollments').select('id,class_id,students(first_name,middle_name,last_name,student_id,exam_number),classes(name,level)').eq('id',enrollmentId).maybeSingle(); if(ee)throw ee; if(!e)throw new Error('Student record not found');
     const r=await supabase.from('results').select('id,ca_score,exam_score,total,grade,grade_point,teacher_remark,principal_remark,position,status,subject_id,term_id,subjects(name,code),terms(name,academic_sessions(name))').eq('enrollment_id',enrollmentId).order('created_at'); if(r.error)throw r.error;
-    const s=e.students||{}; const name=`${s.first_name||''} ${s.middle_name||''} ${s.last_name||''}`.replace(/\s+/g,' ').trim(); document.querySelector('#student-name').textContent=name||'Student Result';document.querySelector('#student-meta').textContent=`${s.student_id||'No ID'} · ${e.classes?.name||'Class'} · ${e.classes?.level||''}`;
+    const s=e.students||{}; const name=`${s.first_name||''} ${s.middle_name||''} ${s.last_name||''}`.replace(/\s+/g,' ').trim();
+    document.querySelector('#student-name').textContent=name||'Student Result';
+    document.querySelector('#student-meta').textContent=`${s.student_id||'No ID'} · ${e.classes?.name||'Class'} · ${e.classes?.level||''}`;
     const rows=r.data||[]; const total=rows.reduce((a,x)=>a+Number(x.total||0),0); const avg=rows.length?Math.round(total/rows.length):0;
     document.querySelector('#student-result-content').innerHTML=`<div class="result-stat-grid"><div><b>${rows.length}</b><span>Subjects</span></div><div><b>${total}</b><span>Total Score</span></div><div><b>${avg}</b><span>Average</span></div><div><b>${rows.filter(x=>x.grade==='A').length}</b><span>A Grades</span></div></div><section class="panel result-table-panel"><div class="panel-head"><div><h2>Academic Result</h2><p>${esc(rows[0]?.terms?.academic_sessions?.name||'Current academic session')} · ${esc(rows[0]?.terms?.name||'All terms')}</p></div><button class="btn secondary" onclick="window.print()">Print Result</button></div><div class="table-wrap"><table><thead><tr><th>Subject</th><th>CA</th><th>Exam</th><th>Total</th><th>Grade</th><th>Point</th><th>Remark</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.subjects?.name||'Subject')}</b><small>${esc(x.subjects?.code||'')}</small></td><td>${x.ca_score??0}</td><td>${x.exam_score??0}</td><td><b>${x.total??0}</b></td><td><span class="grade-badge grade-${esc(x.grade||grade(Number(x.total||0)))}">${esc(x.grade||grade(Number(x.total||0)))}</span></td><td>${x.grade_point??'—'}</td><td>${esc(x.teacher_remark||'—')}</td></tr>`).join('')||'<tr><td colspan="7" class="empty-cell">No result records have been entered for this student.</td></tr>'}</tbody></table></div></section>`;
   }catch(e){console.error(e);document.querySelector('#student-result-content').innerHTML='<div class="result-empty"><h3>Student result could not be loaded</h3><p>Please refresh and try again.</p><button class="btn" onclick="location.reload()">Retry</button></div>';toast('Student result could not be loaded.','error')}

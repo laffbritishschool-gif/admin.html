@@ -1,1 +1,146 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Register Student</title><link rel="stylesheet" href="assets/styles.css"><script src="assets/theme.js"></script></head><body data-title="Register Student"><div id="app-shell" data-content="<div class='panel'><form id='f' class='form-grid'><label>Student ID<input name='student_id' required></label><label>Exam Number<input name='exam_number'></label><label>First Name<input name='first_name' required></label><label>Middle Name<input name='middle_name'></label><label>Last Name<input name='last_name' required></label><label>Gender<select name='gender'><option value=''>Select…</option><option>MALE</option><option>FEMALE</option><option>OTHER</option></select></label><label>Date of Birth<input type='date' name='date_of_birth'></label><label>Phone<input name='phone'></label><label>Guardian Name<input name='guardian_name'></label><label>Guardian Phone<input name='guardian_phone'></label><label>Guardian Email<input type='email' name='guardian_email'></label><label>Address<textarea name='address'></textarea></label><div class='form-actions'><button class='btn btn-primary'>Register Student</button></div></form></div>"></div><div id="toast-host"></div><script type="module">import{requireAdmin,mountShell,supabase,toast,setLoading}from'./assets/app.js';const u=await requireAdmin();if(u){mountShell(u);const f=document.querySelector('#f');f.onsubmit=async e=>{e.preventDefault();const b=f.querySelector('button');setLoading(b,true,'Registering…');const p=Object.fromEntries(new FormData(f));const{error}=await supabase.from('students').insert(p);if(error)toast(error.message,'error');else{toast('Student registered successfully.');f.reset()}setLoading(b,false)}};</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Register Student | Laff British Montessori School</title>
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/theme.js"></script>
+<style>
+.register-page{padding-bottom:40px}.register-hero{position:relative;overflow:hidden;margin-bottom:22px;padding:28px;border-radius:24px;background:linear-gradient(135deg,#0b4ea2,#1677d2);color:#fff;box-shadow:0 18px 45px rgba(11,78,162,.2);animation:rise .45s ease}.register-hero:after{content:"";position:absolute;width:220px;height:220px;border:28px solid rgba(255,205,38,.18);border-radius:50%;right:-70px;top:-100px}.register-hero h1{margin:4px 0 7px;font-size:30px}.register-hero p{margin:0;max-width:680px;color:rgba(255,255,255,.82)}.register-layout{display:grid;grid-template-columns:290px minmax(0,1fr);gap:22px;align-items:start}.photo-card,.form-card{background:var(--surface,#fff);border:1px solid var(--border,#e5e7eb);border-radius:22px;box-shadow:0 14px 35px rgba(15,23,42,.07);animation:cardIn .5s ease both}.photo-card{padding:22px;position:sticky;top:20px}.photo-preview{width:170px;height:170px;border-radius:50%;margin:4px auto 18px;display:grid;place-items:center;overflow:hidden;border:7px solid #f4f7fb;background:#eef3f9;color:#718096;font-size:52px;font-weight:800;box-shadow:0 12px 28px rgba(15,23,42,.1)}.photo-preview img{width:100%;height:100%;object-fit:cover}.photo-card h3{margin:0;text-align:center}.photo-card p{font-size:12px;text-align:center;color:#718096;line-height:1.6}.photo-upload{display:block;text-align:center;border:1px dashed #b8c7da;border-radius:13px;padding:12px;cursor:pointer;color:#0b5cad;font-weight:700;background:#f7faff}.photo-upload:hover{background:#eef6ff;border-color:#0b5cad}.photo-upload input{display:none}.photo-note{margin:10px 0 0!important}.form-card{padding:26px}.form-section{padding:0 0 24px;margin:0 0 24px;border-bottom:1px solid #edf0f5}.form-section:last-of-type{border-bottom:0;margin-bottom:0}.section-title{display:flex;align-items:center;gap:10px;margin-bottom:17px}.section-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#edf5ff;color:#0b5cad;font-weight:800}.section-title h2{font-size:16px;margin:0}.section-title p{font-size:11px;color:#7b8798;margin:3px 0 0}.register-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.register-grid .wide{grid-column:1/-1}.field label{display:block;font-size:12px;font-weight:800;color:#344054;margin-bottom:7px}.field input,.field select,.field textarea{width:100%;box-sizing:border-box;border:1px solid #dbe2eb;border-radius:11px;padding:12px 13px;background:#fff;color:#172033;font:inherit;outline:none;transition:.2s}.field textarea{min-height:92px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:#1677d2;box-shadow:0 0 0 4px rgba(22,119,210,.09)}.required{color:#d92d20}.helper{display:block;margin-top:6px;color:#8490a0;font-size:10px}.form-actions{display:flex;justify-content:flex-end;gap:10px;align-items:center;padding-top:4px}.btn-secondary{display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border-radius:11px;border:1px solid #d9e0e9;background:#fff;color:#344054;font-weight:800;text-decoration:none;cursor:pointer}.save-status{font-size:12px;color:#667085;margin-right:auto}.success-check{display:none;color:#14804a;font-weight:800;font-size:12px}.saving .success-check{display:none}@media(max-width:850px){.register-layout{grid-template-columns:1fr}.photo-card{position:relative;top:auto}.register-grid{grid-template-columns:1fr}.register-grid .wide{grid-column:auto}.form-card{padding:20px}.register-hero{padding:22px}.register-hero h1{font-size:25px}.form-actions{flex-wrap:wrap}.save-status{width:100%;margin-bottom:4px}}@media(max-width:520px){.photo-preview{width:145px;height:145px}.register-hero{border-radius:18px}.form-card,.photo-card{border-radius:18px}}
+</style>
+</head>
+<body data-title="Register Student">
+<div id="app-shell" data-content="<main id='registerContent'></main>"></div>
+<div id="toast-host"></div>
+<script type="module">
+import {requireAdmin,mountShell,supabase,toast,setLoading} from './assets/app.js';
+
+const user=await requireAdmin();
+if(user){
+  mountShell(user);
+  const root=document.querySelector('#registerContent');
+  const id=new URLSearchParams(location.search).get('id');
+  let editing=Boolean(id), existing=null, uploadedPath=null;
+
+  root.innerHTML=`
+    <section class="register-hero">
+      <p class="eyebrow" style="color:#ffd43b">STUDENT RECORDS</p>
+      <h1>${editing?'Update Student Record':'Register New Student'}</h1>
+      <p>${editing?'Update the student information below and save the changes.':'Create a complete student record with personal, contact and guardian information.'}</p>
+    </section>
+    <div class="register-layout">
+      <aside class="photo-card">
+        <div class="photo-preview" id="photoPreview"><span>ST</span></div>
+        <h3>Student Passport</h3>
+        <p>Use a clear recent passport-style photo. JPG, PNG or WebP up to 5 MB.</p>
+        <label class="photo-upload">📷 Choose student photo<input id="photo" type="file" accept="image/jpeg,image/png,image/webp"></label>
+        <p class="photo-note" id="photoName">No photo selected</p>
+      </aside>
+      <section class="form-card">
+        <form id="studentForm" novalidate>
+          <div class="form-section">
+            <div class="section-title"><div class="section-icon">01</div><div><h2>Student identity</h2><p>Basic identification and admission details</p></div></div>
+            <div class="register-grid">
+              <div class="field"><label>Student ID <span class="required">*</span></label><input name="student_id" required placeholder="e.g. LBS/2026/001"></div>
+              <div class="field"><label>Exam Number</label><input name="exam_number" placeholder="Optional examination number"></div>
+              <div class="field"><label>First Name <span class="required">*</span></label><input name="first_name" required placeholder="First name"></div>
+              <div class="field"><label>Middle Name</label><input name="middle_name" placeholder="Middle name"></div>
+              <div class="field"><label>Last Name <span class="required">*</span></label><input name="last_name" required placeholder="Surname"></div>
+              <div class="field"><label>Gender</label><select name="gender"><option value="">Select gender</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option></select></div>
+              <div class="field"><label>Date of Birth</label><input name="date_of_birth" type="date"></div>
+              <div class="field"><label>Admission Date</label><input name="admission_date" type="date"></div>
+              <div class="field"><label>Status</label><select name="status"><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option><option value="GRADUATED">Graduated</option><option value="WITHDRAWN">Withdrawn</option></select></div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="section-title"><div class="section-icon">02</div><div><h2>Contact information</h2><p>Student contact details and home address</p></div></div>
+            <div class="register-grid">
+              <div class="field"><label>Student Phone</label><input name="phone" type="tel" placeholder="080..." autocomplete="tel"></div>
+              <div class="field"><label>School Email</label><input name="school_email" type="email" placeholder="student@laffbritishschool.com"></div>
+              <div class="field wide"><label>Home Address</label><textarea name="address" placeholder="Full home address"></textarea></div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="section-title"><div class="section-icon">03</div><div><h2>Parent / guardian</h2><p>Emergency and family contact information</p></div></div>
+            <div class="register-grid">
+              <div class="field"><label>Guardian Name</label><input name="guardian_name" placeholder="Parent or guardian full name"></div>
+              <div class="field"><label>Guardian Phone</label><input name="guardian_phone" type="tel" placeholder="080..." autocomplete="tel"></div>
+              <div class="field wide"><label>Guardian Email</label><input name="guardian_email" type="email" placeholder="parent@example.com"></div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <span class="save-status" id="saveStatus">Fields marked * are required.</span>
+            <span class="success-check" id="successCheck">✓ Saved successfully</span>
+            <a class="btn-secondary" href="students.html">Cancel</a>
+            <button class="btn btn-primary" id="saveBtn" type="submit">${editing?'Save Student Changes':'Register Student'}</button>
+          </div>
+        </form>
+      </section>
+    </div>`;
+
+  const form=document.querySelector('#studentForm'), photo=document.querySelector('#photo'), preview=document.querySelector('#photoPreview'), photoName=document.querySelector('#photoName'), saveBtn=document.querySelector('#saveBtn');
+  const setValue=(name,value)=>{const el=form.elements[name];if(el&&value!==null&&value!==undefined)el.value=value};
+
+  function showPhoto(file){
+    if(!file){return}
+    const reader=new FileReader();reader.onload=()=>preview.innerHTML=`<img src="${reader.result}" alt="Student photo preview">`;reader.readAsDataURL(file);photoName.textContent=file.name;
+  }
+  photo.addEventListener('change',()=>{const file=photo.files?.[0];if(!file)return;if(file.size>5*1024*1024){photo.value='';toast('Photo must be 5 MB or smaller.','error');return}showPhoto(file)});
+
+  if(editing){
+    try{
+      const {data,error}=await supabase.from('students').select('*').eq('id',id).single();
+      if(error)throw error; existing=data;
+      ['student_id','exam_number','first_name','middle_name','last_name','gender','date_of_birth','admission_date','status','phone','school_email','address','guardian_name','guardian_phone','guardian_email'].forEach(k=>setValue(k,data[k]));
+      if(data.photo_url){preview.innerHTML=`<div style="font-size:12px;text-align:center;padding:20px">Existing<br>Photo</div>`;photoName.textContent='Existing photo stored';}
+    }catch(error){toast('We could not load this student record.','error');console.error(error);}
+  }
+
+  async function uploadPhoto(file,studentId){
+    if(!file)return existing?.photo_url||null;
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const path=`${studentId.trim().replace(/[^a-zA-Z0-9_-]/g,'_')}/${crypto.randomUUID()}.${ext}`;
+    const {error}=await supabase.storage.from('student-passports').upload(path,file,{contentType:file.type,upsert:false});
+    if(error)throw error; uploadedPath=path; return path;
+  }
+
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const required=['student_id','first_name','last_name'];
+    const missing=required.filter(k=>!String(form.elements[k].value||'').trim());
+    if(missing.length){toast('Please complete the required student information.','error');form.elements[missing[0]].focus();return}
+    const data=Object.fromEntries(new FormData(form));
+    Object.keys(data).forEach(k=>{if(data[k]==='')data[k]=null});
+    data.student_id=String(data.student_id||'').trim();
+    data.first_name=String(data.first_name||'').trim();
+    data.middle_name=data.middle_name?String(data.middle_name).trim():null;
+    data.last_name=String(data.last_name||'').trim();
+    data.exam_number=data.exam_number?String(data.exam_number).trim():null;
+    if(data.school_email)data.school_email=String(data.school_email).trim().toLowerCase();
+    if(data.guardian_email)data.guardian_email=String(data.guardian_email).trim().toLowerCase();
+    if(!editing && !data.admission_date)data.admission_date=new Date().toISOString().slice(0,10);
+    setLoading(saveBtn,true,editing?'Saving…':'Registering…');
+    document.querySelector('#saveStatus').textContent='Saving student record…';
+    try{
+      const photoFile=photo.files?.[0];
+      data.photo_url=await uploadPhoto(photoFile,data.student_id);
+      let result;
+      if(editing) result=await supabase.from('students').update(data).eq('id',id).select('id').single();
+      else result=await supabase.from('students').insert(data).select('id').single();
+      if(result.error)throw result.error;
+      document.querySelector('#successCheck').style.display='inline';
+      toast(editing?'Student record updated successfully.':'Student registered successfully.');
+      if(editing)setTimeout(()=>location.href=`student-details.html?id=${id}`,700);else{form.reset();photo.value='';preview.innerHTML='<span>ST</span>';photoName.textContent='No photo selected';document.querySelector('#saveStatus').textContent='Ready to register another student.';}
+    }catch(error){
+      console.error('Student save error',error);
+      if(uploadedPath){try{await supabase.storage.from('student-passports').remove([uploadedPath])}catch(cleanup){console.warn('Photo cleanup failed',cleanup)}}
+      const message=String(error?.message||'');
+      toast(message.toLowerCase().includes('duplicate')?'A student with this ID or another unique value already exists.':message||'We could not save the student record. Please try again.','error');
+      document.querySelector('#saveStatus').textContent='The record was not saved. Please review the form.';
+    }finally{setLoading(saveBtn,false)}
+  };
+}
+</script>
+</body>
+</html>

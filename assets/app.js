@@ -22,22 +22,61 @@ export function toast(message, type='success') {
   host.appendChild(el); requestAnimationFrame(()=>el.classList.add('show'));
   setTimeout(()=>{el.classList.remove('show'); setTimeout(()=>el.remove(),250)},3800);
 }
-export function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+export function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]||c));}
 export function setLoading(button, loading, text='Please wait…') {
   if(!button)return;
   if(loading){button.dataset.originalText=button.innerHTML;button.disabled=true;button.innerHTML=`<span class="spinner spinner-sm"></span>${text}`}
   else{button.disabled=false;button.innerHTML=button.dataset.originalText||'Continue'}
 }
 export function pageLoading(show=true){document.body.classList.toggle('is-loading',show);const x=document.querySelector('#page-loader');if(x)x.classList.toggle('active',show)}
+
+const ADMIN_ROLES = ['ADMIN','SUPER_ADMIN','OWNER'];
+
+export async function getAdminProfile(userId){
+  const {data:profile,error:profileError}=await supabase
+    .from('profiles')
+    .select('id,full_name,role,is_active,must_change_password')
+    .eq('id',userId)
+    .maybeSingle();
+
+  if(profileError) throw new Error('We could not verify your school staff profile.');
+  if(profile && profile.is_active && ADMIN_ROLES.includes(String(profile.role||'').trim().toUpperCase())) return profile;
+
+  // The live system also keeps the administrative staff record. This fallback
+  // prevents a valid administrator from being rejected when profile metadata
+  // and staff metadata are temporarily out of sync.
+  const {data:staff,error:staffError}=await supabase
+    .from('admin_staff')
+    .select('user_id,full_name,role,is_active,must_change_password')
+    .eq('user_id',userId)
+    .maybeSingle();
+
+  if(staffError && !profile) throw new Error('We could not verify your administrator account.');
+  if(staff && staff.is_active && ADMIN_ROLES.includes(String(staff.role||'').trim().toUpperCase())) {
+    return {
+      id:userId,
+      full_name:staff.full_name,
+      role:String(staff.role).trim().toUpperCase(),
+      is_active:staff.is_active,
+      must_change_password:staff.must_change_password
+    };
+  }
+  return null;
+}
+
 export async function requireAdmin(){
   const {data:{session}}=await supabase.auth.getSession();
   if(!session){location.replace('login.html');return null;}
   try{
-    const {data}=await supabase.from('profiles').select('role,full_name,email').eq('id',session.user.id).maybeSingle();
-    const role=String(data?.role||'').toUpperCase();
-    if(!['ADMIN','SUPER_ADMIN','OWNER'].includes(role)){await supabase.auth.signOut();location.replace('login.html?error=access');return null;}
-    return {...session.user, profile:data};
-  }catch(e){toast('We could not verify your access. Please try again.','error');return null;}
+    const profile=await getAdminProfile(session.user.id);
+    if(!profile){await supabase.auth.signOut();location.replace('login.html?error=access');return null;}
+    return {...session.user, profile};
+  }catch(e){
+    console.error('Admin access verification failed',e);
+    await supabase.auth.signOut();
+    location.replace('login.html?error=verify');
+    return null;
+  }
 }
 export async function signOut(){await supabase.auth.signOut();location.replace('login.html');}
 export function mountShell(user){

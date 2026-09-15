@@ -31,40 +31,44 @@ function updateStage(el,text,percent,done=false){
   if(done)el.querySelector('#draw-check-1')?.classList.add('done');
 }
 
+const wait=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
+
 async function generate(studentId,button){
   const el=overlay();
   const studentName=el.querySelector('.id-draw-name');
   try{
-    updateStage(el,'Finding student record…',12);
+    updateStage(el,'Finding student record…',8);
     const {data:student,error:studentError}=await supabase.from('students').select('id,first_name,middle_name,last_name').eq('id',studentId).maybeSingle();
     if(studentError)throw studentError;
     if(!student)throw new Error('Student record not found.');
     const name=[student.first_name,student.middle_name,student.last_name].filter(Boolean).join(' ');
     if(studentName)studentName.textContent=name;
+    await wait(700);
 
-    updateStage(el,'Drawing card frame…',30);
-    await new Promise(r=>setTimeout(r,700));
-    updateStage(el,'Drawing student identity details…',52);
-    await new Promise(r=>setTimeout(r,700));
-    updateStage(el,'Adding school security details…',72);
-    await new Promise(r=>setTimeout(r,650));
+    updateStage(el,'Drawing card frame…',28);
+    await wait(1100);
+    updateStage(el,'Drawing student identity details…',50);
+    await wait(1150);
+    updateStage(el,'Adding student photo and school branding…',70);
+    await wait(1050);
 
     const {data:existing,error:checkError}=await supabase.from('id_cards').select('id').eq('student_id',studentId).limit(1);
     if(checkError)throw checkError;
     if(existing?.length){
       updateStage(el,'ID card already exists — opening it…',100,true);
-      await new Promise(r=>setTimeout(r,500));
+      await wait(900);
       location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`;
       return;
     }
 
-    updateStage(el,'Saving finished ID card…',88);
+    updateStage(el,'Saving finished ID card…',86);
+    await wait(650);
     const expires=new Date();expires.setFullYear(expires.getFullYear()+1);
     const {data:userData}=await supabase.auth.getUser();
     const {error}=await supabase.from('id_cards').insert({student_id:studentId,card_number:makeCardNumber(),expires_at:expires.toISOString(),is_active:true,created_by:userData?.user?.id||null});
     if(error)throw error;
     updateStage(el,'ID card ready!',100,true);
-    await new Promise(r=>setTimeout(r,650));
+    await wait(1100);
     toast('Student ID card generated successfully.','success');
     location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`;
   }catch(e){
@@ -72,7 +76,7 @@ async function generate(studentId,button){
     el.querySelector('.id-draw-title').textContent='Generation could not be completed';
     updateStage(el,e?.message||'Please try again.',0);
     el.querySelector('.id-draw-modal')?.classList.add('generation-error');
-    await new Promise(r=>setTimeout(r,1300));
+    await wait(1300);
     el.classList.remove('show');
     setTimeout(()=>el.remove(),250);
     if(button){button.disabled=false;button.innerHTML='Generate ID Card';}

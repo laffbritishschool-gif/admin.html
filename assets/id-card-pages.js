@@ -5,9 +5,9 @@ const LOGO_URL = 'https://i.ibb.co/whtP8S5v/image.png';
 function fullName(s){ return [s.first_name,s.middle_name,s.last_name].filter(Boolean).join(' '); }
 function cardNumber(){ const d=new Date(); return `LBS-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.random().toString(36).slice(2,8).toUpperCase()}`; }
 function initials(s){ return [s.first_name,s.last_name].filter(Boolean).map(x=>x[0]).join('').toUpperCase() || 'ST'; }
-async function photoUrl(path){ if(!path)return ''; if(/^https?:\/\//i.test(path))return path; const {data}=await supabase.storage.from('student-passports').createSignedUrl(path,3600); return data?.signedUrl||''; }
+async function photoUrl(path){ if(!path)return ''; if(/^https?:\/\//i.test(path))return path; const {data} = await supabase.storage.from('student-passports').createSignedUrl(path,3600); return data?.signedUrl||''; }
 async function getStudents(){ const {data,error}=await supabase.from('students').select('id,student_id,exam_number,first_name,middle_name,last_name,gender,date_of_birth,photo_url,phone,guardian_name,status').order('first_name',{ascending:true}); if(error)throw error; return data||[]; }
-async function getCards(){ const {data,error}=await supabase.from('id_cards').select('id,student_id,card_number,expires_at,is_active,issued_at,created_at').order('created_at',{ascending:false}); if(error)throw error; return data||[]; }
+async function getCards(){ const {data,error}=await supabase.from('id_cards').select('id,student_id,card_number,expires_at,is_active,issued_at').order('issued_at',{ascending:false}); if(error)throw error; return data||[]; }
 function cardFor(cards,id){ return cards.find(c=>c.student_id===id&&c.is_active!==false)||cards.find(c=>c.student_id===id); }
 
 export async function renderIdCardsPage(){
@@ -41,7 +41,7 @@ export async function renderIdCardDetailsPage(){
  const host=document.querySelector('#module-content'), studentId=new URLSearchParams(location.search).get('student'); if(!host)return; if(!studentId){host.innerHTML='<div class="panel empty-state"><h3>Student not selected</h3><a class="btn" href="id-cards.html">Back to ID Cards</a></div>';return;}
  host.innerHTML='<div class="panel inline-loading">Loading student ID card…</div>'; pageLoading(true);
  try{
-  const [{data:student,error:se},{data:cards,error:ce}]=await Promise.all([supabase.from('students').select('*').eq('id',studentId).maybeSingle(),supabase.from('id_cards').select('*').eq('student_id',studentId).order('created_at',{ascending:false})]);
+  const [{data:student,error:se},{data:cards,error:ce}]=await Promise.all([supabase.from('students').select('*').eq('id',studentId).maybeSingle(),supabase.from('id_cards').select('*').eq('student_id',studentId).order('issued_at',{ascending:false})]);
   if(se)throw se;if(ce)throw ce;if(!student)throw new Error('Student record not found.'); let card=cards?.[0];
   if(!card){const expires=new Date();expires.setFullYear(expires.getFullYear()+1);const {data:newCard,error}=await supabase.from('id_cards').insert({student_id:student.id,card_number:cardNumber(),expires_at:expires.toISOString(),is_active:true}).select('*').single();if(error)throw error;card=newCard;toast('ID card was generated automatically for this student.','success');}
   const photo=await photoUrl(student.photo_url),name=fullName(student),expiry=card.expires_at?new Date(card.expires_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';

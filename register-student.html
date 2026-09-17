@@ -10,7 +10,7 @@
 </head>
 <body data-title="Register Student"><div id="app-shell" data-content="<main id='registerContent'></main>"></div><div id="toast-host"></div>
 <script type="module">
-import{requireAdmin,mountShell,supabase,toast,setLoading}from'./assets/app.js';
+import{requireAdmin,mountShell,supabase,toast,setLoading,escapeHtml}from'./assets/app.js';
 const DEFAULT_PASSWORD='Laff British School2026';
 const user=await requireAdmin();
 if(user){

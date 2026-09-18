@@ -122,8 +122,63 @@ async function openPromotionModal(enrollmentId, currentClassName, studentName, a
  });
 }
  
+async function openRepeatModal(enrollmentId, currentClassName, studentName, average){
+ const [sessionsRes, enrollmentRes] = await Promise.all([
+  supabase.from('academic_sessions').select('id,name,starts_on,ends_on').order('starts_on',{ascending:false,nullsLast:true}).order('name',{ascending:false}),
+  supabase.from('enrollments').select('session_id').eq('id',enrollmentId).maybeSingle()
+ ]);
+ if(sessionsRes.error) throw sessionsRes.error;
+ if(enrollmentRes.error) throw enrollmentRes.error;
+ const currentSessionId=enrollmentRes.data?.session_id||'';
+ const sessions=(sessionsRes.data||[]).filter(s=>s.id!==currentSessionId);
+ const card=document.createElement('div');
+ card.className='promotion-modal';
+ card.setAttribute('role','dialog');
+ card.setAttribute('aria-modal','true');
+ card.innerHTML=`<div class="promotion-card">
+  <div class="promotion-head"><div><span class="hero-kicker" style="color:#8a6900">REPEAT STUDENT</span><h2>Repeat ${esc(studentName||'Student')}</h2><p>This keeps the student in the same class for the selected academic session.</p></div><button type="button" class="promotion-close" aria-label="Close">×</button></div>
+  <div class="promotion-summary"><div><small>Current Class</small><b>${esc(currentClassName||'—')}</b></div><div><small>Result Average</small><b>${Number(average||0)}%</b></div><div><small>Action</small><b>Repeat Same Class</b></div></div>
+  <div class="promotion-form">
+   <label>Repeat in Academic Session<select id="repeatTargetSession"><option value="">Select academic session…</option>${sessions.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></label>
+   ${sessions.length?'':'<div class="promotion-empty"><b>No other academic session is available.</b><br>Create the next academic session first, then return here to repeat the student.</div>'}
+   <div class="promotion-help"><b>What happens:</b> the current enrollment is marked <b>REPEATED</b> and a new <b>ACTIVE</b> enrollment is created for the <b>same class</b> in the selected session. Existing results remain attached to the original enrollment.</div>
+   <div id="repeatMessage"></div>
+   <div class="promotion-actions"><button type="button" class="btn secondary promotion-cancel">Cancel</button><button type="button" class="btn publish-btn" id="confirmRepeat" ${sessions.length?'':'disabled'}>Repeat Student</button></div>
+  </div>
+ </div>`;
+ document.body.appendChild(card);
+ const close=()=>card.remove();
+ card.querySelector('.promotion-close').onclick=close;
+ card.querySelector('.promotion-cancel').onclick=close;
+ card.addEventListener('click',e=>{if(e.target===card)close()});
+ const confirm=card.querySelector('#confirmRepeat');
+ confirm?.addEventListener('click',async()=>{
+  const targetSession=card.querySelector('#repeatTargetSession')?.value;
+  const message=card.querySelector('#repeatMessage');
+  if(!targetSession){message.innerHTML='<div class="promotion-empty">Select the academic session for the repeat.</div>';return}
+  if(!confirm('Confirm that this student should repeat the same class in the selected academic session?'))return;
+  try{
+   confirm.disabled=true;confirm.textContent='Repeating…';
+   const {data,error}=await supabase.functions.invoke('admin-repeat-student',{body:{enrollment_id:enrollmentId,target_session_id:targetSession}});
+   if(error){
+    let detail='Repeat request failed.';
+    try{const raw=await error.context?.json?.();if(raw?.error)detail=raw.error}catch{}
+    throw new Error(detail);
+   }
+   if(!data?.ok)throw new Error(data?.error||'Repeat action failed.');
+   message.innerHTML=`<div class="promotion-success">${esc(data.message||'Student repeat completed successfully.')}</div>`;
+   toast(data.message||'Student repeat completed successfully.');
+   setTimeout(close,900);
+  }catch(e){
+   console.error('Student repeat failed:',e);
+   message.innerHTML=`<div class="promotion-empty">${esc(e.message||'Could not complete the repeat action.')}</div>`;
+   confirm.disabled=false;confirm.textContent='Repeat Student';
+  }
+ });
+}
+ 
 export async function renderStudentResult(){
  renderContent(`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">STUDENT RESULT</span><h1 id="student-name">Loading result…</h1><p id="student-meta">Preparing academic record</p></div><a class="btn hero-add" href="result-pages.html?class=${encodeURIComponent(classId||'')}">← Back to Students</a></div><div id="student-result-content"><div class="result-loading"><span class="spinner"></span><b>Loading student result…</b><small>Preparing subjects and scores</small></div></div></div>`);
- try{const {data:e,error:ee}=await supabase.from('enrollments').select('id,class_id,students(first_name,middle_name,last_name,student_id,exam_number),classes(name,level)').eq('id',enrollmentId).maybeSingle();if(ee)throw ee;if(!e)throw new Error('Student record not found');const r=await supabase.from('results').select('id,ca_score,exam_score,total,grade,grade_point,teacher_remark,principal_remark,position,status,subject_id,term_id,subjects(name,code),terms(name,academic_sessions(name))').eq('enrollment_id',enrollmentId).order('created_at');if(r.error)throw r.error;const rows=r.data||[],s=e.students||{},name=`${s.first_name||''} ${s.middle_name||''} ${s.last_name||''}`.replace(/\s+/g,' ').trim(),total=rows.reduce((a,x)=>a+Number(x.total||0),0),avg=rows.length?Math.round(total/rows.length):0,pub=published(rows);document.querySelector('#student-name').textContent=name||'Student Result';document.querySelector('#student-meta').textContent=`${s.student_id||'No ID'} · ${e.classes?.name||'Class'} · ${e.classes?.level||''}`;document.querySelector('#student-result-content').innerHTML=`<div class="student-result-detail-actions">${badge(pub)}<button class="btn ${pub?'secondary unpublish-btn':'publish-btn'}" id="student-publish">${pub?'↶ Unpublish Result':'✓ Publish Result'}</button><button class="btn publish-btn" id="student-promote">⇧ Promote Student</button><button class="btn secondary" id="student-image">▣ Result Image</button><button class="btn secondary" onclick="window.print()">Print Result</button></div><div class="result-stat-grid"><div><b>${rows.length}</b><span>Subjects</span></div><div><b>${total}</b><span>Total Score</span></div><div><b>${avg}</b><span>Average</span></div><div><b>${rows.filter(x=>x.grade==='A').length}</b><span>A Grades</span></div></div><section class="panel result-table-panel"><div class="panel-head"><div><h2>Academic Result</h2><p>${esc(rows[0]?.terms?.academic_sessions?.name||'Current academic session')} · ${esc(rows[0]?.terms?.name||'All terms')}</p></div></div><div class="table-wrap"><table><thead><tr><th>Subject</th><th>CA</th><th>Exam</th><th>Total</th><th>Grade</th><th>Point</th><th>Remark</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.subjects?.name||'Subject')}</b><small>${esc(x.subjects?.code||'')}</small></td><td>${x.ca_score??0}</td><td>${x.exam_score??0}</td><td><b>${x.total??0}</b></td><td><span class="grade-badge grade-${esc(x.grade||grade(Number(x.total||0)))}">${esc(x.grade||grade(Number(x.total||0)))}</span></td><td>${x.grade_point??'—'}</td><td>${esc(x.teacher_remark||'—')}</td></tr>`).join('')||'<tr><td colspan="7" class="empty-cell">No result records have been entered for this student.</td></tr>'}</tbody></table></div></section>`;document.querySelector('#student-publish')?.addEventListener('click',()=>publishStudent(enrollmentId,!pub));document.querySelector('#student-promote')?.addEventListener('click',()=>openPromotionModal(enrollmentId,e.classes?.name||'Class',name,avg));document.querySelector('#student-image')?.addEventListener('click',()=>createResultImage(enrollmentId));
+ try{const {data:e,error:ee}=await supabase.from('enrollments').select('id,class_id,students(first_name,middle_name,last_name,student_id,exam_number),classes(name,level)').eq('id',enrollmentId).maybeSingle();if(ee)throw ee;if(!e)throw new Error('Student record not found');const r=await supabase.from('results').select('id,ca_score,exam_score,total,grade,grade_point,teacher_remark,principal_remark,position,status,subject_id,term_id,subjects(name,code),terms(name,academic_sessions(name))').eq('enrollment_id',enrollmentId).order('created_at');if(r.error)throw r.error;const rows=r.data||[],s=e.students||{},name=`${s.first_name||''} ${s.middle_name||''} ${s.last_name||''}`.replace(/\s+/g,' ').trim(),total=rows.reduce((a,x)=>a+Number(x.total||0),0),avg=rows.length?Math.round(total/rows.length):0,pub=published(rows);document.querySelector('#student-name').textContent=name||'Student Result';document.querySelector('#student-meta').textContent=`${s.student_id||'No ID'} · ${e.classes?.name||'Class'} · ${e.classes?.level||''}`;document.querySelector('#student-result-content').innerHTML=`<div class="student-result-detail-actions"><div class="result-publication-status ${pub?'published':'unpublished'}"><span class="status-dot"></span><strong>${pub?'PUBLISHED':'NOT PUBLISHED'}</strong><small>${pub?'This result is available to the student.':'This result is still awaiting publication.'}</small></div><button class="btn ${pub?'secondary unpublish-btn':'publish-btn'}" id="student-publish">${pub?'↶ Unpublish Result':'✓ Publish Result'}</button><button class="btn publish-btn" id="student-promote">⇧ Promote Student</button><button class="btn" id="student-repeat">↻ Repeat Student</button><button class="btn secondary" id="student-image">▣ Result Image</button><button class="btn secondary" onclick="window.print()">Print Result</button></div><div class="result-stat-grid"><div><b>${rows.length}</b><span>Subjects</span></div><div><b>${total}</b><span>Total Score</span></div><div><b>${avg}</b><span>Average</span></div><div><b>${rows.filter(x=>x.grade==='A').length}</b><span>A Grades</span></div></div><section class="panel result-table-panel"><div class="panel-head"><div><h2>Academic Result</h2><p>${esc(rows[0]?.terms?.academic_sessions?.name||'Current academic session')} · ${esc(rows[0]?.terms?.name||'All terms')}</p></div></div><div class="table-wrap"><table><thead><tr><th>Subject</th><th>CA</th><th>Exam</th><th>Total</th><th>Grade</th><th>Point</th><th>Remark</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.subjects?.name||'Subject')}</b><small>${esc(x.subjects?.code||'')}</small></td><td>${x.ca_score??0}</td><td>${x.exam_score??0}</td><td><b>${x.total??0}</b></td><td><span class="grade-badge grade-${esc(x.grade||grade(Number(x.total||0)))}">${esc(x.grade||grade(Number(x.total||0)))}</span></td><td>${x.grade_point??'—'}</td><td>${esc(x.teacher_remark||'—')}</td></tr>`).join('')||'<tr><td colspan="7" class="empty-cell">No result records have been entered for this student.</td></tr>'}</tbody></table></div></section>`;document.querySelector('#student-publish')?.addEventListener('click',()=>publishStudent(enrollmentId,!pub));document.querySelector('#student-promote')?.addEventListener('click',()=>openPromotionModal(enrollmentId,e.classes?.name||'Class',name,avg));document.querySelector('#student-repeat')?.addEventListener('click',()=>openRepeatModal(enrollmentId,e.classes?.name||'Class',name,avg));document.querySelector('#student-image')?.addEventListener('click',()=>createResultImage(enrollmentId));
  }catch(e){console.error(e);document.querySelector('#student-result-content').innerHTML='<div class="result-empty"><h3>Student result could not be loaded</h3><p>Please refresh and try again.</p><button class="btn" onclick="location.reload()">Retry</button></div>';toast('Student result could not be loaded.','error');}
 }

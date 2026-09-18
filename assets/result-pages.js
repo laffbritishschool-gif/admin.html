@@ -61,15 +61,18 @@ async function createResultImage(id){
 }
 
 async function openPromotionModal(enrollmentId, currentClassName, studentName, average){
- const [classesRes, sessionsRes] = await Promise.all([
+ const [classesRes, sessionsRes, enrollmentRes] = await Promise.all([
   supabase.from('classes').select('id,name,level').order('name'),
-  supabase.from('academic_sessions').select('id,name,starts_on,ends_on').order('starts_on',{ascending:false,nullsLast:true}).order('name',{ascending:false})
+  supabase.from('academic_sessions').select('id,name,starts_on,ends_on').order('starts_on',{ascending:false,nullsLast:true}).order('name',{ascending:false}),
+  supabase.from('enrollments').select('session_id,classes(name)').eq('id',enrollmentId).maybeSingle()
  ]);
  if(classesRes.error) throw classesRes.error;
  if(sessionsRes.error) throw sessionsRes.error;
+ if(enrollmentRes.error) throw enrollmentRes.error;
  const classes=classesRes.data||[];
  const sessions=sessionsRes.data||[];
- const currentSessionId=null;
+ const currentSessionId=enrollmentRes.data?.session_id||'';
+ const currentSessionName=enrollmentRes.data?.classes?.name||'';
  const otherSessions=sessions.filter(s=>s.id!==currentSessionId);
  const card=document.createElement('div');
  card.className='promotion-modal';
@@ -77,7 +80,7 @@ async function openPromotionModal(enrollmentId, currentClassName, studentName, a
  card.setAttribute('aria-modal','true');
  card.innerHTML=`<div class="promotion-card">
   <div class="promotion-head"><div><span class="hero-kicker" style="color:#8a6900">STUDENT PROMOTION</span><h2>Promote ${esc(studentName||'Student')}</h2><p>Move this student from the current result class into the selected class for another academic session.</p></div><button type="button" class="promotion-close" aria-label="Close">×</button></div>
-  <div class="promotion-summary"><div><small>Current Class</small><b>${esc(currentClassName||'—')}</b></div><div><small>Result Average</small><b>${Number(average||0)}%</b></div><div><small>Status</small><b>Ready to promote</b></div></div>
+  <div class="promotion-summary"><div><small>Current Class</small><b>${esc(currentClassName||'—')}</b></div><div><small>Result Average</small><b>${Number(average||0)}%</b></div><div><small>Current Session</small><b>${esc(currentSessionName||'Current session')}</b></div></div>
   <div class="promotion-form">
    <label>Destination Class<select id="promotionTargetClass"><option value="">Select class…</option>${classes.map(x=>`<option value="${x.id}">${esc(x.name)}${x.level?' — '+esc(x.level):''}</option>`).join('')}</select></label>
    <label>Destination Academic Session<select id="promotionTargetSession"><option value="">Select academic session…</option>${otherSessions.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></label>

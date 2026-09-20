@@ -62,7 +62,7 @@ export async function renderSubjectsPage() {
 
       if (!filtered.length) {
         list.innerHTML = `<div class="subject-empty"><div class="empty-icon">◈</div><h3>${rows.length ? 'No matching subjects' : 'No subjects yet'}</h3><p>${rows.length ? 'Try a different search or filter.' : 'Create your first subject to start organising the curriculum.'}</p>${!rows.length ? '<button class="btn btn-primary" id="empty-add-subject">+ Add New Subject</button>' : ''}</div>`;
-        root.querySelector('#empty-add-subject')?.addEventListener('click', () => openEditor());
+        root.querySelector('#empty-add-subject')?.addEventListener('click', () => location.href='new-subject.html');
         return;
       }
 
@@ -102,14 +102,14 @@ export async function renderSubjectsPage() {
     editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  root.querySelector('#add-subject').onclick = () => openEditor();
+  root.querySelector('#add-subject').onclick = () => location.href='new-subject.html';
   root.querySelector('#subject-refresh').onclick = refresh;
   search.oninput = refresh;
   status.onchange = refresh;
   list.addEventListener('click', async e => {
     const edit = e.target.closest('.edit-subject');
     const toggle = e.target.closest('.toggle-subject');
-    if (edit) { try { const rows = await load(); openEditor(rows.find(x => x.id === edit.dataset.id)); } catch (err) { toast(err.message || 'Could not open subject.', 'error'); } }
+    if (edit) { try { location.href=`new-subject.html?id=${encodeURIComponent(edit.dataset.id)}`; } catch (err) { toast(err.message || 'Could not open subject.', 'error'); } }
     if (toggle) {
       const active = toggle.dataset.active === 'true'; toggle.disabled = true;
       const { error } = await supabase.from('subjects').update({ is_active: !active }).eq('id', toggle.dataset.id);

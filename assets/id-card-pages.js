@@ -85,57 +85,47 @@ export async function renderIdCardDetailsPage(){
   const studentId=new URLSearchParams(location.search).get('student');
   if(!host)return;
   if(!studentId){host.innerHTML='<div class="panel empty-state"><h3>Student not selected</h3><a class="btn" href="id-cards.html">Back to ID Cards</a></div>';return;}
-  host.innerHTML='<div class="panel inline-loading">Loading student ID card…</div>';
+  host.innerHTML='<div class="panel inline-loading">Preparing front and back ID cards…</div>';
   pageLoading(true);
   try{
-    const [{data:student,error:se},{data:cards,error:ce}]=await Promise.all([
+    const [{data:student,error:se},{data:cards,error:ce},{data:settings,error:sge}]=await Promise.all([
       supabase.from('students').select('*').eq('id',studentId).maybeSingle(),
-      supabase.from('id_cards').select('*').eq('student_id',studentId).order('issued_at',{ascending:false})
+      supabase.from('id_cards').select('*').eq('student_id',studentId).order('issued_at',{ascending:false}),
+      supabase.from('school_settings').select('school_name,motto,logo_url,address,phone,email,website,primary_color,secondary_color').limit(1).maybeSingle()
     ]);
-    if(se)throw se;
-    if(ce)throw ce;
+    if(se)throw se;if(ce)throw ce;
     if(!student)throw new Error('Student record not found.');
-
     let card=cards?.[0];
-    if(!card){
-      const expires=new Date(); expires.setFullYear(expires.getFullYear()+1);
-      const {data:userData}=await supabase.auth.getUser();
-      const {data:newCard,error}=await supabase.from('id_cards').insert({student_id:student.id,card_number:cardNumber(),expires_at:expires.toISOString(),is_active:true,created_by:userData?.user?.id||null}).select('*').single();
-      if(error)throw error;
-      card=newCard;
-      toast('ID card was generated automatically for this student.','success');
-    }
-
-    const photo=student._photo_url||await photoUrl(student.photo_url);
+    if(!card){const expires=new Date();expires.setFullYear(expires.getFullYear()+1);const {data:userData}=await supabase.auth.getUser();const {data:newCard,error}=await supabase.from('id_cards').insert({student_id:student.id,card_number:cardNumber(),expires_at:expires.toISOString(),is_active:true,created_by:userData?.user?.id||null}).select('*').single();if(error)throw error;card=newCard;toast('ID card generated automatically for this student.','success');}
+    const photo=await photoUrl(student.photo_url);
     const name=fullName(student);
+    const schoolName=settings?.school_name||'Laff British Montessori School';
+    const motto=settings?.motto||'Excellence in Education';
+    const primary=settings?.primary_color||'#123d8f';
+    const secondary=settings?.secondary_color||'#f4c400';
     const expiry=card.expires_at?new Date(card.expires_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
-    host.innerHTML=`
-      <div class="module-hero no-print"><div><div class="section-kicker">ID CARD PREVIEW</div><h2>${escapeHtml(name)}</h2><p>${escapeHtml(student.student_id||'Student')} • ${escapeHtml(card.card_number||'')}</p></div><div class="hero-actions"><a class="btn secondary" href="id-cards.html">← Back</a><button class="btn" id="print-card">Print ID Card</button><button class="btn secondary" id="delete-card">Delete Card</button></div></div>
-      <div class="id-preview-wrap"><div class="school-id-card" id="printable-id-card"><div class="school-id-top"><img src="${LOGO_URL}" alt="Laff British Montessori School"><div><strong>LAFF BRITISH</strong><span>MONTESSORI SCHOOL</span><small>STUDENT IDENTITY CARD</small></div></div><div class="school-id-body"><div class="school-id-photo">${photo?`<img src="${escapeHtml(photo)}" alt="Student passport">`:`<span>${escapeHtml(initials(student))}</span>`}</div><div class="school-id-info"><h1>${escapeHtml(name)}</h1><p><b>Student ID:</b> ${escapeHtml(student.student_id||'—')}</p><p><b>Exam No:</b> ${escapeHtml(student.exam_number||'—')}</p><p><b>Class:</b> Student Record</p><p><b>Gender:</b> ${escapeHtml(student.gender||'—')}</p><p><b>Valid Until:</b> ${escapeHtml(expiry)}</p></div></div><div class="school-id-bottom"><span>${escapeHtml(card.card_number||'')}</span><span>LAFF BRITISH MONTESSORI SCHOOL</span></div></div></div>
-      <div class="panel no-print id-card-record"><div><small>Card Number</small><strong>${escapeHtml(card.card_number||'—')}</strong></div><div><small>Status</small><span class="badge ${card.is_active===false?'status-inactive':'status-active'}">${card.is_active===false?'INACTIVE':'ACTIVE'}</span></div><div><small>Expires</small><strong>${escapeHtml(expiry)}</strong></div></div>
-      <div class="panel no-print"><div class="section-kicker">STUDENT DETAILS</div><div class="detail-grid"><div><small>Full Name</small><strong>${escapeHtml(name)}</strong></div><div><small>Phone</small><strong>${escapeHtml(student.phone||'—')}</strong></div><div><small>Guardian</small><strong>${escapeHtml(student.guardian_name||'—')}</strong></div><div><small>Status</small><strong>${escapeHtml(student.status||'—')}</strong></div></div></div>`;
-
-    document.querySelector('#print-card').onclick=()=>window.print();
-    document.querySelector('#delete-card').onclick=async()=>{
-      if(!confirm(`Delete the ID card for ${name}? This will remove the card record.`))return;
-      const button=document.querySelector('#delete-card');
-      button.disabled=true;
-      button.innerHTML='<span class="spinner spinner-sm"></span>Deleting…';
-      pageLoading(true);
-      try{
-        const {error}=await supabase.from('id_cards').delete().eq('id',card.id);
-        if(error)throw error;
-        toast('Student ID card deleted successfully.','success');
-        setTimeout(()=>location.href='id-cards.html',450);
-      }catch(e){
-        console.error('ID card delete failed',e);
-        toast(e.message||'Could not delete ID card.','error');
-        button.disabled=false;
-        button.textContent='Delete Card';
-      }finally{ pageLoading(false); }
-    };
-  }catch(e){
-    console.error(e);
-    host.innerHTML=`<div class="panel empty-state"><h3>Could not load ID card</h3><p>${escapeHtml(e.message||'Please try again.')}</p><a class="btn" href="id-cards.html">Back to ID Cards</a></div>`;
-  }finally{ pageLoading(false); }
+    const issued=card.issued_at?new Date(card.issued_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    host.innerHTML=`<section class="id-details-page">
+      <div class="id-print-header no-print"><div><a href="id-cards.html">← Back to ID Cards</a><span class="section-kicker">PRINT-READY ID CARD</span><h1>${escapeHtml(name)}</h1><p>Front and back student identity card • Issued ${escapeHtml(issued)}</p></div><div class="id-print-actions"><button class="btn secondary" id="print-both">Print Front & Back</button><button class="btn" id="print-front">Print Front</button><button class="btn secondary" id="delete-card">Delete Card</button></div></div>
+      <div class="id-print-note no-print"><strong>Print setup:</strong><span>Use portrait/landscape settings that preserve scale. The front and back are separated below with matching dimensions for two-sided printing.</span></div>
+      <div class="id-card-sheet-grid">
+        <article class="print-card-shell print-front-card"><div class="print-card-label no-print">FRONT • STUDENT IDENTITY</div><div class="pro-id-card front-card" style="--card-primary:${escapeHtml(primary)};--card-secondary:${escapeHtml(secondary)}">
+          <div class="pro-card-top"><div class="pro-brand"><img src="${escapeHtml(settings?.logo_url||LOGO_URL)}" alt="${escapeHtml(schoolName)}"><div><strong>${escapeHtml(schoolName)}</strong><span>${escapeHtml(motto)}</span></div></div><span class="pro-card-type">STUDENT ID</span></div>
+          <div class="pro-card-body"><div class="pro-passport">${photo?`<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)} passport">`:`<span>${escapeHtml(initials(student))}</span>`}</div><div class="pro-identity"><span class="pro-label">FULL NAME</span><h2>${escapeHtml(name)}</h2><div class="pro-data-grid"><div><span>STUDENT ID</span><strong>${escapeHtml(student.student_id||'—')}</strong></div><div><span>EXAM NUMBER</span><strong>${escapeHtml(student.exam_number||'—')}</strong></div><div><span>GENDER</span><strong>${escapeHtml(student.gender||'—')}</strong></div><div><span>DATE OF BIRTH</span><strong>${student.date_of_birth?escapeHtml(new Date(student.date_of_birth).toLocaleDateString('en-GB')):'—'}</strong></div></div></div></div>
+          <div class="pro-card-bottom"><span>VALID UNTIL ${escapeHtml(expiry)}</span><strong>${escapeHtml(card.card_number||'')}</strong></div>
+        </div></article>
+        <article class="print-card-shell print-back-card"><div class="print-card-label no-print">BACK • SCHOOL / EMERGENCY INFORMATION</div><div class="pro-id-card back-card" style="--card-primary:${escapeHtml(primary)};--card-secondary:${escapeHtml(secondary)}">
+          <div class="pro-back-pattern"></div><div class="pro-back-head"><div><span class="pro-card-type">STUDENT ID</span><h2>${escapeHtml(schoolName)}</h2><p>${escapeHtml(motto)}</p></div><div class="qr-placeholder">${escapeHtml((card.card_number||student.student_id||'ID').slice(-6))}</div></div>
+          <div class="pro-back-content"><div class="back-info-block"><span>IN CASE OF EMERGENCY</span><strong>${escapeHtml(student.guardian_name||'Parent / Guardian')}</strong><p>${escapeHtml(student.guardian_phone||'Guardian contact not provided')}</p></div><div class="back-info-block"><span>SCHOOL CONTACT</span><p>${escapeHtml(settings?.address||'School address not provided')}</p><p>${escapeHtml(settings?.phone||'')}${settings?.email?` • ${escapeHtml(settings.email)}`:''}</p>${settings?.website?`<p>${escapeHtml(settings.website)}</p>`:''}</div></div>
+          <div class="pro-back-rule"></div><div class="pro-back-footer"><span>Issued: ${escapeHtml(issued)}</span><strong>Property of ${escapeHtml(schoolName)}</strong><span>Return if found</span></div>
+        </div></article>
+      </div>
+      <div class="id-record-summary no-print"><div><span>CARD NUMBER</span><strong>${escapeHtml(card.card_number||'—')}</strong></div><div><span>STATUS</span><b class="badge ${card.is_active===false?'status-inactive':'status-active'}">${card.is_active===false?'INACTIVE':'ACTIVE'}</b></div><div><span>ISSUED</span><strong>${escapeHtml(issued)}</strong></div><div><span>EXPIRES</span><strong>${escapeHtml(expiry)}</strong></div></div>
+      <section class="id-student-record no-print"><div class="section-kicker">STUDENT RECORD</div><div class="student-record-grid"><div><span>Full Name</span><strong>${escapeHtml(name)}</strong></div><div><span>Student ID</span><strong>${escapeHtml(student.student_id||'—')}</strong></div><div><span>Guardian</span><strong>${escapeHtml(student.guardian_name||'—')}</strong></div><div><span>Guardian Phone</span><strong>${escapeHtml(student.guardian_phone||'—')}</strong></div></div></section>
+    </section>`;
+    document.querySelector('#print-both').onclick=()=>window.print();
+    document.querySelector('#print-front').onclick=()=>{document.body.classList.add('print-front-only');window.print();setTimeout(()=>document.body.classList.remove('print-front-only'),700)};
+    document.querySelector('#delete-card').onclick=async()=>{if(!confirm(`Delete the ID card for ${name}? This will remove the card record.`))return;const button=document.querySelector('#delete-card');button.disabled=true;pageLoading(true);try{const {error}=await supabase.from('id_cards').delete().eq('id',card.id);if(error)throw error;toast('Student ID card deleted successfully.','success');setTimeout(()=>location.href='id-cards.html',450);}catch(e){console.error(e);toast(e.message||'Could not delete ID card.','error');button.disabled=false;}finally{pageLoading(false)}};
+  }catch(e){console.error(e);host.innerHTML=`<div class="panel empty-state"><h3>Could not load ID card</h3><p>${escapeHtml(e.message||'Please try again.')}</p><a class="btn" href="id-cards.html">Back to ID Cards</a></div>`;}
+  finally{pageLoading(false)}
 }

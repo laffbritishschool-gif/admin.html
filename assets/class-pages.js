@@ -80,14 +80,51 @@ async function options(){
 }
 
 export async function renderRegisterClass(){
-  const root=document.querySelector('.page-content'); const id=new URLSearchParams(location.search).get('id'); let existing=null;
-  root.innerHTML='<div class="loading-inline">Preparing class form…</div>';
-  try{if(id){const {data,error}=await supabase.from('classes').select('*').eq('id',id).maybeSingle();if(error)throw error;existing=data;} const {subjects,teachers}=await options(); let assignments=[];
-    if(id){const {data,error}=await supabase.from('class_subjects').select('subject_id,teacher_id').eq('class_id',id);if(error)throw error;assignments=data||[];}
-    root.innerHTML=`<section class="register-class-page"><div class="detail-back"><a href="classes.html">← Back to Classes</a></div><div class="register-head"><div><span class="eyebrow">ACADEMIC SETUP</span><h1>${existing?'Edit Class':'Register New Class'}</h1><p>${existing?'Update the class information and teaching assignments.':'Create a class and assign its subjects and teachers.'}</p></div></div><form id="class-form" class="register-class-layout"><div class="panel"><h2>Class information</h2><div class="form-grid"><label>Class Name *<input name="name" required value="${esc(existing?.name||'')}" placeholder="e.g. Primary 5"></label><label>Level<input name="level" value="${esc(existing?.level||'')}" placeholder="e.g. Primary"></label><label class="full-field">Description<textarea name="description" placeholder="Short description about this class">${esc(existing?.description||'')}</textarea></label></div></div><div class="panel"><div class="panel-head"><div><h2>Subjects & teachers</h2><p>Add the subjects taught in this class and the responsible teacher.</p></div><button type="button" class="btn btn-ghost" id="add-assignment">+ Add Assignment</button></div><div id="assignments" class="assignment-editor"></div><div class="form-actions"><button type="submit" class="btn btn-primary">${existing?'Save Changes':'Create Class'}</button><a class="btn btn-ghost" href="classes.html">Cancel</a></div></div></form></section>`;
+  const root=document.querySelector('.page-content');
+  const id=new URLSearchParams(location.search).get('id');
+  let existing=null;
+  root.innerHTML='<div class="loading-inline">Preparing class workspace…</div>';
+  try{
+    if(id){
+      const {data,error}=await supabase.from('classes').select('*').eq('id',id).maybeSingle();
+      if(error) throw error;
+      existing=data;
+    }
+    const {subjects,teachers}=await options();
+    let assignments=[];
+    if(id){
+      const {data,error}=await supabase.from('class_subjects').select('subject_id,teacher_id').eq('class_id',id);
+      if(error) throw error;
+      assignments=data||[];
+    }
+    root.innerHTML=`<section class="class-form-page"><div class="class-form-hero"><div class="class-form-icon">CLS</div><div class="class-form-hero-copy"><span class="eyebrow">ACADEMIC MANAGEMENT</span><h1>${existing?'Edit Class':'Register New Class'}</h1><p>${existing?'Update class details and teaching assignments.':'Create a class, define its level and assign subjects and teachers.'}</p></div><a class="btn btn-light" href="classes.html">Back to Classes</a></div><form id="class-form" class="class-form-grid"><div class="panel class-form-card"><div class="form-section-title"><div class="section-number">01</div><div><h2>Class details</h2><p>Basic information for this academic class.</p></div></div><div class="form-grid"><label>Class Name <span>*</span><input name="name" required value="${esc(existing?.name||'')}" placeholder="e.g. Primary 5"></label><label>Level<input name="level" value="${esc(existing?.level||'')}" placeholder="e.g. Primary"></label><label class="full-field">Description<textarea name="description" rows="5" placeholder="Add a short description for this class">${esc(existing?.description||'')}</textarea></label></div></div><div class="panel class-form-card"><div class="form-section-title"><div class="section-number">02</div><div><h2>Subjects & teachers</h2><p>Assign active subjects and the teacher responsible for each one.</p></div></div><div id="assignments" class="assignment-editor"></div><button type="button" class="btn btn-add-assignment" id="add-assignment">+ Add Subject Assignment</button></div><div class="class-form-actions"><a class="btn btn-ghost" href="classes.html">Cancel</a><button type="submit" class="btn btn-primary">${existing?'Save Class Changes':'Create Class'}</button></div></form></section>`;
     const box=document.querySelector('#assignments');
-    function addAssignment(a={}){const el=document.createElement('div');el.className='assignment-editor-row';el.innerHTML=`<select class="assignment-subject" required><option value="">Select subject…</option>${subjects.map(s=>`<option value="${s.id}" ${a.subject_id===s.id?'selected':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}</option>`).join('')}</select><select class="assignment-teacher"><option value="">Unassigned teacher</option>${teachers.map(t=>`<option value="${t.id}" ${a.teacher_id===t.id?'selected':''}>${esc(t.full_name)}${t.staff_id?` — ${esc(t.staff_id)}`:''}</option>`).join('')}</select><button type="button" class="btn btn-sm btn-danger remove-assignment">Remove</button>`;el.querySelector('.remove-assignment').onclick=()=>el.remove();box.appendChild(el);}
-    (assignments.length?assignments:[{}]).forEach(addAssignment); document.querySelector('#add-assignment').onclick=()=>addAssignment();
-    document.querySelector('#class-form').onsubmit=async e=>{e.preventDefault();const btn=e.target.querySelector('button[type=submit]');setLoading(btn,true,'Saving…');try{const fd=new FormData(e.target);const payload={name:fd.get('name'),level:fd.get('level')||null,description:fd.get('description')||null};let classId=id;if(id){const {error}=await supabase.from('classes').update(payload).eq('id',id);if(error)throw error;}else{const {data,error}=await supabase.from('classes').insert(payload).select('id').single();if(error)throw error;classId=data.id;}const pairs=[...box.querySelectorAll('.assignment-editor-row')].map(r=>({class_id:classId,subject_id:r.querySelector('.assignment-subject').value,teacher_id:r.querySelector('.assignment-teacher').value||null})).filter(x=>x.subject_id);const {error:de}=await supabase.from('class_subjects').delete().eq('class_id',classId);if(de)throw de;if(pairs.length){const {error:ie}=await supabase.from('class_subjects').insert(pairs);if(ie)throw ie;}toast(existing?'Class updated successfully.':'Class registered successfully.');location.href=`class-details.html?id=${encodeURIComponent(classId)}`;}catch(err){console.error(err);toast(err.message||'Could not save class.','error');}finally{setLoading(btn,false);}};
+    function addAssignment(a={}){
+      const el=document.createElement('div');
+      el.className='assignment-editor-row';
+      el.innerHTML=`<div class="assignment-field"><label>Subject</label><select class="assignment-subject" required><option value="">Select subject…</option>${subjects.map(s=>`<option value="${s.id}" ${a.subject_id===s.id?'selected':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}</option>`).join('')}</select></div><div class="assignment-field"><label>Teacher</label><select class="assignment-teacher"><option value="">Unassigned teacher</option>${teachers.map(t=>`<option value="${t.id}" ${a.teacher_id===t.id?'selected':''}>${esc(t.full_name)}${t.staff_id?` — ${esc(t.staff_id)}`:''}</option>`).join('')}</select></div><button type="button" class="btn btn-remove-assignment" aria-label="Remove assignment">×</button>`;
+      el.querySelector('.btn-remove-assignment').onclick=()=>el.remove();
+      box.appendChild(el);
+    }
+    (assignments.length?assignments:[{}]).forEach(addAssignment);
+    document.querySelector('#add-assignment').onclick=()=>addAssignment();
+    document.querySelector('#class-form').onsubmit=async e=>{
+      e.preventDefault();
+      const btn=e.target.querySelector('button[type=submit]');
+      setLoading(btn,true,'Saving…');
+      try{
+        const fd=new FormData(e.target);
+        const payload={name:fd.get('name'),level:fd.get('level')||null,description:fd.get('description')||null};
+        let classId=id;
+        if(id){const {error}=await supabase.from('classes').update(payload).eq('id',id);if(error)throw error;}
+        else{const {data,error}=await supabase.from('classes').insert(payload).select('id').single();if(error)throw error;classId=data.id;}
+        const pairs=[...box.querySelectorAll('.assignment-editor-row')].map(r=>({class_id:classId,subject_id:r.querySelector('.assignment-subject').value,teacher_id:r.querySelector('.assignment-teacher').value||null})).filter(x=>x.subject_id);
+        const {error:de}=await supabase.from('class_subjects').delete().eq('class_id',classId);
+        if(de)throw de;
+        if(pairs.length){const {error:ie}=await supabase.from('class_subjects').insert(pairs);if(ie)throw ie;}
+        toast(existing?'Class updated successfully.':'Class registered successfully.');
+        location.href=`class-details.html?id=${encodeURIComponent(classId)}`;
+      }catch(err){console.error(err);toast(err.message||'Could not save class.','error');}finally{setLoading(btn,false);}
+    };
   }catch(e){console.error(e);root.innerHTML=`<div class="class-empty"><h3>Unable to open class form</h3><p>${esc(e.message||'Please try again.')}</p><a class="btn btn-primary" href="classes.html">Back to Classes</a></div>`;}
 }

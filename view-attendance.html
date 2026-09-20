@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>View Attendance</title><link rel="stylesheet" href="assets/styles.css"></head>
+<body data-title="View Attendance">
+<div id="app-shell" data-content=""></div><div id="toast-host"></div>
+<script type="module">
+import{requireAdmin,mountShell,supabase,escapeHtml,toast}from'./assets/app.js';
+const icons={attendance:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"></rect><path d="M8 8h8M8 12h3M14 12h2M8 16h8"></path></svg>',back:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>',calendar:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>',check:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>',close:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"></path></svg>',clock:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>'};
+const icon=n=>'<span class="attendance-svg-icon">'+(icons[n]||icons.attendance)+'</span>';
+const user=await requireAdmin();
+if(user){
+ const id=new URLSearchParams(location.search).get('id');
+ mountShell(user);
+ const root=document.querySelector('.page-content');
+ if(!id){root.innerHTML='<div class="panel"><h2>Attendance record not selected</h2><p class="muted">Go back to Attendance and select a student.</p><a class="btn btn-primary" href="attendance.html">'+icon('back')+' Back to Attendance</a></div>';throw new Error('Missing attendance enrollment id');}
+ root.innerHTML='<div class="view-attendance-page"><div class="view-attendance-head"><a class="back-link" href="attendance.html">'+icon('back')+' Back to Attendance</a></div><div id="va-content"><div class="loading-inline">Loading attendance…</div></div></div>';
+ try{
+   const {data:enrollment,error:enErr}=await supabase.from('enrollments').select('id,student_id,class_id,session_id,status,students(student_id,first_name,middle_name,last_name,photo_url),classes(name,level)').eq('id',id).maybeSingle();
+   if(enErr)throw enErr;
+   if(!enrollment){root.querySelector('#va-content').innerHTML='<div class="panel"><div class="empty">Attendance enrollment not found.</div></div>';throw new Error('Attendance enrollment not found');}
+   const {data:records,error:recErr}=await supabase.from('attendance').select('id,attendance_date,status,note,created_at').eq('enrollment_id',id).order('attendance_date',{ascending:false}).order('created_at',{ascending:false});
+   if(recErr)throw recErr;
+   const rows=records||[], counts={PRESENT:0,ABSENT:0,LATE:0,EXCUSED:0};rows.forEach(r=>counts[r.status]=(counts[r.status]||0)+1);
+   const s=enrollment.students||{}, full=[s.first_name,s.middle_name,s.last_name].filter(Boolean).join(' ');
+   const pct=rows.length?Math.round((counts.PRESENT||0)/rows.length*100):0;
+   const statusBadge=r=>{const map={PRESENT:'present',ABSENT:'absent',LATE:'late',EXCUSED:'excused'};return '<span class="va-status '+(map[r.status]||'')+'">'+escapeHtml(r.status||'—')+'</span>';};
+   root.querySelector('#va-content').innerHTML='<div class="attendance-detail-hero"><div class="attendance-hero-icon">'+icon('attendance')+'</div><div><span class="section-kicker">STUDENT ATTENDANCE</span><h1>'+escapeHtml(full||'Student')+'</h1><p>'+escapeHtml(s.student_id||'—')+' · '+escapeHtml(enrollment.classes?.name||'Class')+' '+(enrollment.classes?.level?'· '+escapeHtml(enrollment.classes.level):'')+'</p></div></div><div class="va-stats"><div><span>Attendance Rate</span><strong>'+pct+'%</strong></div><div><span>Present</span><strong>'+counts.PRESENT+'</strong></div><div><span>Absent</span><strong>'+counts.ABSENT+'</strong></div><div><span>Late</span><strong>'+counts.LATE+'</strong></div></div><div class="panel va-records"><div class="va-title"><div><span class="section-kicker">ATTENDANCE HISTORY</span><h2>Daily Records</h2></div><span class="attendance-count">'+rows.length+' record'+(rows.length===1?'':'s')+'</span></div>'+(rows.length?'<div class="table-wrap"><table><thead><tr><th>Date</th><th>Status</th><th>Note</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+escapeHtml(new Date(r.attendance_date+'T00:00:00').toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}))+'</td><td>'+statusBadge(r)+'</td><td>'+escapeHtml(r.note||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="attendance-empty"><div class="attendance-empty-icon">'+icon('calendar')+'</div><strong>No attendance records yet</strong><p>No daily attendance has been recorded for this student.</p></div>')+'</div>';
+ }catch(e){console.error(e);if(root.querySelector('#va-content'))root.querySelector('#va-content').innerHTML='<div class="panel"><div class="empty">'+escapeHtml(e.message||'Could not load attendance.')+'</div></div>';toast(e.message||'Could not load attendance.','error');}
+}
+</script>
+</body></html>

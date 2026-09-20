@@ -1,5 +1,3 @@
-import './student-details-clean.css';
-
 import { supabase, escapeHtml, toast } from './app.js';
 const esc = escapeHtml;
 const text = (v) => esc(v ?? '—');

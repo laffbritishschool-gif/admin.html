@@ -114,7 +114,7 @@ async function openPromotionModal(enrollmentId, currentClassName, studentName, a
   if(!confirm('Confirm promotion of this student to the selected class and academic session?'))return;
   try{
    confirm.disabled=true;confirm.textContent='Promoting…';
-   const {data,error}=await supabase.functions.invoke('admin-promote-student',{body:{enrollment_id:enrollmentId,target_class_id:targetClass,target_session_id:targetSession}});
+   const data=await invokeProgressionFunction('admin-promote-student',{enrollment_id:enrollmentId,target_class_id:targetClass,target_session_id:targetSession});
    if(error){
     let detail='Promotion request failed.';
     try{const raw=await error.context?.json?.();if(raw?.error)detail=raw.error}catch{}

@@ -60,6 +60,16 @@ async function createResultImage(id){
  }catch(e){console.error(e);toast('Could not create the result image.','error');}
 }
 
+async function invokeProgressionFunction(name, body){
+  const response=await supabase.functions.invoke(name,{body});
+  if(!response.error) return response.data;
+  let message=response.error.message||'The request could not be completed.';
+  try{
+    const ctx=response.error.context;
+    if(ctx&&typeof ctx.text==='function'){const raw=await ctx.text();if(raw){try{const parsed=JSON.parse(raw);message=parsed.error||parsed.message||message;}catch{message=raw;}}}
+  }catch{}
+  throw new Error(message);
+}
 async function openPromotionModal(enrollmentId, currentClassName, studentName, average){
  const [classesRes, sessionsRes, enrollmentRes] = await Promise.all([
   supabase.from('classes').select('id,name,level').order('name'),

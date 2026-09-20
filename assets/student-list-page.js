@@ -1,4 +1,3 @@
-import './students-page.css';
 import { supabase, escapeHtml, toast } from './app.js';
 
 const esc = escapeHtml;

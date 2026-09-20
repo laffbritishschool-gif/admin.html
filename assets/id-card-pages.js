@@ -50,84 +50,30 @@ function cardFor(cards,id){
 export async function renderIdCardsPage(){
   const host=document.querySelector('#module-content');
   if(!host)return;
-
-  host.innerHTML=`
-    <div class="module-hero">
-      <div><div class="section-kicker">STUDENT IDENTITY</div><h2>Student ID Cards</h2><p>Manage every student ID card and generate missing cards instantly.</p></div>
-      <div class="hero-actions"><button class="btn secondary" id="refresh-cards">↻ Refresh</button></div>
-    </div>
-    <div class="metric-grid id-card-metrics" id="id-card-metrics"></div>
-    <div class="panel">
-      <div class="toolbar">
-        <input id="card-search" class="search" placeholder="Search student name, ID or exam number…">
-        <select id="card-filter"><option value="ALL">All Students</option><option value="MISSING">Card Not Found</option><option value="ISSUED">Card Issued</option></select>
-      </div>
-      <div id="id-card-list" class="id-card-student-grid"><div class="inline-loading">Loading students…</div></div>
-    </div>`;
-
+  host.innerHTML=`<div class="id-page id-redesign"><section class="id-hero-redesign"><div class="id-hero-orb id-hero-orb-a"></div><div class="id-hero-orb id-hero-orb-b"></div><div class="id-hero-copy"><span class="id-hero-kicker">STUDENT SERVICES • IDENTITY MANAGEMENT</span><h1>Student ID Cards</h1><p>Create, review and manage official student identity cards from one central workspace.</p><div class="id-hero-labels"><span>STUDENT RECORDS</span><span>PASSPORT PHOTOS</span><span>PRINT READY</span></div></div><div class="id-hero-visual"><div class="hero-id-mini"><div class="hero-id-mini-top"><span>LBS</span><small>IDENTITY CARD</small></div><div class="hero-id-mini-body"><div class="hero-photo-placeholder">ID</div><div><i></i><i></i><i></i></div></div><div class="hero-id-mini-footer"></div></div></div><div class="hero-actions id-hero-actions"><button class="btn hero-btn-secondary" id="refresh-cards">↻ Refresh</button></div></section><section class="id-summary-section"><div class="id-summary-heading"><div><span class="section-kicker">CARD OVERVIEW</span><h2>Student ID Card Records</h2><p>Track which students already have cards and which ones still need to be generated.</p></div></div><div class="metric-grid id-card-metrics" id="id-card-metrics"></div></section><section class="id-directory panel"><div class="id-directory-head"><div><span class="section-kicker">STUDENT DIRECTORY</span><h2>Find a student</h2><p>Search by student name, student ID or examination number.</p></div></div><div class="id-toolbar-redesign"><div class="id-search-wrap"><span>⌕</span><input id="card-search" class="id-search-redesign" placeholder="Search student name, ID or exam number…"></div><select id="card-filter" class="id-filter-redesign" aria-label="Filter ID card records"><option value="ALL">All Students</option><option value="MISSING">Card Not Found</option><option value="ISSUED">Card Issued</option></select></div><div id="id-card-list" class="id-card-student-grid"><div class="inline-loading">Loading students…</div></div></section></div>`;
   let students=[];
   let cards=[];
-
   const draw=()=>{
     const search=(document.querySelector('#card-search')?.value||'').trim().toLowerCase();
     const filter=document.querySelector('#card-filter')?.value||'ALL';
     const issued=students.filter(s=>!!cardFor(cards,s.id)).length;
-    const filtered=students.filter(s=>{
-      const c=cardFor(cards,s.id);
-      const text=[fullName(s),s.student_id,s.exam_number].filter(Boolean).join(' ').toLowerCase();
-      return (!search||text.includes(search)) && (filter==='ALL'||(filter==='MISSING'?!c:!!c));
-    });
-
-    document.querySelector('#id-card-metrics').innerHTML=`
-      <div class="metric-card"><small>Total Students</small><strong>${students.length}</strong><span>All student records</span></div>
-      <div class="metric-card"><small>Cards Issued</small><strong>${issued}</strong><span>Existing student cards</span></div>
-      <div class="metric-card"><small>Cards Missing</small><strong>${Math.max(0,students.length-issued)}</strong><span>Ready for generation</span></div>`;
-
-    document.querySelector('#id-card-list').innerHTML=filtered.length ? filtered.map(s=>{
-      const c=cardFor(cards,s.id);
-      return `<article class="id-student-card">
-        <div class="id-student-main"><div class="id-student-avatar">${s._photo_url?'<img src="'+escapeHtml(s._photo_url)+'" alt="Student passport" loading="lazy" referrerpolicy="no-referrer">':escapeHtml(initials(s))}</div><div><h3>${escapeHtml(fullName(s))}</h3><p>${escapeHtml(s.student_id||'No Student ID')}${s.exam_number?` • ${escapeHtml(s.exam_number)}`:''}</p></div></div>
-        <div class="id-student-status">${c?`<span class="badge status-active">CARD ISSUED</span><small>${escapeHtml(c.card_number||'Issued')}</small>`:`<span class="badge status-inactive">CARD NOT FOUND</span><small>Ready for generation</small>`}</div>
-        <div class="id-student-actions"><button class="btn btn-sm secondary view-id" data-student="${s.id}">View</button>${c?'':`<button class="btn btn-sm generate-id" data-student="${s.id}">Generate ID Card</button>`}</div>
-      </article>`;
-    }).join('') : `<div class="empty-state"><h3>No students found</h3><p>Try another search or filter.</p></div>`;
-
+    const missing=Math.max(0,students.length-issued);
+    const filtered=students.filter(s=>{const card=cardFor(cards,s.id);const text=[fullName(s),s.student_id,s.exam_number].filter(Boolean).join(' ').toLowerCase();return(!search||text.includes(search))&&(filter==='ALL'||(filter==='MISSING'?!card:!!card));});
+    document.querySelector('#id-card-metrics').innerHTML=`<div class="metric-card id-overview-card overview-blue"><div class="overview-icon">ST</div><small>Total Students</small><strong>${students.length}</strong><span>Student records</span></div><div class="metric-card id-overview-card overview-gold"><div class="overview-icon">ID</div><small>Cards Issued</small><strong>${issued}</strong><span>Active records found</span></div><div class="metric-card id-overview-card overview-alert"><div class="overview-icon">!</div><small>Cards Missing</small><strong>${missing}</strong><span>Awaiting generation</span></div>`;
+    document.querySelector('#id-card-list').innerHTML=filtered.length?filtered.map((s,i)=>{const card=cardFor(cards,s.id);return `<article class="id-student-card id-card-modern" style="--i:${i}"><div class="id-student-main"><div class="id-student-avatar">${s._photo_url?`<img src="${escapeHtml(s._photo_url)}" alt="${escapeHtml(fullName(s))} passport" loading="lazy" referrerpolicy="no-referrer">`:escapeHtml(initials(s))}</div><div class="id-student-copy"><span class="student-label">STUDENT</span><h3>${escapeHtml(fullName(s))}</h3><p><b>ID:</b> ${escapeHtml(s.student_id||'Not assigned')}${s.exam_number?` <span>•</span> <b>Exam:</b> ${escapeHtml(s.exam_number)}`:''}</p></div></div><div class="id-student-status">${card?`<span class="badge status-active">CARD ISSUED</span><small>${escapeHtml(card.card_number||'Card record available')}</small>`:`<span class="badge status-inactive">CARD NOT FOUND</span><small>Generate an official card</small>`}</div><div class="id-student-actions"><button class="btn btn-sm secondary view-id" data-student="${s.id}">View Card</button>${card?'':`<button class="btn btn-sm generate-id" data-student="${s.id}">Generate ID Card</button>`}</div></article>`}).join(''):`<div class="empty-state id-empty-modern"><div class="empty-art">ID</div><h3>No matching students</h3><p>Try another name, student ID or card-status filter.</p></div>`;
     host.querySelectorAll('.view-id').forEach(b=>b.onclick=()=>location.href=`id-card-details.html?student=${encodeURIComponent(b.dataset.student)}`);
     host.querySelectorAll('.generate-id').forEach(b=>b.onclick=()=>generate(b.dataset.student));
   };
-
   async function load(){
     pageLoading(true);
-    try{
-      students=await getStudents();
-      students=await attachPhotoUrls(students);
-      draw();
-      try{ cards=await getCards(); }
-      catch(cardError){ console.error('ID card records could not be loaded',cardError); cards=[]; toast('Student list loaded. Existing card records could not be read.','error'); }
-      draw();
-    }catch(e){
-      console.error('ID cards load failed',e);
-      toast(e.message||'Could not load students.','error');
-      document.querySelector('#id-card-list').innerHTML=`<div class="empty-state"><h3>Could not load students</h3><p>${escapeHtml(e.message||'Please refresh and try again.')}</p></div>`;
-    }finally{ pageLoading(false); }
+    try{students=await getStudents();students=await attachPhotoUrls(students);draw();try{cards=await getCards();}catch(cardError){console.error('ID card records could not be loaded',cardError);cards=[];toast('Student list loaded. Existing card records could not be read.','error');}draw();}
+    catch(e){console.error('ID cards load failed',e);toast(e.message||'Could not load students.','error');document.querySelector('#id-card-list').innerHTML=`<div class="empty-state"><h3>Could not load students</h3><p>${escapeHtml(e.message||'Please refresh and try again.')}</p></div>`;}
+    finally{pageLoading(false)}
   }
-
   async function generate(studentId){
     pageLoading(true);
-    try{
-      const {data:existing,error:checkError}=await supabase.from('id_cards').select('id').eq('student_id',studentId).limit(1);
-      if(checkError)throw checkError;
-      if(existing?.length){ location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`; return; }
-      const expires=new Date(); expires.setFullYear(expires.getFullYear()+1);
-      const {data:userData}=await supabase.auth.getUser();
-      const {error}=await supabase.from('id_cards').insert({student_id:studentId,card_number:cardNumber(),expires_at:expires.toISOString(),is_active:true,created_by:userData?.user?.id||null});
-      if(error)throw error;
-      toast('Student ID card generated successfully.','success');
-      location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`;
-    }catch(e){ console.error(e); toast(e.message||'Could not generate ID card.','error'); }
-    finally{ pageLoading(false); }
+    try{const {data:existing,error:checkError}=await supabase.from('id_cards').select('id').eq('student_id',studentId).limit(1);if(checkError)throw checkError;if(existing?.length){location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`;return;}const expires=new Date();expires.setFullYear(expires.getFullYear()+1);const {data:userData}=await supabase.auth.getUser();const {error}=await supabase.from('id_cards').insert({student_id:studentId,card_number:cardNumber(),expires_at:expires.toISOString(),is_active:true,created_by:userData?.user?.id||null});if(error)throw error;toast('Student ID card generated successfully.','success');location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`;}catch(e){console.error(e);toast(e.message||'Could not generate ID card.','error');}finally{pageLoading(false)}
   }
-
   document.querySelector('#refresh-cards').onclick=load;
   document.querySelector('#card-search').oninput=draw;
   document.querySelector('#card-filter').onchange=draw;

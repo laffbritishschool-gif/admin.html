@@ -7,9 +7,24 @@ function initials(s){ return [s.first_name,s.last_name].filter(Boolean).map(x=>x
 function cardNumber(){ const d=new Date(); return `LBS-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.random().toString(36).slice(2,8).toUpperCase()}`; }
 async function photoUrl(path){
   if(!path)return '';
-  if(/^https?:\/\//i.test(path))return path;
-  const {data}=await supabase.storage.from('student-passports').createSignedUrl(path,3600);
-  return data?.signedUrl||'';
+  const value=String(path).trim();
+  if(!value)return '';
+  if(/^https?:\/\//i.test(value))return value;
+  const clean=value.replace(/^\/+/, '').replace(/^student-passports\//i, '');
+  const candidates=[clean];
+  if(clean.startsWith('passports/'))candidates.push(clean.replace(/^passports\//i,''));
+  if(clean.startsWith('students/'))candidates.push(clean.replace(/^students\//i,''));
+  for(const candidate of candidates){
+    try{
+      const {data,error}=await supabase.storage.from('student-passports').createSignedUrl(candidate,3600);
+      if(!error&&data?.signedUrl)return data.signedUrl;
+    }catch(e){ console.warn('Passport URL could not be resolved',candidate,e); }
+  }
+  return '';
+}
+
+async function attachPhotoUrls(students){
+  return Promise.all((students||[]).map(async s=>({...s,_photo_url:await photoUrl(s.photo_url)})));
 }
 
 async function getStudents(){
@@ -71,7 +86,7 @@ export async function renderIdCardsPage(){
     document.querySelector('#id-card-list').innerHTML=filtered.length ? filtered.map(s=>{
       const c=cardFor(cards,s.id);
       return `<article class="id-student-card">
-        <div class="id-student-main"><div class="id-student-avatar">${escapeHtml(initials(s))}</div><div><h3>${escapeHtml(fullName(s))}</h3><p>${escapeHtml(s.student_id||'No Student ID')}${s.exam_number?` • ${escapeHtml(s.exam_number)}`:''}</p></div></div>
+        <div class="id-student-main"><div class="id-student-avatar">${s._photo_url?'<img src="'+escapeHtml(s._photo_url)+'" alt="Student passport" loading="lazy" referrerpolicy="no-referrer">':escapeHtml(initials(s))}</div><div><h3>${escapeHtml(fullName(s))}</h3><p>${escapeHtml(s.student_id||'No Student ID')}${s.exam_number?` • ${escapeHtml(s.exam_number)}`:''}</p></div></div>
         <div class="id-student-status">${c?`<span class="badge status-active">CARD ISSUED</span><small>${escapeHtml(c.card_number||'Issued')}</small>`:`<span class="badge status-inactive">CARD NOT FOUND</span><small>Ready for generation</small>`}</div>
         <div class="id-student-actions"><button class="btn btn-sm secondary view-id" data-student="${s.id}">View</button>${c?'':`<button class="btn btn-sm generate-id" data-student="${s.id}">Generate ID Card</button>`}</div>
       </article>`;
@@ -85,6 +100,7 @@ export async function renderIdCardsPage(){
     pageLoading(true);
     try{
       students=await getStudents();
+      students=await attachPhotoUrls(students);
       draw();
       try{ cards=await getCards(); }
       catch(cardError){ console.error('ID card records could not be loaded',cardError); cards=[]; toast('Student list loaded. Existing card records could not be read.','error'); }
@@ -144,7 +160,7 @@ export async function renderIdCardDetailsPage(){
       toast('ID card was generated automatically for this student.','success');
     }
 
-    const photo=await photoUrl(student.photo_url);
+    const photo=student._photo_url||await photoUrl(student.photo_url);
     const name=fullName(student);
     const expiry=card.expires_at?new Date(card.expires_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
     host.innerHTML=`

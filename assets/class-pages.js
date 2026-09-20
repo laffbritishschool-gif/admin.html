@@ -66,14 +66,47 @@ async function loadClass(id){
 }
 
 export async function renderClassDetails(){
-  const root=document.querySelector('.page-content'); const id=new URLSearchParams(location.search).get('id');
-  root.innerHTML='<div class="loading-inline">Loading class details…</div>'; if(!id){root.innerHTML='<div class="class-empty"><h3>Class not found</h3><a class="btn btn-primary" href="classes.html">Back to Classes</a></div>';return;}
+  const root=document.querySelector('.page-content');
+  const id=new URLSearchParams(location.search).get('id');
+  root.innerHTML='<div class="loading-inline">Loading class profile…</div>';
+  if(!id){root.innerHTML='<div class="class-empty"><h3>Class not found</h3><p>No class identifier was provided.</p><a class="btn btn-primary" href="classes.html">Back to Classes</a></div>';return;}
   try{
-    const {row,students,assignments,timetable}=await loadClass(id); const active=students.filter(x=>x.status==='ACTIVE');
-    root.innerHTML=`<section class="class-detail-page"><div class="detail-back"><a href="classes.html">← Back to Classes</a><a class="btn btn-primary" href="new-class.html?id=${encodeURIComponent(id)}">Edit Class</a></div><div class="class-detail-hero"><div class="class-avatar large">${esc(initials(row.name))}</div><div><span class="eyebrow">CLASS PROFILE</span><h1>${esc(row.name)}</h1><p>${esc(row.level||'Academic class')}</p><small>${esc(row.description||'No description added.')}</small></div></div><div class="detail-metrics"><div><strong>${active.length}</strong><span>Active Students</span></div><div><strong>${new Set(assignments.map(x=>x.subject_id)).size}</strong><span>Subjects</span></div><div><strong>${new Set(assignments.map(x=>x.teacher_id).filter(Boolean)).size}</strong><span>Teachers</span></div><div><strong>${timetable.length}</strong><span>Timetable Entries</span></div></div><div class="detail-columns"><div class="panel"><div class="panel-head"><div><h2>Students</h2><p>Students currently assigned to this class.</p></div></div>${active.length?`<div class="student-mini-list">${active.map(s=>`<div class="student-mini"><div class="mini-avatar">${esc(initials(`${s.students?.first_name||''} ${s.students?.last_name||''}`))}</div><div><strong>${esc(`${s.students?.first_name||''} ${s.students?.middle_name||''} ${s.students?.last_name||''}`.replace(/\s+/g,' ').trim())}</strong><span>${esc(s.students?.student_id||'No student ID')}</span></div></div>`).join('')}</div>`:'<div class="empty">No active students in this class.</div>'}</div><div class="panel"><div class="panel-head"><div><h2>Subjects & Teachers</h2><p>Teaching assignments for this class.</p></div></div>${assignments.length?`<div class="assignment-list">${assignments.map(a=>`<div class="assignment-row"><div><strong>${esc(a.subjects?.name||'Subject')}</strong><span>${esc(a.subjects?.code||'')}</span></div><div>${esc(a.teachers?.full_name||'Unassigned')}<small>${esc(a.teachers?.staff_id||'')}</small></div></div>`).join('')}</div>`:'<div class="empty">No subject assignments yet.</div>'}</div></div><div class="panel"><div class="panel-head"><div><h2>Class Timetable</h2><p>Weekly schedule entries for this class.</p></div></div>${timetable.length?`<div class="table-wrap"><table><thead><tr><th>Day</th><th>Time</th><th>Subject</th><th>Teacher</th><th>Room</th></tr></thead><tbody>${timetable.map(t=>`<tr><td>${DAYS[t.day_of_week]||'—'}</td><td>${esc(String(t.start_time||'').slice(0,5))} – ${esc(String(t.end_time||'').slice(0,5))}</td><td>${esc(t.subjects?.name||'—')}</td><td>${esc(t.teachers?.full_name||'—')}</td><td>${esc(t.room||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No timetable entries for this class.</div>'}</div></section>`;
+    const {row,students,assignments,timetable}=await loadClass(id);
+    const active=students.filter(x=>x.status==='ACTIVE');
+    const subjectCount=new Set(assignments.map(x=>x.subject_id)).size;
+    const teacherCount=new Set(assignments.map(x=>x.teacher_id).filter(Boolean)).size;
+    root.innerHTML=`<section class="class-profile-page">
+      <div class="profile-topbar"><a class="profile-back" href="classes.html">← Classes</a><div class="profile-actions"><a class="btn btn-ghost" href="classes.html">Close</a><a class="btn btn-primary" href="new-class.html?id=${encodeURIComponent(id)}">Edit Class</a></div></div>
+      <div class="profile-hero">
+        <div class="profile-hero-pattern"></div>
+        <div class="profile-avatar">${esc(initials(row.name))}</div>
+        <div class="profile-title">
+          <span class="profile-kicker">CLASS PROFILE</span>
+          <h1>${esc(row.name)}</h1>
+          <div class="profile-subline"><span>${esc(row.level||'Academic Class')}</span><i>•</i><span>${active.length} active students</span></div>
+          <p>${esc(row.description||'No description has been added to this class yet.')}</p>
+        </div>
+        <div class="profile-hero-stat"><strong>${active.length}</strong><span>Students</span></div>
+      </div>
+      <div class="profile-stat-grid">
+        <div class="profile-stat-card reveal"><span>Students</span><strong>${active.length}</strong><small>Active enrolments</small></div>
+        <div class="profile-stat-card reveal"><span>Subjects</span><strong>${subjectCount}</strong><small>Assigned to class</small></div>
+        <div class="profile-stat-card reveal"><span>Teachers</span><strong>${teacherCount}</strong><small>Teaching assignments</small></div>
+        <div class="profile-stat-card reveal"><span>Timetable</span><strong>${timetable.length}</strong><small>Weekly entries</small></div>
+      </div>
+      <div class="profile-content-grid">
+        <div class="profile-column">
+          <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">CLASS MEMBERS</span><h2>Students</h2><p>Active students assigned to this class.</p></div><span class="panel-count">${active.length}</span></div>${active.length?`<div class="student-profile-list">${active.map((s,i)=>`<div class="student-profile-row" style="--i:${i}"><div class="student-profile-avatar">${esc(initials(`${s.students?.first_name||''} ${s.students?.last_name||''}`))}</div><div class="student-profile-main"><strong>${esc(`${s.students?.first_name||''} ${s.students?.middle_name||''} ${s.students?.last_name||''}`.replace(/\s+/g,' ').trim()||'Student')}</strong><span>${esc(s.students?.student_id||'No student ID')}</span></div><span class="status-dot">ACTIVE</span></div>`).join('')}</div>`:'<div class="empty-profile">No active students are assigned to this class.</div>'}</section>
+          <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">TEACHING PLAN</span><h2>Subjects & Teachers</h2><p>Subjects and teaching responsibilities.</p></div><span class="panel-count">${assignments.length}</span></div>${assignments.length?`<div class="assignment-profile-list">${assignments.map((a,i)=>`<div class="assignment-profile-row" style="--i:${i}"><div class="assignment-subject-mark">${esc((a.subjects?.code||a.subjects?.name||'SUB').slice(0,3).toUpperCase())}</div><div class="assignment-subject-main"><strong>${esc(a.subjects?.name||'Subject')}</strong><span>${esc(a.subjects?.code||'No code')}</span></div><div class="assignment-teacher-main"><strong>${esc(a.teachers?.full_name||'Unassigned')}</strong><span>${esc(a.teachers?.staff_id||'Teacher not assigned')}</span></div></div>`).join('')}</div>`:'<div class="empty-profile">No subjects have been assigned yet.</div>'}</section>
+        </div>
+        <div class="profile-column">
+          <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">WEEKLY ROUTINE</span><h2>Class Timetable</h2><p>Your current timetable entries for this class.</p></div><span class="panel-count">${timetable.length}</span></div>${timetable.length?`<div class="timetable-profile-list">${timetable.map((t,i)=>`<div class="timetable-profile-row" style="--i:${i}"><div class="time-chip"><strong>${esc(String(t.start_time||'').slice(0,5))}</strong><span>${esc(String(t.end_time||'').slice(0,5))}</span></div><div class="timetable-main"><strong>${esc(t.subjects?.name||'Untitled subject')}</strong><span>${esc(t.teachers?.full_name||'No teacher')} ${t.room?`• ${esc(t.room)}`:''}</span></div><div class="day-chip">${esc(DAYS[t.day_of_week]||'—')}</div></div>`).join('')}</div>`:'<div class="empty-profile">No timetable entries have been added for this class.</div>'}</section>
+          <section class="profile-panel profile-note-panel reveal"><div class="profile-note-icon">i</div><div><span class="panel-kicker">CLASS INFORMATION</span><h2>About this class</h2><p>${esc(row.description||'This class is ready for students, subjects, teachers and timetable information.')}</p><a class="text-link" href="new-class.html?id=${encodeURIComponent(id)}">Update class information →</a></div></section>
+        </div>
+      </div>
+    </section>`;
   }catch(e){console.error(e);root.innerHTML=`<div class="class-empty"><h3>Could not load this class</h3><p>${esc(e.message||'Please try again.')}</p><a class="btn btn-primary" href="classes.html">Back to Classes</a></div>`;}
 }
-
 async function options(){
   const [{data:subjects,error:e1},{data:teachers,error:e2}]=await Promise.all([supabase.from('subjects').select('id,name,code').eq('is_active',true).order('name'),supabase.from('teachers').select('id,full_name,staff_id').eq('is_active',true).order('full_name')]);
   if(e1)throw e1;if(e2)throw e2;return {subjects:subjects||[],teachers:teachers||[]};

@@ -169,7 +169,7 @@ async function openRepeatModal(enrollmentId, currentClassName, studentName, aver
   if(!confirm('Confirm that this student should repeat the same class in the selected academic session?'))return;
   try{
    confirm.disabled=true;confirm.textContent='Repeating…';
-   const {data,error}=await supabase.functions.invoke('admin-repeat-student',{body:{enrollment_id:enrollmentId,target_session_id:targetSession}});
+   const data=await invokeProgressionFunction('admin-repeat-student',{enrollment_id:enrollmentId,target_session_id:targetSession});
    if(error){
     let detail='Repeat request failed.';
     try{const raw=await error.context?.json?.();if(raw?.error)detail=raw.error}catch{}

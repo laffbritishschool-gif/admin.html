@@ -57,12 +57,88 @@ async function loadClass(id){
   const [{data:row,error:e1},{data:students,error:e2},{data:assignments,error:e3},{data:timetable,error:e4}]=await Promise.all([
     supabase.from('classes').select('id,name,level,description,created_at').eq('id',id).maybeSingle(),
     supabase.from('enrollments').select('id,status,students(student_id,first_name,middle_name,last_name,photo_url)').eq('class_id',id).order('created_at',{ascending:false}),
-    supabase.from('class_subjects').select('id,subject_id,teacher_id,subjects(name,code),teachers(full_name,staff_id)').eq('class_id',id),
+    supabase.from('class_subjects').select('id,subject_id,teacher_id,subjects(id,name,code,parent_subject_id,subject_kind),teachers(full_name,staff_id)').eq('class_id',id),
     supabase.from('timetables').select('id,day_of_week,start_time,end_time,room,subjects(name),teachers(full_name)').eq('class_id',id).order('day_of_week').order('start_time')
   ]);
   if(e1) throw e1;if(e2)throw e2;if(e3)throw e3;if(e4)throw e4;
   if(!row) throw new Error('Class not found');
   return {row,students:students||[],assignments:assignments||[],timetable:timetable||[]};
+}
+
+function renderClassSubjectAssignments(assignments=[]){
+  const normalized=(assignments||[]).filter(a=>a.subjects).map(a=>({...a,subject:a.subjects}));
+  const groups=new Map();
+  normalized.filter(a=>a.subject.subject_kind==='GROUP').forEach(a=>{
+    if(!groups.has(a.subject.id)) groups.set(a.subject.id,{subject:a.subject,children:[]});
+  });
+  normalized.filter(a=>a.subject.subject_kind!=='GROUP' && a.subject.parent_subject_id).forEach(a=>{
+    const group=groups.get(a.subject.parent_subject_id);
+    if(group) group.children.push(a);
+  });
+
+  const groupedHtml=[...groups.values()]
+    .filter(g=>g.children.length)
+    .sort((a,b)=>Number(a.subject.display_order||0)-Number(b.subject.display_order||0)||String(a.subject.name).localeCompare(String(b.subject.name)))
+    .map(g=>{
+      g.children.sort((a,b)=>Number(a.subject.display_order||0)-Number(b.subject.display_order||0)||String(a.subject.name).localeCompare(String(b.subject.name)));
+      return `
+        <section class="result-subject-group">
+          <div class="result-group-header">
+            <div class="result-group-code">${esc(g.subject.code||'GROUP')}</div>
+            <div class="result-group-title">
+              <strong>${esc(g.subject.code||g.subject.name)}</strong>
+              <span>${esc(g.subject.name.replace(/^[^–-]+[–-]\s*/,'')||g.subject.name)}</span>
+            </div>
+            <span class="result-group-count">${g.children.length} subject${g.children.length===1?'':'s'}</span>
+          </div>
+          <div class="result-group-rule"></div>
+          <div class="result-group-children">
+            ${g.children.map((a,i)=>`
+              <div class="result-subject-line" style="--i:${i}">
+                <div class="result-line-branch"></div>
+                <div class="result-subject-name">
+                  <strong>${esc(a.subject.name)}</strong>
+                  <span>${esc(a.subject.code||'Component subject')}</span>
+                </div>
+                <div class="result-subject-teacher">
+                  <strong>${esc(a.teachers?.full_name||'Unassigned')}</strong>
+                  <span>${esc(a.teachers?.staff_id||'Teacher not assigned')}</span>
+                </div>
+              </div>`).join('')}
+          </div>
+        </section>`;
+    }).join('');
+
+  const groupedIds=new Set([...groups.values()].flatMap(g=>g.children.map(a=>a.subject.id)));
+  const standalone=normalized
+    .filter(a=>a.subject.subject_kind!=='GROUP' && !a.subject.parent_subject_id && !groupedIds.has(a.subject.id))
+    .sort((a,b)=>Number(a.subject.display_order||0)-Number(b.subject.display_order||0)||String(a.subject.name).localeCompare(String(b.subject.name)));
+
+  const standaloneHtml=standalone.length?`
+    <section class="result-subject-group standalone-result-group">
+      <div class="result-group-header">
+        <div class="result-group-code standalone-code">•</div>
+        <div class="result-group-title"><strong>Standalone Subjects</strong><span>Individual subjects assigned to this class</span></div>
+        <span class="result-group-count">${standalone.length}</span>
+      </div>
+      <div class="result-group-rule"></div>
+      <div class="result-group-children">
+        ${standalone.map((a,i)=>`
+          <div class="result-subject-line" style="--i:${i}">
+            <div class="result-line-branch"></div>
+            <div class="result-subject-name">
+              <strong>${esc(a.subject.name)}</strong>
+              <span>${esc(a.subject.code||'Standalone subject')}</span>
+            </div>
+            <div class="result-subject-teacher">
+              <strong>${esc(a.teachers?.full_name||'Unassigned')}</strong>
+              <span>${esc(a.teachers?.staff_id||'Teacher not assigned')}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </section>`:'';
+
+  return groupedHtml+standaloneHtml;
 }
 
 export async function renderClassDetails(){
@@ -97,7 +173,7 @@ export async function renderClassDetails(){
       <div class="profile-content-grid">
         <div class="profile-column">
           <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">CLASS MEMBERS</span><h2>Students</h2><p>Active students assigned to this class.</p></div><span class="panel-count">${active.length}</span></div>${active.length?`<div class="student-profile-list">${active.map((s,i)=>`<div class="student-profile-row" style="--i:${i}"><div class="student-profile-avatar">${esc(initials(`${s.students?.first_name||''} ${s.students?.last_name||''}`))}</div><div class="student-profile-main"><strong>${esc(`${s.students?.first_name||''} ${s.students?.middle_name||''} ${s.students?.last_name||''}`.replace(/\s+/g,' ').trim()||'Student')}</strong><span>${esc(s.students?.student_id||'No student ID')}</span></div><span class="status-dot">ACTIVE</span></div>`).join('')}</div>`:'<div class="empty-profile">No active students are assigned to this class.</div>'}</section>
-          <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">TEACHING PLAN</span><h2>Subjects & Teachers</h2><p>Subjects and teaching responsibilities.</p></div><span class="panel-count">${assignments.length}</span></div>${assignments.length?`<div class="assignment-profile-list">${assignments.map((a,i)=>`<div class="assignment-profile-row" style="--i:${i}"><div class="assignment-subject-mark">${esc((a.subjects?.code||a.subjects?.name||'SUB').slice(0,3).toUpperCase())}</div><div class="assignment-subject-main"><strong>${esc(a.subjects?.name||'Subject')}</strong><span>${esc(a.subjects?.code||'No code')}</span></div><div class="assignment-teacher-main"><strong>${esc(a.teachers?.full_name||'Unassigned')}</strong><span>${esc(a.teachers?.staff_id||'Teacher not assigned')}</span></div></div>`).join('')}</div>`:'<div class="empty-profile">No subjects have been assigned yet.</div>'}</section>
+          <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">TEACHING PLAN</span><h2>Subjects & Teachers</h2><p>Combined subjects are shown as headers with their selected subjects underneath.</p></div><span class="panel-count">${assignments.length}</span></div>${assignments.length?`<div class="result-subject-structure">${renderClassSubjectAssignments(assignments)}</div>`:'<div class="empty-profile">No subjects have been assigned yet.</div>'}</section>
         </div>
         <div class="profile-column">
           <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">WEEKLY ROUTINE</span><h2>Class Timetable</h2><p>Your current timetable entries for this class.</p></div><span class="panel-count">${timetable.length}</span></div>${timetable.length?`<div class="timetable-profile-list">${timetable.map((t,i)=>`<div class="timetable-profile-row" style="--i:${i}"><div class="time-chip"><strong>${esc(String(t.start_time||'').slice(0,5))}</strong><span>${esc(String(t.end_time||'').slice(0,5))}</span></div><div class="timetable-main"><strong>${esc(t.subjects?.name||'Untitled subject')}</strong><span>${esc(t.teachers?.full_name||'No teacher')} ${t.room?`• ${esc(t.room)}`:''}</span></div><div class="day-chip">${esc(DAYS[t.day_of_week]||'—')}</div></div>`).join('')}</div>`:'<div class="empty-profile">No timetable entries have been added for this class.</div>'}</section>

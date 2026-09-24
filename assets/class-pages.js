@@ -110,7 +110,7 @@ export async function renderClassDetails(){
 
 async function options(){
   const [{data:subjects,error:e1},{data:teachers,error:e2}]=await Promise.all([
-    supabase.from('subjects').select('id,name,code,is_active,subject_kind,parent_subject_id,display_order').eq('is_active',true).order('display_order',{ascending:true}).order('name',{ascending:true}),
+    supabase.from('subjects').select('id,name,code,is_active,subject_kind,parent_subject_id,display_order').order('display_order',{ascending:true}).order('name',{ascending:true}),
     supabase.from('teachers').select('id,full_name,staff_id').eq('is_active',true).order('full_name')
   ]);
   if(e1)throw e1;if(e2)throw e2;
@@ -140,7 +140,7 @@ export async function renderRegisterClass(){
       assignments=data||[];
     }
 
-    const groups=subjects.filter(s=>s.subject_kind==='GROUP');
+    const groups=subjects.filter(s=>s.subject_kind==='GROUP' && (s.is_active || assignments.some(a=>a.subject_id===s.id)));
     const leaves=subjects.filter(s=>s.subject_kind!=='GROUP');
 
     root.innerHTML=`<section class="edit-class-page">
@@ -212,14 +212,14 @@ export async function renderRegisterClass(){
       let html='<option value="">Select subject…</option>';
       if(standalone.length){
         html+='<optgroup label="Standalone Subjects">';
-        html+=standalone.map(s=>`<option value="${s.id}" ${selected===s.id?'selected':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}</option>`).join('');
+        html+=standalone.map(s=>`<option value="${s.id}" ${selected===s.id?'selected':''} ${!s.is_active&&selected!==s.id?'disabled':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}${!s.is_active?' (Inactive)':''}</option>`).join('');
         html+='</optgroup>';
       }
       groups.forEach(g=>{
         const kids=grouped.get(g.id)||[];
         if(!kids.length)return;
         html+=`<optgroup label="${esc(g.code||g.name)} — ${esc(g.name.replace(/^[^–-]+[–-]\s*/,'')||g.name)}">`;
-        html+=kids.sort((a,b)=>Number(a.display_order||0)-Number(b.display_order||0)||a.name.localeCompare(b.name)).map(s=>`<option value="${s.id}" ${selected===s.id?'selected':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}</option>`).join('');
+        html+=kids.sort((a,b)=>Number(a.display_order||0)-Number(b.display_order||0)||a.name.localeCompare(b.name)).map(s=>`<option value="${s.id}" ${selected===s.id?'selected':''} ${!s.is_active&&selected!==s.id?'disabled':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}${!s.is_active?' (Inactive)':''}</option>`).join('');
         html+='</optgroup>';
       });
       return html;

@@ -133,7 +133,7 @@ async function maybeAutoSendAdminOtp(){
 async function verifyAdminConfirmationCode(){
  if(!pendingAdminConfirmation||!adminVerificationRequestId)throw new Error('A verification code has not been sent yet.');
  const code=String(adminOtpInput?.value||'').trim();
- if(!/^\\d{6}$/.test(code))throw new Error('Enter the 6-digit verification code.');
+ if(!/^\d{6}$/.test(code))throw new Error('Enter the 6-digit verification code.');
  if(adminOtpStatus)adminOtpStatus.textContent='Verifying email code…';
  if(adminOtpVerify)adminOtpVerify.disabled=true;
  try{

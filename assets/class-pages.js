@@ -142,13 +142,17 @@ export async function renderRegisterClass(){
 
     const groups=subjects.filter(s=>s.subject_kind==='GROUP');
     const leaves=subjects.filter(s=>s.subject_kind!=='GROUP');
+    const assignmentMap=new Map(assignments.map(a=>[a.subject_id,a]));
+    const groupedLeaves=new Map(groups.map(g=>[g.id,[]]));
+    leaves.filter(s=>s.parent_subject_id && groupedLeaves.has(s.parent_subject_id))
+      .forEach(s=>groupedLeaves.get(s.parent_subject_id).push(s));
 
     root.innerHTML=`<section class="edit-class-page">
       <div class="edit-class-header">
         <div class="edit-breadcrumb"><a href="classes.html">Classes</a><span>/</span><strong>${existing?'Edit Class':'Register Class'}</strong></div>
         <div class="edit-header-main">
           <div class="edit-class-badge">${existing?'EDIT':'NEW'}</div>
-          <div><span class="eyebrow">ACADEMIC MANAGEMENT</span><h1>${existing?'Edit Class':'Register New Class'}</h1><p>${existing?'Update the class details and manage its subjects and teachers.':'Create the class, then assign the subjects and teachers that belong to it.'}</p></div>
+          <div><span class="eyebrow">ACADEMIC MANAGEMENT</span><h1>${existing?'Edit Class':'Register New Class'}</h1><p>${existing?'Update the class details and choose the subjects that belong to this class.':'Create the class, then choose its combined subjects and individual subjects.'}</p></div>
         </div>
         <div class="edit-header-actions"><a class="btn btn-ghost" href="classes.html">Cancel</a><button form="class-form" class="btn btn-primary" type="submit">${existing?'Save Changes':'Create Class'}</button></div>
       </div>
@@ -156,24 +160,30 @@ export async function renderRegisterClass(){
       <form id="class-form" class="edit-class-layout">
         <div class="edit-main-column">
           <section class="edit-card edit-reveal">
-            <div class="edit-card-heading"><div class="edit-step">01</div><div><h2>Class Information</h2><p>Give the class a clear name and academic level.</p></div></div>
-            <div class="form-grid">
-              <label>Class Name <span>*</span><input name="name" required maxlength="120" value="${esc(existing?.name||'')}" placeholder="e.g. Primary 1"></label>
-              <label>Level / Stage<input name="level" list="class-level-options" value="${esc(existing?.level||'')}" placeholder="e.g. Primary 1"><datalist id="class-level-options"><option value="Nursery 1"><option value="Nursery 2"><option value="Nursery 3"><option value="Primary 1"><option value="Primary 2"><option value="Primary 3"><option value="Primary 4"><option value="Primary 5"><option value="Primary 6"><option value="JSS 1"><option value="JSS 2"><option value="JSS 3"></datalist></label>
-              <label class="full-field">Class Description<textarea name="description" rows="6" maxlength="500" placeholder="Add a short description, class notes or any useful information.">${esc(existing?.description||'')}</textarea><small class="field-counter"><span id="description-count">${String(existing?.description||'').length}</span>/500</small></label>
+            <div class="edit-card-heading"><div class="edit-step">01</div><div><h2>Class Information</h2><p>Enter the basic details for this class.</p></div></div>
+            <div class="class-basic-grid">
+              <div class="class-input-group"><label for="class-name">Class Name <span>*</span></label><input id="class-name" name="name" required maxlength="120" value="${esc(existing?.name||'')}" placeholder="e.g. Primary 1"></div>
+              <div class="class-input-group"><label for="class-level">Level / Stage</label><input id="class-level" name="level" list="class-level-options" value="${esc(existing?.level||'')}" placeholder="e.g. Primary 1"><datalist id="class-level-options"><option value="Nursery 1"><option value="Nursery 2"><option value="Nursery 3"><option value="Primary 1"><option value="Primary 2"><option value="Primary 3"><option value="Primary 4"><option value="Primary 5"><option value="Primary 6"><option value="JSS 1"><option value="JSS 2"><option value="JSS 3"></datalist></div>
+              <div class="class-input-group class-description-group"><label for="class-description">Class Description</label><textarea id="class-description" name="description" rows="5" maxlength="500" placeholder="Add a short description or useful class information.">${esc(existing?.description||'')}</textarea><small><span id="description-count">${String(existing?.description||'').length}</span>/500</small></div>
             </div>
           </section>
 
           <section class="edit-card edit-reveal">
-            <div class="edit-card-heading"><div class="edit-step">02</div><div><h2>Subjects & Teachers</h2><p>Assign the actual scorable subjects. Combined headings such as BST, RNV and PVS are shown as group labels.</p></div></div>
+            <div class="edit-card-heading"><div class="edit-step">02</div><div><h2>Choose Subjects</h2><p>Select a combined subject, then choose all of its component subjects or select them one by one.</p></div></div>
 
-            <div class="assignment-info-bar">
-              <div class="assignment-info-icon">✓</div>
-              <div><strong>Subject structure</strong><span>Components remain individual subjects for teaching and result entry, while their combined group is kept for the report structure.</span></div>
+            <div class="subject-selector-box">
+              <div class="subject-selector-title"><div class="subject-selector-icon">▦</div><div><strong>Choose Combined Subject</strong><span>Pick BST, RNV, PVS or another combined subject.</span></div></div>
+              <div class="subject-selector-row"><select id="combined-subject-picker"><option value="">Choose combined subject…</option>${groups.map(g=>`<option value="${g.id}">${esc(g.code||g.name)} — ${esc(g.name.replace(/^[^–-]+[–-]\s*/,'')||g.name)}</option>`).join('')}</select><button type="button" class="btn btn-primary" id="add-combined">Add Combined Subject</button></div>
             </div>
 
-            <div id="assignments" class="edit-assignment-list"></div>
-            <button type="button" class="btn btn-add-assignment edit-add" id="add-assignment">+ Add Subject & Teacher</button>
+            <div id="combined-boards" class="combined-boards"></div>
+
+            <div class="subject-selector-box standalone-selector-box">
+              <div class="subject-selector-title"><div class="subject-selector-icon standalone">•</div><div><strong>Choose Standalone Subject</strong><span>Use this for Mathematics, English, Yoruba, History, CCA, Writing or another standalone subject.</span></div></div>
+              <div class="subject-selector-row"><select id="standalone-subject-picker"><option value="">Choose standalone subject…</option>${leaves.filter(s=>!s.parent_subject_id).map(s=>`<option value="${s.id}" ${!s.is_active?'disabled':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}${!s.is_active?' (Inactive)':''}</option>`).join('')}</select><button type="button" class="btn btn-ghost" id="add-standalone">Add Standalone Subject</button></div>
+            </div>
+
+            <div id="standalone-assignments" class="standalone-assignments"></div>
           </section>
         </div>
 
@@ -184,81 +194,183 @@ export async function renderRegisterClass(){
             <h3 id="summary-name">${esc(existing?.name||'New Class')}</h3>
             <span class="summary-level" id="summary-level">${esc(existing?.level||'Academic Class')}</span>
             <div class="summary-stats-row">
-              <div><strong id="summary-count">${assignments.length}</strong><span>Assignments</span></div>
-              <div><strong id="summary-unique">0</strong><span>Subjects</span></div>
+              <div><strong id="summary-count">0</strong><span>Selected Subjects</span></div>
+              <div><strong id="summary-groups">0</strong><span>Combined Groups</span></div>
             </div>
-            <p>Everything is saved to the school's academic database when you submit.</p>
+            <p>Use the checkboxes under each combined subject to choose every component you want to teach and assess.</p>
           </div>
 
           <div class="edit-help-card edit-reveal">
-            <div class="help-icon">i</div>
-            <div><strong>Good to know</strong><p>You can add or remove assignments before saving. The same subject should only appear once in this class.</p></div>
+            <div class="help-icon">✓</div>
+            <div><strong>How subject selection works</strong><p>Choose BST, RNV or PVS. Its component subjects slide down below the header. Use the box beside the header to select all, or tick each component individually.</p></div>
           </div>
         </aside>
       </form>
     </section>`;
 
-    const box=document.querySelector('#assignments');
-    const count=document.querySelector('#summary-count');
-    const unique=document.querySelector('#summary-unique');
-    const desc=document.querySelector('textarea[name=description]');
-    const descCount=document.querySelector('#description-count');
+    const combinedBoards=document.querySelector('#combined-boards');
+    const standaloneAssignments=document.querySelector('#standalone-assignments');
+    const combinedPicker=document.querySelector('#combined-subject-picker');
+    const standalonePicker=document.querySelector('#standalone-subject-picker');
 
-    function subjectOptions(selected){
-      const standalone=leaves.filter(s=>!s.parent_subject_id);
-      const grouped=new Map(groups.map(g=>[g.id,[]]));
-      leaves.filter(s=>s.parent_subject_id && grouped.has(s.parent_subject_id)).forEach(s=>grouped.get(s.parent_subject_id).push(s));
+    const teacherOptions=(selected='')=>'<option value="">Unassigned teacher</option>'+teachers.map(t=>`<option value="${t.id}" ${selected===t.id?'selected':''}>${esc(t.full_name)}${t.staff_id?` — ${esc(t.staff_id)}`:''}</option>`).join('');
 
-      let html='<option value="">Select subject…</option>';
-      if(standalone.length){
-        html+='<optgroup label="Standalone Subjects">';
-        html+=standalone.map(s=>`<option value="${s.id}" ${selected===s.id?'selected':''} ${!s.is_active&&selected!==s.id?'disabled':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}${!s.is_active?' (Inactive)':''}</option>`).join('');
-        html+='</optgroup>';
-      }
-      groups.forEach(g=>{
-        const kids=grouped.get(g.id)||[];
-        if(!kids.length)return;
-        html+=`<optgroup label="${esc(g.code||g.name)} — ${esc(g.name.replace(/^[^–-]+[–-]\s*/,'')||g.name)}${!g.is_active?' (Inactive group)':''}">`;
-        html+=kids.sort((a,b)=>Number(a.display_order||0)-Number(b.display_order||0)||a.name.localeCompare(b.name)).map(s=>`<option value="${s.id}" ${selected===s.id?'selected':''} ${!s.is_active&&selected!==s.id?'disabled':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}${!s.is_active?' (Inactive)':''}</option>`).join('');
-        html+='</optgroup>';
-      });
-      return html;
+    function childrenOf(groupId){
+      return (groupedLeaves.get(groupId)||[]).slice().sort((a,b)=>Number(a.display_order||0)-Number(b.display_order||0)||a.name.localeCompare(b.name));
     }
 
-    function addAssignment(a={}){
-      const el=document.createElement('div');
-      el.className='edit-assignment-row';
-      el.innerHTML=`<div class="edit-field"><label>Subject</label><select class="assignment-subject" required>${subjectOptions(a.subject_id)}</select></div><div class="edit-field"><label>Teacher</label><select class="assignment-teacher"><option value="">Unassigned teacher</option>${teachers.map(t=>`<option value="${t.id}" ${a.teacher_id===t.id?'selected':''}>${esc(t.full_name)}${t.staff_id?` — ${esc(t.staff_id)}`:''}</option>`).join('')}</select></div><button type="button" class="btn btn-remove-assignment" title="Remove assignment">×</button>`;
-      el.querySelector('.btn-remove-assignment').onclick=()=>{el.remove();syncSummary();};
-      box.appendChild(el);
+    function selectedSubjectIds(){
+      const ids=[];
+      combinedBoards.querySelectorAll('.component-check:checked').forEach(x=>ids.push(x.value));
+      standaloneAssignments.querySelectorAll('.standalone-check:checked').forEach(x=>ids.push(x.value));
+      return ids;
     }
 
     function syncSummary(){
-      const name=document.querySelector('input[name=name]').value.trim()||'New Class';
-      const level=document.querySelector('input[name=level]').value.trim()||'Academic Class';
-      const rows=[...box.querySelectorAll('.edit-assignment-row')];
-      const subjectIds=rows.map(r=>r.querySelector('.assignment-subject').value).filter(Boolean);
+      const name=document.querySelector('#class-name').value.trim()||'New Class';
+      const level=document.querySelector('#class-level').value.trim()||'Academic Class';
+      const ids=selectedSubjectIds();
       document.querySelector('#summary-name').textContent=name;
       document.querySelector('#summary-level').textContent=level;
       document.querySelector('#summary-avatar').textContent=initials(name);
-      count.textContent=rows.length;
-      unique.textContent=new Set(subjectIds).size;
+      document.querySelector('#summary-count').textContent=ids.length;
+      document.querySelector('#summary-groups').textContent=combinedBoards.querySelectorAll('.combined-subject-board').length;
     }
 
-    function validateAssignments(){
-      const ids=[...box.querySelectorAll('.assignment-subject')].map(x=>x.value).filter(Boolean);
-      const duplicate=ids.find((x,i)=>ids.indexOf(x)!==i);
-      if(duplicate)throw new Error('The same subject has been added more than once. Remove the duplicate before saving.');
-      return [...box.querySelectorAll('.edit-assignment-row')].map(r=>({
-        subject_id:r.querySelector('.assignment-subject').value,
-        teacher_id:r.querySelector('.assignment-teacher').value||null
-      })).filter(x=>x.subject_id);
+    function refreshGroupState(board){
+      const checks=[...board.querySelectorAll('.component-check')];
+      const selected=checks.filter(x=>x.checked);
+      const selectAll=board.querySelector('.group-select-all');
+      const some=selected.length>0;
+      selectAll.checked=checks.length>0 && selected.length===checks.length;
+      selectAll.indeterminate=some && selected.length<checks.length;
+      board.classList.toggle('has-selection',some);
+      board.querySelectorAll('.component-teacher').forEach((select,index)=>{
+        const check=checks[index];
+        select.disabled=!check.checked;
+      });
+      board.querySelector('.group-selected-count').textContent=`${selected.length}/${checks.length} selected`;
+      syncSummary();
     }
 
-    (assignments.length?assignments:[]).forEach(addAssignment);
-    document.querySelector('#add-assignment').onclick=()=>{addAssignment();syncSummary();};
-    document.querySelectorAll('input[name=name],input[name=level]').forEach(x=>x.addEventListener('input',syncSummary));
-    desc?.addEventListener('input',()=>{descCount.textContent=desc.value.length;});
+    function addCombined(groupId, forceOpen=true){
+      if(!groupId)return;
+      const group=groups.find(g=>g.id===groupId);
+      if(!group)return;
+      if(combinedBoards.querySelector(`.combined-subject-board[data-group-id="${groupId}"]`)){
+        const existingBoard=combinedBoards.querySelector(`.combined-subject-board[data-group-id="${groupId}"]`);
+        existingBoard.classList.add('board-flash');
+        setTimeout(()=>existingBoard.classList.remove('board-flash'),500);
+        existingBoard.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+      const children=childrenOf(groupId);
+      if(!children.length){
+        toast(`${group.name} has no component subjects configured yet.`,'error');
+        return;
+      }
+
+      const board=document.createElement('section');
+      board.className='combined-subject-board';
+      board.dataset.groupId=groupId;
+      board.innerHTML=`
+        <div class="combined-subject-header">
+          <label class="group-check-wrap" title="Select all components">
+            <input type="checkbox" class="group-select-all">
+            <span class="fake-checkbox"></span>
+          </label>
+          <div class="combined-subject-heading">
+            <div class="combined-code">${esc(group.code||'GROUP')}</div>
+            <div><strong>${esc(group.name)}</strong><span>${children.length} component subjects</span></div>
+          </div>
+          <span class="group-selected-count">0/${children.length} selected</span>
+          <button type="button" class="remove-group" title="Remove combined subject">×</button>
+        </div>
+        <div class="combined-subject-body">
+          ${children.map(child=>{
+            const saved=assignmentMap.get(child.id);
+            const checked=!!saved;
+            return `<div class="component-row ${checked?'selected':''}">
+              <label class="component-check-wrap">
+                <input type="checkbox" class="component-check" value="${child.id}" ${checked?'checked':''}>
+                <span class="fake-checkbox"></span>
+              </label>
+              <div class="component-name"><strong>${esc(child.name)}</strong><span>${esc(child.code||'')}</span></div>
+              <div class="component-teacher-wrap"><label>Teacher</label><select class="component-teacher" ${checked?'':'disabled'}>${teacherOptions(saved?.teacher_id||'')}</select></div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      combinedBoards.appendChild(board);
+
+      const selectAll=board.querySelector('.group-select-all');
+      selectAll.addEventListener('change',()=>{
+        board.querySelectorAll('.component-check').forEach(check=>{check.checked=selectAll.checked;});
+        board.querySelectorAll('.component-row').forEach(row=>row.classList.toggle('selected',selectAll.checked));
+        refreshGroupState(board);
+      });
+      board.querySelectorAll('.component-check').forEach(check=>check.addEventListener('change',()=>{
+        check.closest('.component-row')?.classList.toggle('selected',check.checked);
+        refreshGroupState(board);
+      }));
+      board.querySelector('.remove-group').addEventListener('click',()=>{
+        board.classList.add('board-remove');
+        setTimeout(()=>{board.remove();syncSummary();},180);
+      });
+      refreshGroupState(board);
+      if(forceOpen) setTimeout(()=>board.scrollIntoView({behavior:'smooth',block:'nearest'}),30);
+    }
+
+    function addStandalone(subjectId){
+      if(!subjectId)return;
+      const subject=leaves.find(s=>s.id===subjectId);
+      if(!subject)return;
+      if(standaloneAssignments.querySelector(`.standalone-assignment-row[data-subject-id="${subjectId}"]`)){
+        const existingRow=standaloneAssignments.querySelector(`.standalone-assignment-row[data-subject-id="${subjectId}"]`);
+        existingRow.classList.add('board-flash');setTimeout(()=>existingRow.classList.remove('board-flash'),500);
+        return;
+      }
+      const saved=assignmentMap.get(subjectId);
+      const row=document.createElement('div');
+      row.className='standalone-assignment-row';
+      row.dataset.subjectId=subjectId;
+      row.innerHTML=`
+        <label class="component-check-wrap"><input type="checkbox" class="standalone-check" value="${subject.id}" checked><span class="fake-checkbox"></span></label>
+        <div class="component-name"><strong>${esc(subject.name)}</strong><span>${esc(subject.code||'Standalone subject')}</span></div>
+        <div class="component-teacher-wrap"><label>Teacher</label><select class="standalone-teacher">${teacherOptions(saved?.teacher_id||'')}</select></div>
+        <button type="button" class="remove-standalone">×</button>`;
+      standaloneAssignments.appendChild(row);
+      row.querySelector('.standalone-check').addEventListener('change',e=>{
+        row.classList.toggle('selected',e.target.checked);
+        row.querySelector('.standalone-teacher').disabled=!e.target.checked;
+        syncSummary();
+      });
+      row.querySelector('.remove-standalone').addEventListener('click',()=>{row.remove();syncSummary();});
+      row.classList.add('selected');
+      syncSummary();
+    }
+
+    groups.forEach(g=>{
+      if(childrenOf(g.id).some(child=>assignmentMap.has(child.id))) addCombined(g.id,false);
+    });
+
+    leaves.filter(s=>!s.parent_subject_id && assignmentMap.has(s.id)).forEach(s=>addStandalone(s.id));
+
+    document.querySelector('#add-combined').onclick=()=>{
+      const groupId=combinedPicker.value;
+      if(!groupId){toast('Choose a combined subject first.','error');return;}
+      addCombined(groupId,true);
+      combinedPicker.value='';
+    };
+    document.querySelector('#add-standalone').onclick=()=>{
+      const subjectId=standalonePicker.value;
+      if(!subjectId){toast('Choose a standalone subject first.','error');return;}
+      addStandalone(subjectId);
+      standalonePicker.value='';
+    };
+
+    document.querySelectorAll('#class-name,#class-level').forEach(x=>x.addEventListener('input',syncSummary));
+    const description=document.querySelector('#class-description');
+    description?.addEventListener('input',()=>{document.querySelector('#description-count').textContent=description.value.length;});
     syncSummary();
 
     document.querySelector('#class-form').onsubmit=async e=>{
@@ -272,8 +384,7 @@ export async function renderRegisterClass(){
         const description=String(fd.get('description')||'').trim()||null;
         if(!name)throw new Error('Class name is required.');
 
-        const duplicateQuery=supabase.from('classes').select('id,name,level').ilike('name',name);
-        const {data:duplicates,error:dupError}=await duplicateQuery;
+        const {data:duplicates,error:dupError}=await supabase.from('classes').select('id,name,level').ilike('name',name);
         if(dupError)throw dupError;
         const conflicting=(duplicates||[]).find(x=>x.id!==id && String(x.name).trim().toLowerCase()===name.toLowerCase());
         if(conflicting)throw new Error('A class with this name already exists. Please use a different class name.');
@@ -289,7 +400,32 @@ export async function renderRegisterClass(){
           classId=data.id;
         }
 
-        const pairs=validateAssignments().map(x=>({...x,class_id:classId}));
+        const pairs=[];
+        combinedBoards.querySelectorAll('.combined-subject-board').forEach(board=>{
+          const teacherBySubject=[...board.querySelectorAll('.component-row')];
+          teacherBySubject.forEach(row=>{
+            const check=row.querySelector('.component-check');
+            if(!check?.checked)return;
+            pairs.push({
+              class_id:classId,
+              subject_id:check.value,
+              teacher_id:row.querySelector('.component-teacher')?.value||null
+            });
+          });
+        });
+        standaloneAssignments.querySelectorAll('.standalone-assignment-row').forEach(row=>{
+          const check=row.querySelector('.standalone-check');
+          if(!check?.checked)return;
+          pairs.push({
+            class_id:classId,
+            subject_id:check.value,
+            teacher_id:row.querySelector('.standalone-teacher')?.value||null
+          });
+        });
+
+        const duplicateSubjectIds=pairs.map(x=>x.subject_id).filter((x,i,a)=>a.indexOf(x)!==i);
+        if(duplicateSubjectIds.length)throw new Error('A subject can only be selected once in the class.');
+
         const {error:de}=await supabase.from('class_subjects').delete().eq('class_id',classId);
         if(de)throw de;
         if(pairs.length){

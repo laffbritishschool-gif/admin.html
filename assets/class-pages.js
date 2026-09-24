@@ -140,7 +140,7 @@ export async function renderRegisterClass(){
       assignments=data||[];
     }
 
-    const groups=subjects.filter(s=>s.subject_kind==='GROUP' && (s.is_active || assignments.some(a=>a.subject_id===s.id)));
+    const groups=subjects.filter(s=>s.subject_kind==='GROUP');
     const leaves=subjects.filter(s=>s.subject_kind!=='GROUP');
 
     root.innerHTML=`<section class="edit-class-page">
@@ -218,7 +218,7 @@ export async function renderRegisterClass(){
       groups.forEach(g=>{
         const kids=grouped.get(g.id)||[];
         if(!kids.length)return;
-        html+=`<optgroup label="${esc(g.code||g.name)} — ${esc(g.name.replace(/^[^–-]+[–-]\s*/,'')||g.name)}">`;
+        html+=`<optgroup label="${esc(g.code||g.name)} — ${esc(g.name.replace(/^[^–-]+[–-]\s*/,'')||g.name)}${!g.is_active?' (Inactive group)':''}">`;
         html+=kids.sort((a,b)=>Number(a.display_order||0)-Number(b.display_order||0)||a.name.localeCompare(b.name)).map(s=>`<option value="${s.id}" ${selected===s.id?'selected':''} ${!s.is_active&&selected!==s.id?'disabled':''}>${esc(s.name)}${s.code?` — ${esc(s.code)}`:''}${!s.is_active?' (Inactive)':''}</option>`).join('');
         html+='</optgroup>';
       });

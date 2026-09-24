@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Profile | Laff British Montessori School</title>
+<link rel="icon" href="https://i.ibb.co/whtP8S5v/image.png">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.profile-page{max-width:980px;margin:0 auto;padding-bottom:40px}.profile-card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}.profile-banner{position:relative;padding:30px;background:linear-gradient(135deg,#123d8f,#0a66c2);color:#fff}.profile-banner:after{content:"";position:absolute;width:220px;height:220px;right:-75px;top:-130px;border:32px solid rgba(244,196,0,.14);border-radius:50%}.profile-banner-inner{position:relative;z-index:1;display:flex;align-items:center;gap:18px}.profile-large-avatar{width:82px;height:82px;border-radius:24px;display:grid;place-items:center;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.2);font-size:26px;font-weight:900;flex:0 0 auto}.profile-banner h1{margin:0 0 5px;font-size:27px}.profile-banner p{margin:0;color:rgba(255,255,255,.76);font-size:10px}.profile-info{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:21px}.profile-info-item{padding:14px;border:1px solid #edf0f4;border-radius:14px;background:#fbfcff}.profile-info-item small,.profile-info-item strong{display:block}.profile-info-item small{font-size:8px;color:#98a2b3;text-transform:uppercase;letter-spacing:.4px}.profile-info-item strong{margin-top:6px;font-size:12px;color:#14213d;word-break:break-word}.profile-actions{display:flex;gap:8px;padding:0 21px 21px}@media(max-width:650px){.profile-banner-inner{align-items:flex-start;flex-direction:column}.profile-info{grid-template-columns:1fr}.profile-actions{flex-direction:column}.profile-actions .btn{width:100%}}
+</style>
+</head>
+<body data-title="My Profile">
+<div id="page-loader" class="loader active"><div class="loader-box"><span class="spinner"></span><div>Loading profile…</div></div></div>
+<div id="app-shell" data-content=""></div><div id="toast-host"></div>
+<script type="module">
+import{requireAdmin,mountShell,pageLoading,escapeHtml,signOut}from'./assets/app.js';
+const user=await requireAdmin();
+if(user){
+  mountShell(user);
+  const root=document.querySelector('.page-content');
+  const fullName=user?.profile?.full_name||'Administrator';
+  const role=user?.profile?.role||'Admin';
+  const email=user?.email||'';
+  const initial=(email||fullName||'A')[0].toUpperCase();
+  root.innerHTML=\`<section class="profile-page">
+    <div class="page-head"><div><h2>My Profile</h2><p>View the administrator account currently signed in to this school portal.</p></div></div>
+    <section class="profile-card">
+      <div class="profile-banner"><div class="profile-banner-inner"><div class="profile-large-avatar">\${escapeHtml(initial)}</div><div><span class="eyebrow">ADMINISTRATOR PROFILE</span><h1>\${escapeHtml(fullName)}</h1><p>\${escapeHtml(role)}</p></div></div></div>
+      <div class="profile-info">
+        <div class="profile-info-item"><small>Full Name</small><strong>\${escapeHtml(fullName)}</strong></div>
+        <div class="profile-info-item"><small>Email</small><strong>\${escapeHtml(email||'Not available')}</strong></div>
+        <div class="profile-info-item"><small>Role</small><strong>\${escapeHtml(role)}</strong></div>
+        <div class="profile-info-item"><small>Account Status</small><strong>Active</strong></div>
+      </div>
+      <div class="profile-actions"><a class="btn btn-ghost" href="settings.html">School Settings</a><button class="btn btn-danger" id="profile-page-logout" type="button">Logout</button></div>
+    </section>
+  </section>\`;
+  document.querySelector('#profile-page-logout')?.addEventListener('click',signOut);
+  pageLoading(false);
+}
+</script>
+</body>
+</html>

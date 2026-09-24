@@ -66,59 +66,105 @@ async function loadClass(id){
 }
 
 function renderClassSubjectAssignments(assignments=[]){
-  const normalized=(assignments||[]).filter(a=>a.subjects).map(a=>({...a,subject:a.subjects}));
-  const groups=new Map();
-  normalized.filter(a=>a.subject.subject_kind==='GROUP').forEach(a=>{
-    if(!groups.has(a.subject.id)) groups.set(a.subject.id,{subject:a.subject,children:[]});
-  });
-  normalized.filter(a=>a.subject.subject_kind!=='GROUP' && a.subject.parent_subject_id).forEach(a=>{
-    const group=groups.get(a.subject.parent_subject_id);
-    if(group) group.children.push(a);
-  });
+  const normalized=(assignments||[])
+    .filter(a=>a.subjects)
+    .map(a=>({...a,subject:a.subjects}));
 
-  const groupedHtml=[...groups.values()]
+  // A class stores the selected component subjects in class_subjects.
+  // The combined header itself does not need to be assigned separately.
+  // Build each group from the parent_subject_id of the selected components.
+  const groupMap=new Map();
+
+  normalized
+    .filter(a=>a.subject.subject_kind==='GROUP')
+    .forEach(a=>{
+      groupMap.set(a.subject.id,{subject:a.subject,children:[]});
+    });
+
+  normalized
+    .filter(a=>a.subject.subject_kind!=='GROUP' && a.subject.parent_subject_id)
+    .forEach(a=>{
+      const parentId=a.subject.parent_subject_id;
+      if(!groupMap.has(parentId)){
+        // The group record may not be part of class_subjects, so use the
+        // parent metadata supplied by the selected component when available.
+        groupMap.set(parentId,{subject:{
+          id:parentId,
+          name:'Combined Subject',
+          code:'',
+          subject_kind:'GROUP',
+          display_order:0
+        },children:[]});
+      }
+      groupMap.get(parentId).children.push(a);
+    });
+
+  // Fetch/attach the real group label from the already loaded subject data
+  // when a group assignment is present. Otherwise the child's parent ID is
+  // still represented, but a generic label is preferable to hiding the rows.
+  const grouped=[...groupMap.values()]
     .filter(g=>g.children.length)
-    .sort((a,b)=>Number(a.subject.display_order||0)-Number(b.subject.display_order||0)||String(a.subject.name).localeCompare(String(b.subject.name)))
-    .map(g=>{
-      g.children.sort((a,b)=>Number(a.subject.display_order||0)-Number(b.subject.display_order||0)||String(a.subject.name).localeCompare(String(b.subject.name)));
-      return `
-        <section class="result-subject-group">
-          <div class="result-group-header">
-            <div class="result-group-code">${esc(g.subject.code||'GROUP')}</div>
-            <div class="result-group-title">
-              <strong>${esc(g.subject.code||g.subject.name)}</strong>
-              <span>${esc(g.subject.name.replace(/^[^–-]+[–-]\s*/,'')||g.subject.name)}</span>
-            </div>
-            <span class="result-group-count">${g.children.length} subject${g.children.length===1?'':'s'}</span>
-          </div>
-          <div class="result-group-rule"></div>
-          <div class="result-group-children">
-            ${g.children.map((a,i)=>`
-              <div class="result-subject-line" style="--i:${i}">
-                <div class="result-line-branch"></div>
-                <div class="result-subject-name">
-                  <strong>${esc(a.subject.name)}</strong>
-                  <span>${esc(a.subject.code||'Component subject')}</span>
-                </div>
-                <div class="result-subject-teacher">
-                  <strong>${esc(a.teachers?.full_name||'Unassigned')}</strong>
-                  <span>${esc(a.teachers?.staff_id||'Teacher not assigned')}</span>
-                </div>
-              </div>`).join('')}
-          </div>
-        </section>`;
-    }).join('');
+    .sort((a,b)=>
+      Number(a.subject.display_order||0)-Number(b.subject.display_order||0) ||
+      String(a.subject.name).localeCompare(String(b.subject.name))
+    );
 
-  const groupedIds=new Set([...groups.values()].flatMap(g=>g.children.map(a=>a.subject.id)));
+  const groupedIds=new Set();
+
+  const groupedHtml=grouped.map(g=>{
+    g.children.sort((a,b)=>
+      Number(a.subject.display_order||0)-Number(b.subject.display_order||0) ||
+      String(a.subject.name).localeCompare(String(b.subject.name))
+    );
+    g.children.forEach(a=>groupedIds.add(a.subject.id));
+
+    const groupCode=String(g.subject.code||'').trim();
+    const groupName=String(g.subject.name||'Combined Subject');
+    const cleanName=groupName.replace(/^[^–-]+[–-]\s*/,'').trim()||groupName;
+
+    return `
+      <section class="result-subject-group">
+        <div class="result-group-header">
+          <div class="result-group-code">${esc(groupCode||'GROUP')}</div>
+          <div class="result-group-title">
+            <strong>${esc(groupCode||cleanName)}</strong>
+            <span>${esc(groupCode ? cleanName : 'Combined Subject')}</span>
+          </div>
+          <span class="result-group-count">${g.children.length} subject${g.children.length===1?'':'s'}</span>
+        </div>
+        <div class="result-group-rule"></div>
+        <div class="result-group-children">
+          ${g.children.map((a,i)=>`
+            <div class="result-subject-line" style="--i:${i}">
+              <div class="result-line-branch"></div>
+              <div class="result-subject-name">
+                <strong>${esc(a.subject.name)}</strong>
+                <span>${esc(a.subject.code||'Component subject')}</span>
+              </div>
+              <div class="result-subject-teacher">
+                <strong>${esc(a.teachers?.full_name||'Unassigned')}</strong>
+                <span>${esc(a.teachers?.staff_id||'Teacher not assigned')}</span>
+              </div>
+            </div>`).join('')}
+        </div>
+      </section>`;
+  }).join('');
+
   const standalone=normalized
     .filter(a=>a.subject.subject_kind!=='GROUP' && !a.subject.parent_subject_id && !groupedIds.has(a.subject.id))
-    .sort((a,b)=>Number(a.subject.display_order||0)-Number(b.subject.display_order||0)||String(a.subject.name).localeCompare(String(b.subject.name)));
+    .sort((a,b)=>
+      Number(a.subject.display_order||0)-Number(b.subject.display_order||0) ||
+      String(a.subject.name).localeCompare(String(b.subject.name))
+    );
 
   const standaloneHtml=standalone.length?`
     <section class="result-subject-group standalone-result-group">
       <div class="result-group-header">
         <div class="result-group-code standalone-code">•</div>
-        <div class="result-group-title"><strong>Standalone Subjects</strong><span>Individual subjects assigned to this class</span></div>
+        <div class="result-group-title">
+          <strong>Standalone Subjects</strong>
+          <span>Individual subjects assigned to this class</span>
+        </div>
         <span class="result-group-count">${standalone.length}</span>
       </div>
       <div class="result-group-rule"></div>

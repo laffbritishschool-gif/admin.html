@@ -1,18 +1,214 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Subject | Laff British Montessori School</title><link rel="icon" href="https://i.ibb.co/whtP8S5v/image.png"><link rel="stylesheet" href="assets/styles.css"><style>
-.subject-form-page{max-width:1050px;margin:auto;padding-bottom:40px}.subject-form-hero{padding:30px 32px;border-radius:24px;background:linear-gradient(135deg,#123d8f,#0a66c2);color:#fff;box-shadow:0 18px 48px rgba(18,61,143,.18);display:flex;justify-content:space-between;gap:18px;align-items:flex-end}.subject-form-hero h1{margin:5px 0 7px;font-size:29px}.subject-form-hero p{margin:0;color:rgba(255,255,255,.82);font-size:12px}.sf-kicker{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#ffda4b}.sf-actions{display:flex;gap:8px}.sf-card{margin-top:18px;background:#fff;border:1px solid #e6eaf0;border-radius:20px;box-shadow:0 12px 35px rgba(19,43,88,.07);padding:25px}.sf-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.sf-field label{display:block;font-size:11px;font-weight:800;color:#344054;margin-bottom:7px}.sf-field input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #dbe2eb;border-radius:12px;font:inherit;outline:0}.sf-field input:focus{border-color:#0a66c2;box-shadow:0 0 0 4px rgba(10,102,194,.08)}.sf-help{margin-top:6px;font-size:9px;color:#8490a0}.sf-status{padding:15px;border:1px solid #e5eaf3;border-radius:14px;background:#f8faff}.sf-status-row{display:flex;align-items:flex-start;gap:11px}.sf-status-row input{margin-top:3px}.sf-status-row strong{display:block;font-size:11px}.sf-status-row span{display:block;margin-top:3px;font-size:9px;color:#667085;line-height:1.5}.sf-summary{margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.sf-summary div{padding:14px;border:1px solid #edf0f4;border-radius:13px;background:#fbfcff}.sf-summary small,.sf-summary strong{display:block}.sf-summary small{font-size:9px;color:#98a2b3;text-transform:uppercase}.sf-summary strong{margin-top:4px;font-size:13px;color:#14213d}.sf-bottom{margin-top:22px;padding-top:18px;border-top:1px solid #edf0f4;display:flex;justify-content:space-between;align-items:center;gap:12px}.sf-note{font-size:10px;color:#667085}@media(max-width:760px){.subject-form-hero{align-items:flex-start;flex-direction:column;padding:23px}.sf-actions{width:100%}.sf-actions .btn{flex:1}.sf-grid,.sf-summary{grid-template-columns:1fr}.sf-card{padding:18px}.sf-bottom{align-items:stretch;flex-direction:column}.sf-bottom .btn{width:100%}}</style></head><body data-title="Subject"><div id="page-loader" class="loader active"><div class="loader-box"><span class="spinner"></span><div>Loading subject form…</div></div></div><div id="app-shell" data-content=""></div><div id="toast-host"></div><script type="module">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subject | Laff British Montessori School</title>
+<link rel="icon" href="https://i.ibb.co/whtP8S5v/image.png">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.subject-form-page{max-width:1080px;margin:auto;padding-bottom:40px}.subject-form-hero{padding:30px 32px;border-radius:24px;background:linear-gradient(135deg,#123d8f,#0a66c2);color:#fff;box-shadow:0 18px 48px rgba(18,61,143,.18);display:flex;justify-content:space-between;gap:18px;align-items:flex-end}.subject-form-hero h1{margin:5px 0 7px;font-size:29px}.subject-form-hero p{margin:0;color:rgba(255,255,255,.82);font-size:12px}.sf-kicker{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#ffda4b}.sf-actions{display:flex;gap:8px}.sf-card{margin-top:18px;background:#fff;border:1px solid #e6eaf0;border-radius:20px;box-shadow:0 12px 35px rgba(19,43,88,.07);padding:25px}.sf-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.sf-field label,.sf-field>label{display:block;font-size:11px;font-weight:800;color:#344054;margin-bottom:7px}.sf-field input,.sf-field select{width:100%;box-sizing:border-box;padding:13px;border:1px solid #dbe2eb;border-radius:12px;font:inherit;outline:0;background:#fff}.sf-field input:focus,.sf-field select:focus{border-color:#0a66c2;box-shadow:0 0 0 4px rgba(10,102,194,.08)}.sf-help{margin-top:6px;font-size:9px;color:#8490a0;line-height:1.5}.sf-full{grid-column:1/-1}.sf-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sf-option{position:relative;border:1px solid #dde5ef;border-radius:14px;padding:14px;cursor:pointer;background:#fbfcff;transition:.2s}.sf-option:has(input:checked){border-color:#0a66c2;background:#eef5ff;box-shadow:0 0 0 3px rgba(10,102,194,.08)}.sf-option input{position:absolute;opacity:0;pointer-events:none}.sf-option strong,.sf-option span{display:block}.sf-option strong{font-size:11px;color:#14213d}.sf-option span{margin-top:4px;color:#667085;font-size:9px;line-height:1.5}.sf-status{padding:15px;border:1px solid #e5eaf3;border-radius:14px;background:#f8faff}.sf-status-row{display:flex;align-items:flex-start;gap:11px}.sf-status-row input{margin-top:3px}.sf-status-row strong{display:block;font-size:11px}.sf-status-row span{display:block;margin-top:3px;font-size:9px;color:#667085;line-height:1.5}.sf-summary{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.sf-summary div{padding:14px;border:1px solid #edf0f4;border-radius:13px;background:#fbfcff}.sf-summary small,.sf-summary strong{display:block}.sf-summary small{font-size:9px;color:#98a2b3;text-transform:uppercase}.sf-summary strong{margin-top:4px;font-size:13px;color:#14213d}.sf-bottom{margin-top:22px;padding-top:18px;border-top:1px solid #edf0f4;display:flex;justify-content:space-between;align-items:center;gap:12px}.sf-note{font-size:10px;color:#667085}.sf-warning{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:#fff8e7;border:1px solid #f5dda0;color:#765b08;font-size:9px;line-height:1.6}.sf-warning.show{display:block}@media(max-width:760px){.subject-form-hero{align-items:flex-start;flex-direction:column;padding:23px}.sf-actions{width:100%}.sf-actions .btn{flex:1}.sf-grid,.sf-summary,.sf-type-grid{grid-template-columns:1fr}.sf-card{padding:18px}.sf-bottom{align-items:stretch;flex-direction:column}.sf-bottom .btn{width:100%}}
+</style>
+</head>
+<body data-title="Subject">
+<div id="page-loader" class="loader active"><div class="loader-box"><span class="spinner"></span><div>Loading subject form…</div></div></div>
+<div id="app-shell" data-content=""></div><div id="toast-host"></div>
+<script type="module">
 import{requireAdmin,mountShell,supabase,toast,setLoading,pageLoading,escapeHtml}from'./assets/app.js';
+
 const user=await requireAdmin();
 if(user){
- mountShell(user);
- const id=new URLSearchParams(location.search).get('id');
- let row=null;
- if(id){const{data,error}=await supabase.from('subjects').select('id,name,code,max_ca,max_exam,is_active').eq('id',id).maybeSingle();if(error)throw error;if(!data){toast('Subject not found.','error');location.href='subjects.html';}row=data;}
- const host=document.querySelector('.page-content');
- host.innerHTML=`<div class="subject-form-page"><section class="subject-form-hero"><div><div class="sf-kicker">ACADEMIC MANAGEMENT</div><h1>${row?'Edit Subject':'Add New Subject'}</h1><p>${row?'Update this subject and keep its assessment settings accurate.':'Create a subject and configure its assessment limits.'}</p></div><div class="sf-actions"><a class="btn secondary" href="subjects.html">← Back</a></div></section><section class="sf-card"><form id="subjectForm"><div class="sf-grid"><div class="sf-field"><label>Subject Name *</label><input name="name" required maxlength="120" value="${row?escapeHtml(row.name):''}" placeholder="e.g. Mathematics"></div><div class="sf-field"><label>Subject Code</label><input name="code" maxlength="30" value="${row?escapeHtml(row.code||''):''}" placeholder="e.g. MATH"><div class="sf-help">Optional short code used in results and timetables.</div></div><div class="sf-field"><label>Maximum CA</label><input name="max_ca" type="number" min="0" max="1000" value="${row?Number(row.max_ca||0):30}"><div class="sf-help">Maximum continuous assessment mark.</div></div><div class="sf-field"><label>Maximum Exam</label><input name="max_exam" type="number" min="0" max="1000" value="${row?Number(row.max_exam||0):70}"><div class="sf-help">Maximum examination mark.</div></div></div><div class="sf-status" style="margin-top:18px"><div class="sf-status-row"><input id="active" name="is_active" type="checkbox" ${row?.is_active!==false?'checked':''}><div><strong>Active subject</strong><span>Active subjects remain available for classes, timetables and assessment.</span></div></div></div><div class="sf-summary"><div><small>Assessment Total</small><strong id="total">100 marks</strong></div><div><small>Subject Status</small><strong id="statusText">${row?.is_active===false?'Inactive':'Active'}</strong></div><div><small>Mode</small><strong>${row?'Editing existing subject':'Creating new subject'}</strong></div></div><div class="sf-bottom"><span class="sf-note" id="note">Fields marked * are required.</span><div class="sf-actions"><button type="button" class="btn btn-ghost" onclick="location.href='subjects.html'">Cancel</button><button class="btn btn-primary" id="save" type="submit">${row?'Save Changes':'Create Subject'}</button></div></div></form></section></div>`;
- const form=document.querySelector('#subjectForm'),active=document.querySelector('#active'),total=document.querySelector('#total'),statusText=document.querySelector('#statusText');
- function preview(){total.textContent=`${Number(form.elements.max_ca.value||0)+Number(form.elements.max_exam.value||0)} marks`;statusText.textContent=active.checked?'Active':'Inactive';}
- form.elements.max_ca.oninput=preview;form.elements.max_exam.oninput=preview;active.onchange=preview;preview();
- form.onsubmit=async e=>{e.preventDefault();const btn=document.querySelector('#save');setLoading(btn,true,'Saving…');try{const payload={name:String(form.elements.name.value||'').trim(),code:String(form.elements.code.value||'').trim()||null,max_ca:Number(form.elements.max_ca.value||0),max_exam:Number(form.elements.max_exam.value||0),is_active:active.checked};if(!payload.name)throw new Error('Subject name is required.');const res=row?await supabase.from('subjects').update(payload).eq('id',row.id):await supabase.from('subjects').insert(payload);if(res.error)throw res.error;toast(row?'Subject updated successfully.':'Subject created successfully.');location.href='subjects.html';}catch(err){console.error(err);toast(err.message||'Could not save subject.','error');document.querySelector('#note').textContent='The subject could not be saved.';}finally{setLoading(btn,false);}};
- pageLoading(false);
+  mountShell(user);
+  const params=new URLSearchParams(location.search);
+  const id=params.get('id');
+  const focus=params.get('focus');
+  let row=null;
+  let children=[];
+  let groups=[];
+
+  try{
+    const [rowRes,groupRes]=await Promise.all([
+      id ? supabase.from('subjects').select('id,name,code,max_ca,max_exam,is_active,parent_subject_id,subject_kind,display_order').eq('id',id).maybeSingle() : Promise.resolve({data:null,error:null}),
+      supabase.from('subjects').select('id,name,code').eq('subject_kind','GROUP').order('display_order',{ascending:true}).order('name',{ascending:true})
+    ]);
+    if(rowRes.error)throw rowRes.error;
+    if(groupRes.error)throw groupRes.error;
+    row=rowRes.data||null;
+    groups=groupRes.data||[];
+    if(id && !row){toast('Subject not found.','error');location.href='subjects.html';}
+    if(row?.subject_kind==='GROUP'){
+      const childRes=await supabase.from('subjects').select('id,name').eq('parent_subject_id',row.id);
+      if(childRes.error)throw childRes.error;
+      children=childRes.data||[];
+    }
+  }catch(err){
+    console.error(err);toast(err.message||'Could not load subject.','error');location.href='subjects.html';
+  }
+
+  const host=document.querySelector('.page-content');
+  const title=row?'Edit Subject':'Add New Subject';
+  host.innerHTML=`
+  <div class="subject-form-page">
+    <section class="subject-form-hero">
+      <div><div class="sf-kicker">ACADEMIC MANAGEMENT</div><h1>${title}</h1><p>${row?'Update the subject, assessment settings or its group placement.':'Create a combined group, a component subject or a standalone subject.'}</p></div>
+      <div class="sf-actions"><a class="btn secondary" href="subjects.html">← Back</a></div>
+    </section>
+
+    <section class="sf-card">
+      <form id="subjectForm">
+        <div class="sf-grid">
+          <div class="sf-field">
+            <label>Subject Name *</label>
+            <input name="name" required maxlength="120" value="${row?escapeHtml(row.name):''}" placeholder="e.g. BST – Basic Science & Technology">
+          </div>
+          <div class="sf-field">
+            <label>Subject Code</label>
+            <input name="code" maxlength="30" value="${row?escapeHtml(row.code||''):''}" placeholder="e.g. BST">
+            <div class="sf-help">Use a short code such as BST, RNV, PVS or MATH.</div>
+          </div>
+
+          <div class="sf-field sf-full">
+            <label>Subject Type</label>
+            <div class="sf-type-grid">
+              <label class="sf-option"><input type="radio" name="subject_kind" value="GROUP" ${row?.subject_kind==='GROUP'?'checked':''}><strong>Combined Subject / Group</strong><span>A header that contains component subjects. Example: BST, RNV or PVS.</span></label>
+              <label class="sf-option"><input type="radio" name="subject_kind" value="LEAF" ${row?.subject_kind!=='GROUP'?'checked':''}><strong>Component / Standalone Subject</strong><span>A scorable subject. It can stay standalone or be placed inside a combined subject.</span></label>
+            </div>
+          </div>
+
+          <div class="sf-field sf-full" id="parentWrap">
+            <label>Place Under Combined Subject</label>
+            <select name="parent_subject_id" id="parent_subject_id">
+              <option value="">Standalone — no group</option>
+              ${groups.filter(g=>g.id!==row?.id).map(g=>`<option value="${g.id}" ${g.id===row?.parent_subject_id?'selected':''}>${escapeHtml(g.name)} ${g.code?'('+escapeHtml(g.code)+')':''}</option>`).join('')}
+            </select>
+            <div class="sf-help">Use this to move a component into another group. Choose Standalone to remove it from its current group.</div>
+          </div>
+
+          <div class="sf-field" id="caWrap">
+            <label>Maximum CA</label>
+            <input name="max_ca" type="number" min="0" max="1000" value="${row?Number(row.max_ca||0):30}">
+          </div>
+          <div class="sf-field" id="examWrap">
+            <label>Maximum Exam</label>
+            <input name="max_exam" type="number" min="0" max="1000" value="${row?Number(row.max_exam||0):70}">
+          </div>
+
+          <div class="sf-status sf-full">
+            <div class="sf-status-row">
+              <input id="active" name="is_active" type="checkbox" ${row?.is_active!==false?'checked':''}>
+              <div><strong>Active subject</strong><span>Active component subjects remain available for classes, timetables and assessment. Combined groups are also shown to administrators when active.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sf-warning" id="groupWarning"></div>
+
+        <div class="sf-summary">
+          <div><small>Type</small><strong id="typeText">${row?.subject_kind==='GROUP'?'Combined':'Scorable'}</strong></div>
+          <div><small>Group</small><strong id="groupText">${row?.parent_subject_id?'Assigned':'Standalone'}</strong></div>
+          <div><small>Assessment Total</small><strong id="total">100 marks</strong></div>
+          <div><small>Status</small><strong id="statusText">${row?.is_active===false?'Inactive':'Active'}</strong></div>
+        </div>
+
+        <div class="sf-bottom">
+          <span class="sf-note" id="note">Changes are saved directly to the school academic database.</span>
+          <div class="sf-actions"><button type="button" class="btn btn-ghost" onclick="location.href='subjects.html'">Cancel</button><button class="btn btn-primary" id="save" type="submit">${row?'Save Changes':'Create Subject'}</button></div>
+        </div>
+      </form>
+    </section>
+  </div>`;
+
+  const form=document.querySelector('#subjectForm');
+  const kindInputs=[...form.querySelectorAll('input[name="subject_kind"]')];
+  const parentWrap=document.querySelector('#parentWrap');
+  const parent=document.querySelector('#parent_subject_id');
+  const caWrap=document.querySelector('#caWrap');
+  const examWrap=document.querySelector('#examWrap');
+  const groupWarning=document.querySelector('#groupWarning');
+  const total=document.querySelector('#total');
+  const statusText=document.querySelector('#statusText');
+  const typeText=document.querySelector('#typeText');
+  const groupText=document.querySelector('#groupText');
+
+  function isGroup(){return form.elements.subject_kind.value==='GROUP';}
+  function refreshPreview(){
+    const group=isGroup();
+    parentWrap.style.display=group?'none':'block';
+    caWrap.style.display=group?'none':'block';
+    examWrap.style.display=group?'none':'block';
+    form.elements.max_ca.disabled=group;
+    form.elements.max_exam.disabled=group;
+    if(group){
+      typeText.textContent='Combined';
+      groupText.textContent='Top-level';
+      total.textContent='Calculated from components';
+      parent.value='';
+      if(children.length){
+        groupWarning.classList.add('show');
+        groupWarning.textContent='This combined subject currently has '+children.length+' component subject'+(children.length===1?'':'s')+'. Keep it as a group unless you first move those components elsewhere.';
+      }else groupWarning.classList.remove('show');
+    }else{
+      typeText.textContent='Scorable';
+      groupText.textContent=parent.value?'Assigned':'Standalone';
+      const ca=Number(form.elements.max_ca.value||0),exam=Number(form.elements.max_exam.value||0);
+      total.textContent=(ca+exam)+' marks';
+      groupWarning.classList.remove('show');
+    }
+    statusText.textContent=form.elements.active.checked?'Active':'Inactive';
+  }
+
+  kindInputs.forEach(x=>x.addEventListener('change',refreshPreview));
+  parent.addEventListener('change',refreshPreview);
+  form.elements.max_ca.addEventListener('input',refreshPreview);
+  form.elements.max_exam.addEventListener('input',refreshPreview);
+  form.elements.active.addEventListener('change',refreshPreview);
+  refreshPreview();
+
+  if(focus==='group') setTimeout(()=>parent.focus(),250);
+
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const btn=document.querySelector('#save');
+    setLoading(btn,true,'Saving…');
+    try{
+      const kind=form.elements.subject_kind.value;
+      if(kind==='GROUP' && row?.subject_kind==='GROUP' && form.elements.parent_subject_id.value) throw new Error('A combined subject cannot be placed inside another subject.');
+      if(kind==='GROUP' && children.length) throw new Error('Move or delete the component subjects before converting this group into another type.');
+      const name=String(form.elements.name.value||'').trim();
+      if(!name) throw new Error('Subject name is required.');
+
+      const payload={
+        name,
+        code:String(form.elements.code.value||'').trim()||null,
+        subject_kind:kind,
+        parent_subject_id:kind==='GROUP' ? null : (String(form.elements.parent_subject_id.value||'').trim()||null),
+        max_ca:kind==='GROUP'?0:Number(form.elements.max_ca.value||0),
+        max_exam:kind==='GROUP'?0:Number(form.elements.max_exam.value||0),
+        is_active:form.elements.active.checked
+      };
+
+      if(payload.parent_subject_id===row?.id) throw new Error('A subject cannot be its own parent.');
+
+      let res;
+      if(row) res=await supabase.from('subjects').update(payload).eq('id',row.id);
+      else{
+        const orderRes=await supabase.from('subjects').select('display_order').order('display_order',{ascending:false}).limit(1).maybeSingle();
+        const nextOrder=(Number(orderRes.data?.display_order||0)+10);
+        payload.display_order=nextOrder;
+        res=await supabase.from('subjects').insert(payload);
+      }
+      if(res.error) throw res.error;
+      toast(row?'Subject updated successfully.':'Subject created successfully.');
+      location.href='subjects.html';
+    }catch(err){
+      console.error(err);
+      toast(err.message||'Could not save subject.','error');
+      document.querySelector('#note').textContent='The subject could not be saved.';
+    }finally{setLoading(btn,false);}
+  };
+
+  pageLoading(false);
 }
-</script></body></html>
+</script>
+</body>
+</html>

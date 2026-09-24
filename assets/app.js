@@ -33,7 +33,11 @@ export function toast(message, type='success') {
   host.appendChild(el); requestAnimationFrame(()=>el.classList.add('show'));
   setTimeout(()=>{el.classList.remove('show'); setTimeout(()=>el.remove(),250)},3800);
 }
-export function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]||c));}\nexport function profileAvatarUrl(profile,s=DEFAULT_SCHOOL_SETTINGS){\n  return profile?.avatar_url || s.logo_url || DEFAULT_SCHOOL_SETTINGS.logo_url;\n}\n
+export function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]||c));}
+export function profileAvatarUrl(profile,s=DEFAULT_SCHOOL_SETTINGS){
+  return profile?.avatar_url || s.logo_url || DEFAULT_SCHOOL_SETTINGS.logo_url;
+}
+
 export function setLoading(button, loading, text='Please wait…') {
   if(!button)return;
   if(loading){button.dataset.originalText=button.innerHTML;button.disabled=true;button.innerHTML=`<span class="spinner spinner-sm"></span>${text}`}

@@ -33,7 +33,7 @@ export function toast(message, type='success') {
   host.appendChild(el); requestAnimationFrame(()=>el.classList.add('show'));
   setTimeout(()=>{el.classList.remove('show'); setTimeout(()=>el.remove(),250)},3800);
 }
-export function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]||c));}
+export function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]||c));}\nexport function profileAvatarUrl(profile,s=DEFAULT_SCHOOL_SETTINGS){\n  return profile?.avatar_url || s.logo_url || DEFAULT_SCHOOL_SETTINGS.logo_url;\n}\n
 export function setLoading(button, loading, text='Please wait…') {
   if(!button)return;
   if(loading){button.dataset.originalText=button.innerHTML;button.disabled=true;button.innerHTML=`<span class="spinner spinner-sm"></span>${text}`}
@@ -126,9 +126,11 @@ export function mountShell(user){
   const shell=document.querySelector('#app-shell'); if(!shell)return;
   const s=getCachedSchoolSettings();applySchoolSettings(s);
 
-  const fullName=user?.profile?.full_name||'Administrator';
-  const role=user?.profile?.role||'Admin';
+  const fullName=user?.profile?.full_name||'Principal';
+  const role=String(user?.profile?.role||'Admin').toUpperCase();
+  const displayRole=role==='SUPER_ADMIN'?'Principal':(role==='ADMIN'?'Administrator':role);
   const email=user?.email||'';
+  const avatarUrl=profileAvatarUrl(user?.profile,s);
   const initial=(email||fullName||'A')[0].toUpperCase();
 
   shell.innerHTML=`<aside class="sidebar" id="sidebar">
@@ -142,15 +144,15 @@ export function mountShell(user){
       <div><p class="eyebrow">${escapeHtml(s.school_name)}</p><h1>${document.body.dataset.title||'Administration'}</h1></div>
       <div class="admin-profile-wrap">
         <button class="user-chip" id="profile-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profile-menu">
-          <span class="avatar">${escapeHtml(initial)}</span>
-          <div><strong>${escapeHtml(fullName)}</strong><small>${escapeHtml(role)}</small></div>
+          <span class="avatar"><img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(fullName)}" onerror="this.onerror=null;this.src='${escapeHtml(s.logo_url||DEFAULT_SCHOOL_SETTINGS.logo_url)}'"></span>
+          <div><strong>${escapeHtml(fullName)}</strong><small>${escapeHtml(displayRole)}</small></div>
           <span class="profile-chevron" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"></path></svg>
           </span>
         </button>
         <div class="profile-menu-backdrop" id="profile-menu-backdrop"></div>
         <div class="profile-menu" id="profile-menu" role="menu" aria-label="Profile menu">
-          <div class="profile-menu-head"><strong>${escapeHtml(fullName)}</strong><span>${escapeHtml(email)}</span></div>
+          <div class="profile-menu-head"><strong>${escapeHtml(fullName)}</strong><span>${escapeHtml(displayRole)} · ${escapeHtml(email)}</span></div>
           <a class="profile-menu-item" role="menuitem" href="profile.html">
             <span class="profile-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg></span>
             <span>View Profile</span>

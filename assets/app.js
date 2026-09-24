@@ -100,7 +100,7 @@ const ADMIN_ROLES = ['ADMIN', 'SUPER_ADMIN', 'OWNER'];
 
 export async function getAdminProfile(userId){
   const {data:profile,error:profileError}=await supabase
-    .from('profiles').select('id,full_name,role,is_active,must_change_password').eq('id',userId).maybeSingle();
+    .from('profiles').select('id,full_name,role,is_active,must_change_password,avatar_url').eq('id',userId).maybeSingle();
   if(profileError) throw new Error('We could not verify your school staff profile.');
   if(profile && profile.is_active && ADMIN_ROLES.includes(String(profile.role||'').trim().toUpperCase())) return profile;
   const {data:staff,error:staffError}=await supabase

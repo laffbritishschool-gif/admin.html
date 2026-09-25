@@ -92,9 +92,9 @@ async function loadClassStudents(){
  }catch(e){console.error(e);box.innerHTML='<div class="result-empty"><h3>Students could not be loaded</h3><p>Please refresh and try again.</p><button class="btn" id="retry-class">Retry</button></div>';document.querySelector('#retry-class')?.addEventListener('click',loadClassStudents);toast('Class students could not be loaded.','error');}
 }
 
-async function publishStudent(id,publish){try{const {error}=await supabase.from('results').update(publish?{status:'PUBLISHED',published_at:new Date().toISOString()}:{status:'DRAFT',published_at:null}).eq('enrollment_id',id);if(error)throw error;toast(publish?'Student result published successfully.':'Student result unpublished.');await loadClassStudents();}catch(e){console.error(e);toast('Could not update publication status.','error');}}
+async function publishStudent(id,publish){const data=await invokeProgressionFunction('admin-result-publication',{scope:'student',enrollment_id:id,publish});if(!data?.ok)throw new Error(data?.error||'Could not update publication status.');toast(publish?'Student result published successfully.':'Student result unpublished successfully.');await loadClassStudents();}
 
-async function bulkPublish(publish){const button=document.querySelector(publish?'#publish-all':'#unpublish-all');if(!button)return;if(!confirm(`Are you sure you want to ${publish?'publish':'unpublish'} all results for this class?`))return;try{button.disabled=true;button.innerHTML='<span class="spinner spinner-sm"></span> Please wait…';const {enrollments}=await getClassData();const ids=enrollments.map(x=>x.id);if(!ids.length){toast('There are no active students in this class.','error');return;}const {error}=await supabase.from('results').update(publish?{status:'PUBLISHED',published_at:new Date().toISOString()}:{status:'DRAFT',published_at:null}).in('enrollment_id',ids);if(error)throw error;toast(publish?'All class results have been published.':'All class results have been unpublished.');await loadClassStudents();}catch(e){console.error(e);toast('Could not update all class results.','error');}finally{button.disabled=false;button.textContent=publish?'✓ Publish All Results':'↶ Unpublish All';}}
+async function bulkPublish(publish){const button=document.querySelector(publish?'#publish-all':'#unpublish-all');if(!button)return;if(!confirm(`Are you sure you want to ${publish?'publish':'unpublish'} all results for this class?`))return;try{button.disabled=true;button.innerHTML='<span class="spinner spinner-sm"></span> Please wait…';const data=await invokeProgressionFunction('admin-result-publication',{scope:'class',class_id:classId,publish});if(!data?.ok)throw new Error(data?.error||'Could not update all class results.');toast(data.message||(publish?'All class results have been published.':'All class results have been unpublished.'));await loadClassStudents();}catch(e){console.error(e);toast(e.message||'Could not update all class results.','error');}finally{button.disabled=false;button.textContent=publish?'✓ Publish All Results':'↶ Unpublish All';}}
 
 async function loadHtml2Canvas(){if(window.html2canvas)return window.html2canvas;await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';s.onload=resolve;s.onerror=reject;document.head.appendChild(s);});return window.html2canvas;}
 
@@ -119,7 +119,7 @@ async function openPromotionModal(enrollmentId, currentClassName, studentName, a
  const [classesRes, sessionsRes, enrollmentRes] = await Promise.all([
   supabase.from('classes').select('id,name,level').order('name'),
   supabase.from('academic_sessions').select('id,name,starts_on,ends_on').order('starts_on',{ascending:false,nullsLast:true}).order('name',{ascending:false}),
-  supabase.from('enrollments').select('session_id,classes(name)').eq('id',enrollmentId).maybeSingle()
+  supabase.from('enrollments').select('session_id,classes(name),academic_sessions(name)').eq('id',enrollmentId).maybeSingle()
  ]);
  if(classesRes.error) throw classesRes.error;
  if(sessionsRes.error) throw sessionsRes.error;
@@ -127,7 +127,7 @@ async function openPromotionModal(enrollmentId, currentClassName, studentName, a
  const classes=classesRes.data||[];
  const sessions=sessionsRes.data||[];
  const currentSessionId=enrollmentRes.data?.session_id||'';
- const currentSessionName=enrollmentRes.data?.classes?.name||'';
+ const currentSessionName=enrollmentRes.data?.academic_sessions?.name||'';
  const otherSessions=sessions.filter(s=>s.id!==currentSessionId);
  const card=document.createElement('div');
  card.className='promotion-modal';
@@ -160,15 +160,10 @@ async function openPromotionModal(enrollmentId, currentClassName, studentName, a
   try{
    confirm.disabled=true;confirm.textContent='Promoting…';
    const data=await invokeProgressionFunction('admin-promote-student',{enrollment_id:enrollmentId,target_class_id:targetClass,target_session_id:targetSession});
-   if(error){
-    let detail='Promotion request failed.';
-    try{const raw=await error.context?.json?.();if(raw?.error)detail=raw.error}catch{}
-    throw new Error(detail);
-   }
    if(!data?.ok)throw new Error(data?.error||'Promotion failed.');
    message.innerHTML=`<div class="promotion-success">${esc(data.message||'Student promoted successfully.')}</div>`;
    toast(data.message||'Student promoted successfully.');
-   setTimeout(close,900);
+   setTimeout(()=>{close();location.reload()},850);
   }catch(e){
    console.error('Student promotion failed:',e);
    message.innerHTML=`<div class="promotion-empty">${esc(e.message||'Could not complete the promotion.')}</div>`;
@@ -215,15 +210,10 @@ async function openRepeatModal(enrollmentId, currentClassName, studentName, aver
   try{
    confirm.disabled=true;confirm.textContent='Repeating…';
    const data=await invokeProgressionFunction('admin-repeat-student',{enrollment_id:enrollmentId,target_session_id:targetSession});
-   if(error){
-    let detail='Repeat request failed.';
-    try{const raw=await error.context?.json?.();if(raw?.error)detail=raw.error}catch{}
-    throw new Error(detail);
-   }
    if(!data?.ok)throw new Error(data?.error||'Repeat action failed.');
    message.innerHTML=`<div class="promotion-success">${esc(data.message||'Student repeat completed successfully.')}</div>`;
    toast(data.message||'Student repeat completed successfully.');
-   setTimeout(close,900);
+   setTimeout(()=>{close();location.reload()},850);
   }catch(e){
    console.error('Student repeat failed:',e);
    message.innerHTML=`<div class="promotion-empty">${esc(e.message||'Could not complete the repeat action.')}</div>`;
@@ -251,9 +241,9 @@ export async function renderStudentResult(){
   <div class="result-progression-card"><div><span class="hero-kicker">CURRENT ENROLLMENT</span><h3>${esc(e.classes?.name||'Class')}</h3><p>${esc(e.academic_sessions?.name||'Academic session')} · Student status: <b>${esc(e.status||'ACTIVE')}</b></p></div><div class="progression-rule"><span class="progress-dot active"></span><span></span><span class="progress-dot"></span><span></span><span class="progress-dot"></span></div><div class="progression-caption"><span>Current Class</span><span>Next Session</span><span>Next Class</span></div></div>
   <div class="result-stat-grid"><div><b>${rows.length}</b><span>Subjects</span></div><div><b>${total}</b><span>Total Score</span></div><div><b>${avg}</b><span>Average</span></div><div><b>${rows.filter(x=>String(x.grade||grade(Number(x.total||0)))==='A').length}</b><span>A Grades</span></div></div>
   <section class="panel result-table-panel"><div class="panel-head"><div><h2>Academic Result</h2><p>${esc(rows[0]?.terms?.academic_sessions?.name||e.academic_sessions?.name||'Academic session')} · ${esc(rows[0]?.terms?.name||'All terms')}</p></div></div><div class="table-wrap"><table><thead><tr><th>Subject</th><th>CA</th><th>Exam</th><th>Total</th><th>Grade</th><th>Point</th><th>Remark</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.subjects?.name||'Subject')}</b><small>${esc(x.subjects?.code||'')}</small></td><td>${x.ca_score??0}</td><td>${x.exam_score??0}</td><td><b>${x.total??0}</b></td><td><span class="grade-badge grade-${esc(x.grade||grade(Number(x.total||0)))}">${esc(x.grade||grade(Number(x.total||0)))}</span></td><td>${x.grade_point??'—'}</td><td>${esc(x.teacher_remark||'—')}</td></tr>`).join('')||'<tr><td colspan="7" class="empty-cell">No result records have been entered for this student.</td></tr>'}</tbody></table></div></section>`;
-  document.querySelector('#student-publish')?.addEventListener('click',async()=>{await publishStudent(enrollmentId,!pub);await renderStudentResult();});
-  document.querySelector('#student-promote')?.addEventListener('click',async()=>{try{await openPromotionModal(enrollmentId,e.classes?.name||'Class',name,avg);await renderStudentResult();}catch(err){console.error(err);toast(err.message||'Could not open promotion.','error');}});
-  document.querySelector('#student-repeat')?.addEventListener('click',async()=>{try{await openRepeatModal(enrollmentId,e.classes?.name||'Class',name,avg);await renderStudentResult();}catch(err){console.error(err);toast(err.message||'Could not open repeat action.','error');}});
+  document.querySelector('#student-publish')?.addEventListener('click',async()=>{try{const button=document.querySelector('#student-publish');if(button){button.disabled=true;button.textContent=pub?'Unpublishing…':'Publishing…'}await publishStudent(enrollmentId,!pub);await renderStudentResult();}catch(err){console.error(err);toast(err.message||'Could not update publication status.','error');}});
+  document.querySelector('#student-promote')?.addEventListener('click',async()=>{try{await openPromotionModal(enrollmentId,e.classes?.name||'Class',name,avg);}catch(err){console.error(err);toast(err.message||'Could not open promotion.','error');}});
+  document.querySelector('#student-repeat')?.addEventListener('click',async()=>{try{await openRepeatModal(enrollmentId,e.classes?.name||'Class',name,avg);}catch(err){console.error(err);toast(err.message||'Could not open repeat action.','error');}});
   document.querySelector('#student-image')?.addEventListener('click',()=>createResultImage(enrollmentId));
  }catch(e){console.error(e);document.querySelector('#student-result-content').innerHTML='<div class="result-empty"><h3>Student result could not be loaded</h3><p>Please refresh and try again.</p><button class="btn" onclick="location.reload()">Retry</button></div>';toast('Student result could not be loaded.','error');}
 }

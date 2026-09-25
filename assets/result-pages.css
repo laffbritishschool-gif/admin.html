@@ -12,3 +12,24 @@
 
 /* Student promotion / repeat action styling */
 .student-progress-actions{display:grid;gap:7px;flex:1;min-width:300px;padding:10px 12px;border:1px solid #e3eaf4;border-radius:13px;background:#fbfcff}.action-label{font-size:7px;font-weight:900;letter-spacing:1px;color:#123d8f}.progress-action-group{display:flex;gap:7px}.student-progress-actions>small{font-size:8px;color:var(--muted);line-height:1.45}.result-progression-card{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px 19px;box-shadow:var(--shadow);margin:16px 0}.result-progression-card h3{margin:4px 0 3px;font-size:17px}.result-progression-card p{margin:0;color:var(--muted);font-size:9px}.progression-rule{display:flex;align-items:center;gap:6px}.progression-rule>span:not(.progress-dot){height:3px;flex:1;border-radius:99px;background:#dfe7f2}.progress-dot{width:15px;height:15px;border-radius:50%;background:#dfe7f2;border:3px solid #f5f7fb}.progress-dot.active{background:#123d8f;border-color:#dce8ff;box-shadow:0 0 0 4px rgba(18,61,143,.08)}.progression-caption{display:flex;justify-content:space-between;gap:10px;color:#78869a;font-size:7px;font-weight:800}.progression-caption span:first-child{color:#123d8f}@media(max-width:850px){.student-progress-actions{min-width:100%;order:3}.result-progression-card{grid-template-columns:1fr}.progression-caption{margin-top:-8px}}@media(max-width:600px){.progress-action-group{flex-direction:column}.student-progress-actions .btn{width:100%}}
+
+/* Official student-result print layout */
+@media print{
+  @page{size:A4 portrait;margin:11mm}
+  html,body{background:#fff!important}
+  body *{visibility:hidden!important}
+  .student-result-page,.student-result-page *{visibility:visible!important}
+  .student-result-page{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important;padding:0!important;margin:0!important;display:block!important}
+  .student-result-page .result-hero{box-shadow:none!important;border:0!important;border-radius:0!important;margin:0 0 12mm!important;padding:0 0 7mm!important;background:#fff!important;color:#123d8f!important;display:block!important}
+  .student-result-page .result-hero:before{display:none!important}
+  .student-result-page .result-hero h1{color:#123d8f!important;font-size:27px!important;margin:3mm 0 2mm!important}
+  .student-result-page .result-hero p{color:#475467!important;font-size:10px!important}
+  .student-result-page .hero-kicker{color:#8a6900!important}
+  .student-result-page .hero-add,.student-result-page .student-result-detail-actions,.student-result-page .result-progression-card{display:none!important}
+  .student-result-page .result-stat-grid{margin:0 0 7mm!important;grid-template-columns:repeat(4,1fr)!important;gap:4mm!important}
+  .student-result-page .result-stat-grid>div{box-shadow:none!important;border:1px solid #d9e0ea!important;padding:4mm!important}
+  .student-result-page .result-table-panel{margin:0!important;border:1px solid #d9e0ea!important;box-shadow:none!important;break-inside:avoid}
+  .student-result-page .result-table-panel .panel-head{padding:4mm 5mm!important;border-bottom:1px solid #d9e0ea!important}
+  .student-result-page .result-table-panel table{font-size:9px!important}
+  .student-result-page .result-table-panel th,.student-result-page .result-table-panel td{padding:2.7mm!important}
+}

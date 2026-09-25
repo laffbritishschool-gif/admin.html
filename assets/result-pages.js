@@ -233,8 +233,8 @@ export async function renderStudentResult(){
   document.querySelector('#student-name').textContent=name||'Student Result';
   document.querySelector('#student-meta').textContent=`${s.student_id||'No ID'} · ${e.classes?.name||'Class'} · ${e.academic_sessions?.name||'Academic session'}`;
   document.querySelector('#student-result-content').innerHTML=`<div class="student-result-detail-actions">
-    <div class="result-publication-status ${pub?'published':'unpublished'}"><span class="status-dot"></span><strong>${pub?'PUBLISHED':'NOT PUBLISHED'}</strong><small>${pub?'This result is available to the student.':'This result is still awaiting publication.'}</small></div>
-    <button class="btn ${pub?'secondary unpublish-btn':'publish-btn'}" id="student-publish">${pub?'↶ Unpublish Result':'✓ Publish Result'}</button>
+    <div class="result-publication-status ${rows.length&&pub?'published':'unpublished'}"><span class="status-dot"></span><strong>${rows.length?(pub?'PUBLISHED':'NOT PUBLISHED'):'NO RESULT ENTRIES'}</strong><small>${rows.length?(pub?'This result is available to the student.':'This result is awaiting principal publication.'):'Enter and save result scores before publishing this student result.'}</small></div>
+    ${rows.length?'<button class="btn '+(pub?'secondary unpublish-btn':'publish-btn')+'" id="student-publish">'+(pub?'↶ Unpublish Result':'✓ Publish Result')+'</button>':''}
     <div class="student-progress-actions"><span class="action-label">ACADEMIC PROGRESSION</span><div class="progress-action-group"><button class="btn publish-btn" id="student-promote">⇧ Promote Student</button><button class="btn secondary" id="student-repeat">↻ Keep in Same Class</button></div><small>Promote to the next class when successful. Keep the same class for the next session when repeating.</small></div>
     <button class="btn secondary" id="student-image">▣ Result Image</button><button class="btn secondary" onclick="window.print()">Print Result</button>
   </div>

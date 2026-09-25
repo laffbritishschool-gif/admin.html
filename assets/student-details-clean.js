@@ -4,6 +4,14 @@ const text = (v) => esc(v ?? '—');
 const fullName = (s) => [s?.first_name, s?.middle_name, s?.last_name].filter(Boolean).join(' ') || 'Unnamed Student';
 const dateFmt = (v) => v ? new Date(v).toLocaleDateString('en-NG', {day:'2-digit', month:'short', year:'numeric'}) : '—';
 const money = (v) => v == null ? '—' : '₦' + Number(v).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2});
+async function resolveStudentPhoto(photoUrl){
+  const value=String(photoUrl||'').trim();
+  if(!value) return '';
+  if(/^(https?:|data:|blob:)/i.test(value)) return value;
+  const {data,error}=await supabase.storage.from('student-passports').createSignedUrl(value,3600);
+  if(error) throw error;
+  return data?.signedUrl||'';
+}
 
 export async function renderStudentDetailsClean() {
   const root = document.querySelector('.page-content');
@@ -51,6 +59,15 @@ export async function renderStudentDetailsClean() {
   const present=attendance.filter(x=>String(x.status).toUpperCase()==='PRESENT').length;
   const attendanceRate=attendance.length?Math.round(present/attendance.length*100):0;
   const initials=[s.first_name,s.last_name].filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?';
+  let photoSrc='';
+  if(s.photo_url){
+    try{
+      photoSrc=await resolveStudentPhoto(s.photo_url);
+    }catch(photoError){
+      console.warn('Student passport could not be resolved:', photoError);
+    }
+  }
+  const photoAlt=fullName(s);
 
   root.innerHTML=`
     <div class="student-clean">
@@ -62,7 +79,7 @@ export async function renderStudentDetailsClean() {
           <div class="student-clean-tags"><span class="student-clean-tag">${text(s.student_id)}</span><span class="student-clean-tag">${text(s.exam_number)}</span><span class="student-clean-tag">${text(s.status)}</span></div>
           <div class="student-clean-actions"><a class="student-clean-btn light" href="students.html">← Students</a><a class="student-clean-btn ghost" href="register-student.html?edit=${encodeURIComponent(s.id)}">✎ Edit Student</a><button class="student-clean-btn gold" id="student-print-clean">Print Profile</button></div>
         </div>
-        <div class="student-clean-photo"><div class="student-clean-ring"></div><div class="student-clean-avatar">${s.photo_url?'<img src="'+esc(s.photo_url)+'" alt="Student photo">':'<span>'+esc(initials)+'</span>'}</div></div>
+        <div class="student-clean-photo"><div class="student-clean-ring"></div><div class="student-clean-avatar">${photoSrc?'<img src="'+esc(photoSrc)+'" alt="'+esc(photoAlt)+'" loading="eager" decoding="async">':'<span>'+esc(initials)+'</span>'}</div></div>
       </section>
 
       <div class="student-clean-summary">

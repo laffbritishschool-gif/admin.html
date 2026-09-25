@@ -7,7 +7,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 });
 
 export const DEFAULT_SCHOOL_SETTINGS = {
-  school_name: 'Laff British Montessori School', motto: '', logo_url: 'https://i.ibb.co/whtP8S5v/image.png',
+  school_name: 'Laff British Montessori School', motto: '', logo_url: '/assets/school-logo.svg',
   primary_color: '#0b5ed7', secondary_color: '#f4c20d',
   ui_settings: { navigation: 'sidebar', theme: 'light', compact_sidebar: false, show_breadcrumbs: true },
   result_settings: { show_position: true, publish_requires_approval: true },
@@ -76,7 +76,7 @@ function injectGlobalUiStyles(){
 }
 
 export function applySchoolSettings(raw={}){
-  const s=mergeSettings(raw);injectGlobalUiStyles();
+  const s=mergeSettings(raw);if(!s.logo_url||/^https?:\/\/i\.ibb\.co\//i.test(String(s.logo_url)))s.logo_url=DEFAULT_SCHOOL_SETTINGS.logo_url;injectGlobalUiStyles();
   document.documentElement.style.setProperty('--school-primary',s.primary_color||DEFAULT_SCHOOL_SETTINGS.primary_color);
   document.documentElement.style.setProperty('--school-secondary',s.secondary_color||DEFAULT_SCHOOL_SETTINGS.secondary_color);
   document.body.classList.toggle('school-dark',s.ui_settings.theme==='dark');

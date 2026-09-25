@@ -12,23 +12,68 @@ const badge = ok => `<span class="result-publish-badge ${ok?'is-published':'is-u
 function renderContent(html){const shell=document.querySelector('#app-shell');if(shell)shell.dataset.content=html;const content=document.querySelector('.page-content');if(content)content.innerHTML=html;}
 
 export async function renderResultsPage(){
-  renderContent(`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">ACADEMIC RESULTS</span><h1>Results by Class</h1><p>Select a class to manage student results and publication.</p></div></div><div class="result-toolbar"><button class="btn secondary" id="refresh-results">↻ Refresh</button></div><div id="class-results-grid" class="result-class-grid"><div class="result-loading"><span class="spinner"></span><b>Loading classes…</b><small>Preparing result records</small></div></div></div>`);
-  await loadClasses();document.querySelector('#refresh-results')?.addEventListener('click',loadClasses);
+  renderContent(`<div class="result-page results-overview-page">
+    <section class="result-hero results-overview-hero"><div><span class="hero-kicker">ACADEMIC RESULTS</span><h1>Results Center</h1><p>Manage class results, monitor publication status and open individual student records from one place.</p><div class="result-hero-actions"><a class="btn hero-add" href="subjects.html">View Subjects</a><button class="btn secondary results-hero-refresh" id="refresh-results-top" type="button">Refresh Results</button></div></div><div class="result-hero-summary"><div><strong id="result-total-classes">0</strong><span>Classes</span></div><div><strong id="result-total-students">0</strong><span>Active students</span></div></div></section>
+    <section class="result-stat-grid result-overview-stats">
+      <div><div class="result-overview-stat-icon">▤</div><div><span>Classes</span><b id="result-stat-classes">0</b><small>Classes with active enrolments</small></div></div>
+      <div><div class="result-overview-stat-icon">◉</div><div><span>Students</span><b id="result-stat-students">0</b><small>Students currently enrolled</small></div></div>
+      <div><div class="result-overview-stat-icon">✓</div><div><span>Published</span><b id="result-stat-published">0</b><small>Students with published results</small></div></div>
+      <div><div class="result-overview-stat-icon">◷</div><div><span>Pending</span><b id="result-stat-pending">0</b><small>Students still awaiting publication</small></div></div>
+    </section>
+    <section class="panel results-command">
+      <div class="results-command-head"><div><span class="section-kicker">RESULTS DIRECTORY</span><h2>Choose a class</h2><p>Open a class to review students and publish their results.</p></div><button class="btn secondary" id="refresh-results" type="button">↻ Refresh</button></div>
+      <div class="results-command-fields"><label class="results-search"><span>⌕</span><input id="results-class-search" type="search" placeholder="Search class name or level…"><button id="results-search-clear" type="button" aria-label="Clear search">×</button></label></div>
+      <div class="results-command-foot"><span id="results-directory-note">Loading classes…</span><span id="results-directory-count">0 classes</span></div>
+    </section>
+    <section id="class-results-grid" class="result-class-grid"><div class="result-loading"><span class="spinner"></span><b>Loading classes…</b><small>Preparing result records</small></div></section>
+  </div>`);
+  await loadClasses();
+  document.querySelector('#refresh-results')?.addEventListener('click',loadClasses);
+  document.querySelector('#refresh-results-top')?.addEventListener('click',loadClasses);
+  document.querySelector('#results-class-search')?.addEventListener('input',()=>drawResultClasses(window.__resultClasses||[],window.__resultEnrollments||[],window.__resultByClass||{}));
+  document.querySelector('#results-search-clear')?.addEventListener('click',()=>{const x=document.querySelector('#results-class-search');if(x){x.value='';x.focus();drawResultClasses(window.__resultClasses||[],window.__resultEnrollments||[],window.__resultByClass||{})}});
 }
 
+function drawResultClasses(classes,enrollments,by){
+ const box=document.querySelector('#class-results-grid');if(!box)return;
+ const q=(document.querySelector('#results-class-search')?.value||'').trim().toLowerCase();
+ const filtered=(classes||[]).filter(c=>!q||[c.name,c.level,c.description].filter(Boolean).join(' ').toLowerCase().includes(q));
+ const totalStudents=(enrollments||[]).length;
+ const publishedStudents=(enrollments||[]).filter(e=>published(by[e.id]||[])).length;
+ const stats={classes:(classes||[]).filter(c=>(by[c.id]||[]).length).length,students:totalStudents,published:publishedStudents,pending:Math.max(0,totalStudents-publishedStudents)};
+ document.querySelector('#result-total-classes')&&(document.querySelector('#result-total-classes').textContent=(classes||[]).length);
+ document.querySelector('#result-total-students')&&(document.querySelector('#result-total-students').textContent=totalStudents);
+ document.querySelector('#result-stat-classes')&&(document.querySelector('#result-stat-classes').textContent=stats.classes);
+ document.querySelector('#result-stat-students')&&(document.querySelector('#result-stat-students').textContent=stats.students);
+ document.querySelector('#result-stat-published')&&(document.querySelector('#result-stat-published').textContent=stats.published);
+ document.querySelector('#result-stat-pending')&&(document.querySelector('#result-stat-pending').textContent=stats.pending);
+ document.querySelector('#results-directory-note')&&(document.querySelector('#results-directory-note').textContent=filtered.length===classes.length?(classes||[]).length+' class'+((classes||[]).length===1?'':'es')+' available':'Showing '+filtered.length+' of '+classes.length+' classes');
+ document.querySelector('#results-directory-count')&&(document.querySelector('#results-directory-count').textContent=filtered.length+' class'+(filtered.length===1?'':'es'));
+ if(!filtered.length){box.innerHTML='<section class="panel result-empty"><div class="result-empty-icon">⌕</div><h3>No classes found</h3><p>Try another class name or level.</p></section>';return}
+ box.innerHTML=filtered.map((c,i)=>{const students=by[c.id]||[];const pubCount=students.filter(e=>published(by[e.id]||[])).length;const resultCount=students.reduce((n,e)=>n+(by[e.id]||[]).length,0);return `<article class="result-class-card" style="--delay:${Math.min(i,12)*45}ms"><div class="result-class-icon">${esc(initials(c.name,c.level))}</div><div class="result-class-body"><div class="result-class-topline"><span class="result-level">${esc(c.level||'Class')}</span><span class="result-class-status">${pubCount===students.length&&students.length?'Ready to publish':'In progress'}</span></div><h2>${esc(c.name)}</h2><p>${esc(c.description||'Review students, enter results and manage publication for this class.')}</p><div class="result-mini-stats"><span><b>${students.length}</b><small>Active students</small></span><span><b>${resultCount}</b><small>Score entries</small></span><span><b>${pubCount}</b><small>Published</small></span></div></div><div class="result-card-footer"><a class="btn" href="result-pages.html?class=${encodeURIComponent(c.id)}">Open Class Results <span>→</span></a></div></article>`}).join('');
+}
 async function loadClasses(){
- const box=document.querySelector('#class-results-grid');if(!box)return;box.innerHTML=Array.from({length:3},()=>'<div class="result-skeleton"></div>').join('');
+ const box=document.querySelector('#class-results-grid');if(!box)return;box.innerHTML=Array.from({length:6},()=>'<div class="result-skeleton"></div>').join('');
  try{
   const {data:classes,error}=await supabase.from('classes').select('id,name,level,description').order('name');if(error)throw error;
   const {data:enrollments,error:ee}=await supabase.from('enrollments').select('id,class_id,status').eq('status','ACTIVE');if(ee)throw ee;
   const ids=(enrollments||[]).map(x=>x.id);let results=[];if(ids.length){const r=await supabase.from('results').select('enrollment_id,status').in('enrollment_id',ids);if(r.error)throw r.error;results=r.data||[];}
   const by={};(enrollments||[]).forEach(e=>(by[e.class_id]??=[]).push(e));const rb={};results.forEach(r=>(rb[r.enrollment_id]??=[]).push(r));
-  box.innerHTML=(classes||[]).map((c,i)=>{const students=by[c.id]||[];return `<article class="result-class-card" style="--delay:${i*70}ms"><div class="result-class-icon">${esc(initials(c.name,c.level))}</div><div class="result-class-body"><span class="result-level">${esc(c.level||'Class')}</span><h2>${esc(c.name)}</h2><p>${esc(c.description||'Manage students and publish academic results for this class.')}</p><div class="result-mini-stats"><span><b>${students.length}</b> Students</span><span><b>${students.filter(e=>published(rb[e.id]||[])).length}</b> Published</span></div></div><div class="result-card-footer"><a class="btn" href="result-pages.html?class=${encodeURIComponent(c.id)}">View Class Results →</a></div></article>`}).join('')||'<div class="result-empty"><h3>No classes found</h3><p>Create a class first before viewing student results.</p></div>';
- }catch(e){console.error(e);box.innerHTML='<div class="result-empty"><h3>Results could not be loaded</h3><p>Please refresh and try again.</p><button class="btn" id="retry-results">Retry</button></div>';document.querySelector('#retry-results')?.addEventListener('click',loadClasses);toast('Results could not be loaded.','error');}
+  window.__resultClasses=classes||[];window.__resultEnrollments=enrollments||[];window.__resultByClass=by;window.__resultRows=rb;
+  drawResultClasses(classes||[],enrollments||[],by);
+ }catch(e){console.error(e);box.innerHTML='<section class="panel result-empty"><h3>Results could not be loaded</h3><p>Please refresh and try again.</p><button class="btn" id="retry-results">Retry</button></section>';document.querySelector('#retry-results')?.addEventListener('click',loadClasses);toast('Results could not be loaded.','error');}
 }
 
 export async function renderClassResults(){
- renderContent(`<div class="result-page"><div class="result-hero"><div><span class="hero-kicker">CLASS RESULTS</span><h1 id="class-title">Loading class…</h1><p>Principal publication controls are available here. Published results become available to students.</p></div><a class="btn hero-add" href="results.html">← Back to Classes</a></div><div class="result-publish-toolbar"><div class="result-filter-wrap"><label for="publication-filter">Show</label><select id="publication-filter"><option value="all">All Students</option><option value="published">Published</option><option value="unpublished">Not Published</option></select></div><div class="result-bulk-actions"><button class="btn publish-btn" id="publish-all">✓ Publish All Results</button><button class="btn secondary unpublish-btn" id="unpublish-all">↶ Unpublish All</button></div></div><div class="result-toolbar"><div id="class-summary" class="result-summary">Loading students…</div><button class="btn secondary" id="refresh-class">↻ Refresh</button></div><div id="student-result-list" class="student-result-list"><div class="result-loading"><span class="spinner"></span><b>Loading students…</b><small>Preparing the class result list</small></div></div></div>`);
+ renderContent(`<div class="result-page class-results-page">
+  <section class="result-hero"><div><span class="hero-kicker">CLASS RESULTS</span><h1 id="class-title">Loading class…</h1><p>Review student score records and control publication for this class.</p></div><a class="btn hero-add" href="results.html">← Results Center</a></section>
+  <section class="panel class-results-command">
+    <div class="class-results-command-head"><div><span class="section-kicker">PUBLICATION CONTROL</span><h2>Class result management</h2><p>Filter the class, publish individual results or publish the class at once.</p></div><button class="btn secondary" id="refresh-class" type="button">↻ Refresh</button></div>
+    <div class="class-results-tools"><div class="result-filter-wrap"><label for="publication-filter">Show</label><select id="publication-filter"><option value="all">All Students</option><option value="published">Published</option><option value="unpublished">Not Published</option></select></div><div class="result-bulk-actions"><button class="btn publish-btn" id="publish-all">✓ Publish All</button><button class="btn secondary unpublish-btn" id="unpublish-all">↶ Unpublish All</button></div></div>
+    <div class="class-results-command-foot"><span id="class-summary" class="result-summary">Loading students…</span><span>Publication is controlled by the principal.</span></div>
+  </section>
+  <div id="student-result-list" class="student-result-list"><div class="result-loading"><span class="spinner"></span><b>Loading students…</b><small>Preparing the class result list</small></div></div>
+</div>`);
  await loadClassStudents();document.querySelector('#refresh-class')?.addEventListener('click',loadClassStudents);document.querySelector('#publication-filter')?.addEventListener('change',loadClassStudents);document.querySelector('#publish-all')?.addEventListener('click',()=>bulkPublish(true));document.querySelector('#unpublish-all')?.addEventListener('click',()=>bulkPublish(false));
 }
 

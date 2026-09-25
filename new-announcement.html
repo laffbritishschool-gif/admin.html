@@ -43,6 +43,9 @@
 .recipient-meta{margin-top:2px;font-size:8px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recipient-empty{padding:18px;text-align:center;border:1px dashed #d8e0eb;border-radius:12px;color:#667085;font-size:9px}
 .recipient-count{font-size:9px;color:#667085;margin-top:8px}
+.picker-actions{display:flex;gap:10px;justify-content:flex-end;margin:-2px 0 10px}
+.picker-link{border:0;background:transparent;color:#0a66c2;font-size:9px;font-weight:800;cursor:pointer;padding:3px 0}
+.picker-link:hover{text-decoration:underline}
 .composer-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #edf0f4;padding-top:18px;margin-top:18px}
 .publish-box{padding:15px;border:1px solid #d9e6fa;background:#f6f9ff;border-radius:14px}
 .publish-row{display:flex;gap:11px;align-items:flex-start}.publish-row input{margin-top:3px}.publish-row strong{display:block;font-size:11px;color:#14213d}.publish-row span{display:block;color:#667085;font-size:10px;line-height:1.5;margin-top:3px}
@@ -73,7 +76,7 @@ if(user){
   if(announcementId){
     const {data,error}=await supabase
       .from('announcements')
-      .select('id,title,body,audience,class_id,student_id,teacher_id,published,published_at')
+      .select('id,title,body,audience,class_id,student_id,teacher_id,student_ids,teacher_ids,published,published_at')
       .eq('id',announcementId)
       .maybeSingle();
     if(error)throw error;
@@ -116,15 +119,19 @@ if(user){
           </div>
 
           <div class="target-panel" id="studentTargetPanel" style="display:none">
-            <div class="target-heading"><strong>Student delivery</strong><span>Choose who should receive this announcement.</span></div>
+            <div class="target-heading"><strong>Student delivery</strong><span>Select one or more students. There is no small recipient limit.</span></div>
             <div class="target-options">
               <label class="target-option"><input type="radio" name="studentTargetMode" value="ALL" checked><div><strong>All students</strong><span>Send to every student account.</span></div></label>
-              <label class="target-option"><input type="radio" name="studentTargetMode" value="SPECIFIC"><div><strong>Specific student</strong><span>Pick one student from the school list.</span></div></label>
+              <label class="target-option"><input type="radio" name="studentTargetMode" value="SPECIFIC"><div><strong>Select students</strong><span>Choose one, several, ten or more students from the school list.</span></div></label>
             </div>
             <div class="target-picker" id="studentPicker" style="display:none">
               <div class="recipient-toolbar">
                 <input id="studentSearch" type="search" placeholder="Search by student name or student ID…">
                 <select id="studentClassFilter"><option value="">All classes</option></select>
+              </div>
+              <div class="picker-actions">
+                <button type="button" class="picker-link" id="studentSelectVisible">Select all visible</button>
+                <button type="button" class="picker-link" id="studentClearVisible">Clear visible</button>
               </div>
               <div class="recipient-list" id="studentList"><div class="recipient-empty">Start searching or choose a class.</div></div>
               <div class="recipient-count" id="studentCount"></div>
@@ -132,14 +139,18 @@ if(user){
           </div>
 
           <div class="target-panel" id="teacherTargetPanel" style="display:none">
-            <div class="target-heading"><strong>Teacher delivery</strong><span>Choose who should receive this announcement.</span></div>
+            <div class="target-heading"><strong>Teacher delivery</strong><span>Select one or more teachers.</span></div>
             <div class="target-options">
               <label class="target-option"><input type="radio" name="teacherTargetMode" value="ALL" checked><div><strong>All teachers</strong><span>Send to every active teacher account.</span></div></label>
-              <label class="target-option"><input type="radio" name="teacherTargetMode" value="SPECIFIC"><div><strong>Specific teacher</strong><span>Pick one teacher from the staff list.</span></div></label>
+              <label class="target-option"><input type="radio" name="teacherTargetMode" value="SPECIFIC"><div><strong>Select teachers</strong><span>Choose one, several, ten or more teachers from the staff list.</span></div></label>
             </div>
             <div class="target-picker" id="teacherPicker" style="display:none">
               <div class="recipient-toolbar" style="grid-template-columns:1fr">
                 <input id="teacherSearch" type="search" placeholder="Search by teacher name or staff ID…">
+              </div>
+              <div class="picker-actions">
+                <button type="button" class="picker-link" id="teacherSelectVisible">Select all visible</button>
+                <button type="button" class="picker-link" id="teacherClearVisible">Clear visible</button>
               </div>
               <div class="recipient-list" id="teacherList"><div class="recipient-empty">Start searching for a teacher.</div></div>
               <div class="recipient-count" id="teacherCount"></div>
@@ -204,8 +215,8 @@ if(user){
   let teachers=[];
   let studentsLoaded=false;
   let teachersLoaded=false;
-  let selectedStudentId=editingAnnouncement?.student_id||'';
-  let selectedTeacherId=editingAnnouncement?.teacher_id||'';
+  let selectedStudentIds=new Set(Array.isArray(editingAnnouncement?.student_ids)&&editingAnnouncement.student_ids.length?editingAnnouncement.student_ids:(editingAnnouncement?.student_id?[editingAnnouncement.student_id]:[]));
+  let selectedTeacherIds=new Set(Array.isArray(editingAnnouncement?.teacher_ids)&&editingAnnouncement.teacher_ids.length?editingAnnouncement.teacher_ids:(editingAnnouncement?.teacher_id?[editingAnnouncement.teacher_id]:[]));
 
   function studentName(s){
     return [s.first_name,s.middle_name,s.last_name].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
@@ -266,7 +277,7 @@ if(user){
       const id=String(s.student_id||'').toLowerCase();
       return (!q||name.includes(q)||id.includes(q))&&(!cls||s.class_id===cls);
     });
-    document.querySelector('#studentCount').textContent=filtered.length+` student${filtered.length===1?'':'s'} found`;
+    document.querySelector('#studentCount').textContent=`${selectedStudentIds.size} selected · ${filtered.length} shown`;
     if(!filtered.length){
       list.innerHTML='<div class="recipient-empty">No students match the current search or class filter.</div>';
       return;
@@ -274,13 +285,13 @@ if(user){
     list.innerHTML=filtered.map(s=>{
       const name=studentName(s);
       return `<label class="recipient-card ${selectedStudentId===s.id?'selected':''}">
-        <input type="radio" name="selectedStudent" value="${s.id}" ${selectedStudentId===s.id?'checked':''}>
+        <input type="checkbox" name="selectedStudent" value="${s.id}" ${selectedStudentIds.has(s.id)?'checked':''}>
         <div class="recipient-avatar">${escapeHtml(studentInitials(name))}</div>
         <div class="recipient-main"><div class="recipient-name">${escapeHtml(name)}</div><div class="recipient-meta">${escapeHtml(s.student_id||'')} · ${escapeHtml(s.class_name||'Not assigned')}</div></div>
       </label>`;
     }).join('');
     list.querySelectorAll('input[name="selectedStudent"]').forEach(input=>input.addEventListener('change',()=>{
-      selectedStudentId=input.value;
+      if(input.checked)selectedStudentIds.add(input.value);else selectedStudentIds.delete(input.value);
       renderStudentList();
       updatePreview();
     }));
@@ -295,7 +306,7 @@ if(user){
       const email=String(t.school_email||t.secondary_email||'').toLowerCase();
       return !q||name.includes(q)||staff.includes(q)||email.includes(q);
     });
-    document.querySelector('#teacherCount').textContent=filtered.length+` teacher${filtered.length===1?'':'s'} found`;
+    document.querySelector('#teacherCount').textContent=`${selectedTeacherIds.size} selected · ${filtered.length} shown`;
     if(!filtered.length){
       list.innerHTML='<div class="recipient-empty">No teachers match the current search.</div>';
       return;
@@ -303,13 +314,13 @@ if(user){
     list.innerHTML=filtered.map(t=>{
       const name=t.full_name||'Unnamed teacher';
       return `<label class="recipient-card ${selectedTeacherId===t.id?'selected':''}">
-        <input type="radio" name="selectedTeacher" value="${t.id}" ${selectedTeacherId===t.id?'checked':''}>
+        <input type="checkbox" name="selectedTeacher" value="${t.id}" ${selectedTeacherIds.has(t.id)?'checked':''}>
         <div class="recipient-avatar">${escapeHtml(teacherInitials(name))}</div>
         <div class="recipient-main"><div class="recipient-name">${escapeHtml(name)}</div><div class="recipient-meta">${escapeHtml(t.staff_id||'')} · ${escapeHtml(t.school_email||t.secondary_email||'No email')}</div></div>
       </label>`;
     }).join('');
     list.querySelectorAll('input[name="selectedTeacher"]').forEach(input=>input.addEventListener('change',()=>{
-      selectedTeacherId=input.value;
+      if(input.checked)selectedTeacherIds.add(input.value);else selectedTeacherIds.delete(input.value);
       renderTeacherList();
       updatePreview();
     }));
@@ -332,17 +343,17 @@ if(user){
       await loadStudents();
       const specific=activeStudentMode()==='SPECIFIC';
       studentPicker.style.display=specific?'block':'none';
-      if(!specific)selectedStudentId='';
+      if(!specific)selectedStudentIds.clear();
       if(specific)renderStudentList();
     }else if(audience.value==='TEACHERS'){
       await loadTeachers();
       const specific=activeTeacherMode()==='SPECIFIC';
       teacherPicker.style.display=specific?'block':'none';
-      if(!specific)selectedTeacherId='';
+      if(!specific)selectedTeacherIds.clear();
       if(specific)renderTeacherList();
     }else{
-      selectedStudentId='';
-      selectedTeacherId='';
+      selectedStudentIds.clear();
+      selectedTeacherIds.clear();
     }
 
     updatePreview();
@@ -356,12 +367,12 @@ if(user){
     }
     if(audience.value==='STUDENTS'){
       return activeStudentMode()==='SPECIFIC'
-        ? (students.find(s=>s.id===selectedStudentId)?studentName(students.find(s=>s.id===selectedStudentId)):'SPECIFIC STUDENT')
+        ? `${selectedStudentIds.size} STUDENT${selectedStudentIds.size===1?'':'S'} SELECTED`
         : 'ALL STUDENTS';
     }
     if(audience.value==='TEACHERS'){
       return activeTeacherMode()==='SPECIFIC'
-        ? (teachers.find(t=>t.id===selectedTeacherId)?.full_name||'SPECIFIC TEACHER')
+        ? `${selectedTeacherIds.size} TEACHER${selectedTeacherIds.size===1?'':'S'} SELECTED`
         : 'ALL TEACHERS';
     }
     return 'ALL RECIPIENTS';
@@ -384,10 +395,24 @@ if(user){
   document.querySelector('#studentClassFilter').onchange=renderStudentList;
   document.querySelector('#teacherSearch').oninput=renderTeacherList;
 
+  function visibleStudentIds(){
+    const q=String(document.querySelector('#studentSearch').value||'').trim().toLowerCase();
+    const cls=document.querySelector('#studentClassFilter').value;
+    return students.filter(s=>{const name=studentName(s).toLowerCase();const id=String(s.student_id||'').toLowerCase();return (!q||name.includes(q)||id.includes(q))&&(!cls||s.class_id===cls)}).map(s=>s.id);
+  }
+  function visibleTeacherIds(){
+    const q=String(document.querySelector('#teacherSearch').value||'').trim().toLowerCase();
+    return teachers.filter(t=>{const name=String(t.full_name||'').toLowerCase();const staff=String(t.staff_id||'').toLowerCase();const email=String(t.school_email||t.secondary_email||'').toLowerCase();return !q||name.includes(q)||staff.includes(q)||email.includes(q)}).map(t=>t.id);
+  }
+  document.querySelector('#studentSelectVisible').onclick=()=>{visibleStudentIds().forEach(id=>selectedStudentIds.add(id));renderStudentList();updatePreview();};
+  document.querySelector('#studentClearVisible').onclick=()=>{visibleStudentIds().forEach(id=>selectedStudentIds.delete(id));renderStudentList();updatePreview();};
+  document.querySelector('#teacherSelectVisible').onclick=()=>{visibleTeacherIds().forEach(id=>selectedTeacherIds.add(id));renderTeacherList();updatePreview();};
+  document.querySelector('#teacherClearVisible').onclick=()=>{visibleTeacherIds().forEach(id=>selectedTeacherIds.delete(id));renderTeacherList();updatePreview();};
+
   document.querySelectorAll('input[name="studentTargetMode"]').forEach(input=>input.addEventListener('change',async()=>{
     const specific=activeStudentMode()==='SPECIFIC';
     studentPicker.style.display=specific?'block':'none';
-    if(!specific){selectedStudentId='';}
+    if(!specific){selectedStudentIds.clear();}
     else{await loadStudents();renderStudentList();}
     updatePreview();
   }));
@@ -395,7 +420,7 @@ if(user){
   document.querySelectorAll('input[name="teacherTargetMode"]').forEach(input=>input.addEventListener('change',async()=>{
     const specific=activeTeacherMode()==='SPECIFIC';
     teacherPicker.style.display=specific?'block':'none';
-    if(!specific){selectedTeacherId='';}
+    if(!specific){selectedTeacherIds.clear();}
     else{await loadTeachers();renderTeacherList();}
     updatePreview();
   }));
@@ -433,12 +458,12 @@ if(user){
       return;
     }
 
-    if(audience.value==='STUDENTS'&&activeStudentMode()==='SPECIFIC'&&!selectedStudentId){
+    if(audience.value==='STUDENTS'&&activeStudentMode()==='SPECIFIC'&&!selectedStudentIds.size){
       toast('Please select a specific student.','error');
       return;
     }
 
-    if(audience.value==='TEACHERS'&&activeTeacherMode()==='SPECIFIC'&&!selectedTeacherId){
+    if(audience.value==='TEACHERS'&&activeTeacherMode()==='SPECIFIC'&&!selectedTeacherIds.size){
       toast('Please select a specific teacher.','error');
       return;
     }
@@ -456,8 +481,10 @@ if(user){
         body:body.value.trim(),
         audience:savedAudience,
         class_id:audience.value==='CLASS'?classId.value:null,
-        student_id:isSpecificStudent?selectedStudentId:null,
-        teacher_id:isSpecificTeacher?selectedTeacherId:null,
+        student_id:isSpecificStudent?(Array.from(selectedStudentIds)[0]||null):null,
+        teacher_id:isSpecificTeacher?(Array.from(selectedTeacherIds)[0]||null):null,
+        student_ids:isSpecificStudent?Array.from(selectedStudentIds):[],
+        teacher_ids:isSpecificTeacher?Array.from(selectedTeacherIds):[],
         published:published.checked,
         published_at:published.checked?new Date().toISOString():null,
         created_by:user.id

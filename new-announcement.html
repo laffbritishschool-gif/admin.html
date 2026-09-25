@@ -1,40 +1,491 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>New Announcement | Laff British Montessori School</title>
-<link rel="icon" href="https://i.ibb.co/whtP8S5v/image.png"><link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="https://i.ibb.co/whtP8S5v/image.png">
+<link rel="stylesheet" href="assets/styles.css">
 <style>
-.compose{max-width:1080px;margin:auto;padding-bottom:40px}.compose-hero{padding:30px 32px;border-radius:24px;background:linear-gradient(135deg,#123d8f,#0a66c2);color:#fff;box-shadow:0 18px 48px rgba(18,61,143,.18);display:flex;justify-content:space-between;gap:20px;align-items:flex-end}.compose-hero h1{margin:5px 0 8px;font-size:30px}.compose-hero p{margin:0;color:rgba(255,255,255,.8);font-size:12px}.compose-kicker{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#ffd84a}.compose-actions{display:flex;gap:8px}.compose-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,.8fr);gap:18px;margin-top:18px}.compose-card{background:#fff;border:1px solid #e6eaf0;border-radius:20px;box-shadow:0 12px 35px rgba(19,43,88,.07);padding:24px}.section-title{margin:0 0 16px;font-size:16px;color:#14213d}.field{margin-bottom:16px}.field:last-child{margin-bottom:0}.field label{display:block;font-size:11px;font-weight:800;color:#344054;margin-bottom:7px}.field input,.field select,.field textarea{width:100%;box-sizing:border-box;border:1px solid #dbe2eb;border-radius:12px;padding:12px 13px;background:#fff;color:#172033;font:inherit;outline:0}.field textarea{min-height:230px;resize:vertical;line-height:1.65}.field input:focus,.field select:focus,.field textarea:focus{border-color:#0a66c2;box-shadow:0 0 0 4px rgba(10,102,194,.08)}.composer-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #edf0f4;padding-top:18px;margin-top:18px}.publish-box{padding:15px;border:1px solid #d9e6fa;background:#f6f9ff;border-radius:14px}.publish-row{display:flex;gap:11px;align-items:flex-start}.publish-row input{margin-top:3px}.publish-row strong{display:block;font-size:11px;color:#14213d}.publish-row span{display:block;color:#667085;font-size:10px;line-height:1.5;margin-top:3px}.tip{padding:15px;border-radius:14px;background:#fff8df;border:1px solid #f0dda0;color:#6b5b16;font-size:10px;line-height:1.6}.preview{min-height:270px;border:1px solid #e9edf3;border-radius:15px;padding:16px;background:#fbfcff}.preview-badge{font-size:8px;font-weight:800;color:#0a66c2;letter-spacing:.8px}.preview h3{margin:8px 0;font-size:18px;color:#14213d;word-break:break-word}.preview p{margin:0;color:#667085;font-size:11px;line-height:1.65;white-space:pre-wrap;word-break:break-word}.preview-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.preview-meta span{font-size:8px;padding:6px 8px;border-radius:999px;background:#eef4ff;color:#31517f;font-weight:800}.save-note{font-size:10px;color:#667085}.required{color:#d92d20}@media(max-width:820px){.compose-hero{align-items:flex-start;flex-direction:column}.compose-actions{width:100%}.compose-actions .btn{flex:1}.compose-layout{grid-template-columns:1fr}.preview{min-height:0}.composer-bottom{align-items:stretch;flex-direction:column}.composer-bottom .btn{width:100%}}@media(max-width:520px){.compose{padding-bottom:20px}.compose-hero,.compose-card{border-radius:18px}.compose-hero{padding:23px}.compose-hero h1{font-size:25px}.compose-card{padding:18px}}
-</style></head>
-<body data-title="New Announcement"><div id="page-loader" class="loader active"><div class="loader-box"><span class="spinner"></span><div>Loading announcement form…</div></div></div><div id="app-shell" data-content=""></div><div id="toast-host"></div>
+.compose{max-width:1120px;margin:auto;padding-bottom:40px}
+.compose-hero{padding:30px 32px;border-radius:24px;background:linear-gradient(135deg,#123d8f,#0a66c2);color:#fff;box-shadow:0 18px 48px rgba(18,61,143,.18);display:flex;justify-content:space-between;gap:20px;align-items:flex-end}
+.compose-hero h1{margin:5px 0 8px;font-size:30px}
+.compose-hero p{margin:0;color:rgba(255,255,255,.8);font-size:12px}
+.compose-kicker{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#ffd84a}
+.compose-actions{display:flex;gap:8px}
+.compose-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(290px,.8fr);gap:18px;margin-top:18px}
+.compose-card{background:#fff;border:1px solid #e6eaf0;border-radius:20px;box-shadow:0 12px 35px rgba(19,43,88,.07);padding:24px}
+.section-title{margin:0 0 16px;font-size:16px;color:#14213d}
+.field{margin-bottom:16px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:800;color:#344054;margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;box-sizing:border-box;border:1px solid #dbe2eb;border-radius:12px;padding:12px 13px;background:#fff;color:#172033;font:inherit;outline:0}
+.field textarea{min-height:230px;resize:vertical;line-height:1.65}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#0a66c2;box-shadow:0 0 0 4px rgba(10,102,194,.08)}
+.target-panel{margin:-2px 0 18px;padding:16px;border:1px solid #e2e9f5;border-radius:16px;background:#f8fbff}
+.target-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+.target-heading strong{font-size:11px;color:#14213d}.target-heading span{font-size:9px;color:#667085}
+.target-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.target-option{position:relative;display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #dbe4f0;border-radius:13px;background:#fff;cursor:pointer;transition:.18s ease}
+.target-option:hover{border-color:#0a66c2;transform:translateY(-1px)}
+.target-option input{margin:2px 0 0;accent-color:#0a66c2}
+.target-option strong{display:block;font-size:10px;color:#14213d}.target-option span{display:block;margin-top:3px;font-size:9px;color:#667085;line-height:1.45}
+.target-picker{margin-top:12px;border-top:1px solid #e6edf7;padding-top:12px}
+.recipient-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:8px;margin-bottom:10px}
+.recipient-toolbar input,.recipient-toolbar select{width:100%;box-sizing:border-box;border:1px solid #dbe2eb;border-radius:11px;padding:10px 12px;background:#fff;color:#172033;font:inherit;outline:0}
+.recipient-toolbar input:focus,.recipient-toolbar select:focus{border-color:#0a66c2;box-shadow:0 0 0 3px rgba(10,102,194,.07)}
+.recipient-list{display:grid;gap:8px;max-height:330px;overflow:auto;padding-right:2px}
+.recipient-card{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid #e3e8f0;border-radius:12px;background:#fff;cursor:pointer;transition:.18s ease}
+.recipient-card:hover{border-color:#aac7eb;background:#fbfdff}
+.recipient-card.selected{border-color:#0a66c2;box-shadow:0 0 0 3px rgba(10,102,194,.08);background:#f4f9ff}
+.recipient-card input{accent-color:#0a66c2;margin:0}
+.recipient-avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:0 0 34px;background:#eaf2ff;color:#0a66c2;font-weight:900;font-size:10px}
+.recipient-main{min-width:0}.recipient-name{font-size:10px;font-weight:800;color:#14213d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipient-meta{margin-top:2px;font-size:8px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipient-empty{padding:18px;text-align:center;border:1px dashed #d8e0eb;border-radius:12px;color:#667085;font-size:9px}
+.recipient-count{font-size:9px;color:#667085;margin-top:8px}
+.composer-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #edf0f4;padding-top:18px;margin-top:18px}
+.publish-box{padding:15px;border:1px solid #d9e6fa;background:#f6f9ff;border-radius:14px}
+.publish-row{display:flex;gap:11px;align-items:flex-start}.publish-row input{margin-top:3px}.publish-row strong{display:block;font-size:11px;color:#14213d}.publish-row span{display:block;color:#667085;font-size:10px;line-height:1.5;margin-top:3px}
+.tip{padding:15px;border-radius:14px;background:#fff8df;border:1px solid #f0dda0;color:#6b5b16;font-size:10px;line-height:1.6}
+.preview{min-height:285px;border:1px solid #e9edf3;border-radius:15px;padding:16px;background:#fbfcff}
+.preview-badge{font-size:8px;font-weight:800;color:#0a66c2;letter-spacing:.8px}
+.preview h3{margin:8px 0;font-size:18px;color:#14213d;word-break:break-word}
+.preview p{margin:0;color:#667085;font-size:11px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.preview-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.preview-meta span{font-size:8px;padding:6px 8px;border-radius:999px;background:#eef4ff;color:#31517f;font-weight:800}
+.save-note{font-size:10px;color:#667085}.required{color:#d92d20}
+@media(max-width:820px){.compose-hero{align-items:flex-start;flex-direction:column}.compose-actions{width:100%}.compose-actions .btn{flex:1}.compose-layout{grid-template-columns:1fr}.target-options{grid-template-columns:1fr}.recipient-toolbar{grid-template-columns:1fr}.preview{min-height:0}.composer-bottom{align-items:stretch;flex-direction:column}.composer-bottom .btn{width:100%}}
+@media(max-width:520px){.compose{padding-bottom:20px}.compose-hero,.compose-card{border-radius:18px}.compose-hero{padding:23px}.compose-hero h1{font-size:25px}.compose-card{padding:18px}}
+</style>
+</head>
+<body data-title="New Announcement">
+<div id="page-loader" class="loader active"><div class="loader-box"><span class="spinner"></span><div>Loading announcement form…</div></div></div>
+<div id="app-shell" data-content=""></div><div id="toast-host"></div>
 <script type="module">
 import{requireAdmin,mountShell,pageLoading,supabase,toast,setLoading,escapeHtml}from'./assets/app.js';
+
 const user=await requireAdmin();
 if(user){
- mountShell(user);
- const host=document.querySelector('.page-content');
- const announcementId=new URLSearchParams(location.search).get('id');
- let editingAnnouncement=null;
- if(announcementId){
-  const {data,error}=await supabase.from('announcements').select('id,title,body,audience,class_id,published,published_at').eq('id',announcementId).maybeSingle();
-  if(error)throw error;
-  if(!data){toast('Announcement not found.','error');location.href='announcements.html';throw new Error('Announcement not found.');}
-  editingAnnouncement=data;
+  mountShell(user);
+  const host=document.querySelector('.page-content');
+  const announcementId=new URLSearchParams(location.search).get('id');
+  let editingAnnouncement=null;
+
+  if(announcementId){
+    const {data,error}=await supabase
+      .from('announcements')
+      .select('id,title,body,audience,class_id,student_id,teacher_id,published,published_at')
+      .eq('id',announcementId)
+      .maybeSingle();
+    if(error)throw error;
+    if(!data){
+      toast('Announcement not found.','error');
+      location.href='announcements.html';
+      throw new Error('Announcement not found.');
+    }
+    editingAnnouncement=data;
+  }
+
+  host.innerHTML=`
+  <div class="compose">
+    <section class="compose-hero">
+      <div>
+        <div class="compose-kicker">SCHOOL COMMUNICATION</div>
+        <h1>${editingAnnouncement?'Edit Announcement':'Create New Announcement'}</h1>
+        <p>${editingAnnouncement?'Update the announcement and save your changes.':'Write a clear notice and choose exactly who should receive it.'}</p>
+      </div>
+      <div class="compose-actions"><a class="btn secondary" href="announcements.html">← Back</a></div>
+    </section>
+
+    <div class="compose-layout">
+      <section class="compose-card">
+        <h2 class="section-title">Announcement details</h2>
+        <form id="announcement-form">
+          <div class="field">
+            <label>Announcement Title <span class="required">*</span></label>
+            <input name="title" id="title" maxlength="160" required value="${editingAnnouncement?escapeHtml(editingAnnouncement.title):''}" placeholder="e.g. Parents' Meeting — Important Notice">
+          </div>
+
+          <div class="field">
+            <label>Audience</label>
+            <select name="audience" id="audience">
+              <option value="ALL">Everyone</option>
+              <option value="STUDENTS">Students</option>
+              <option value="TEACHERS">Teachers</option>
+              <option value="CLASS">A Specific Class</option>
+            </select>
+          </div>
+
+          <div class="target-panel" id="studentTargetPanel" style="display:none">
+            <div class="target-heading"><strong>Student delivery</strong><span>Choose who should receive this announcement.</span></div>
+            <div class="target-options">
+              <label class="target-option"><input type="radio" name="studentTargetMode" value="ALL" checked><div><strong>All students</strong><span>Send to every student account.</span></div></label>
+              <label class="target-option"><input type="radio" name="studentTargetMode" value="SPECIFIC"><div><strong>Specific student</strong><span>Pick one student from the school list.</span></div></label>
+            </div>
+            <div class="target-picker" id="studentPicker" style="display:none">
+              <div class="recipient-toolbar">
+                <input id="studentSearch" type="search" placeholder="Search by student name or student ID…">
+                <select id="studentClassFilter"><option value="">All classes</option></select>
+              </div>
+              <div class="recipient-list" id="studentList"><div class="recipient-empty">Start searching or choose a class.</div></div>
+              <div class="recipient-count" id="studentCount"></div>
+            </div>
+          </div>
+
+          <div class="target-panel" id="teacherTargetPanel" style="display:none">
+            <div class="target-heading"><strong>Teacher delivery</strong><span>Choose who should receive this announcement.</span></div>
+            <div class="target-options">
+              <label class="target-option"><input type="radio" name="teacherTargetMode" value="ALL" checked><div><strong>All teachers</strong><span>Send to every active teacher account.</span></div></label>
+              <label class="target-option"><input type="radio" name="teacherTargetMode" value="SPECIFIC"><div><strong>Specific teacher</strong><span>Pick one teacher from the staff list.</span></div></label>
+            </div>
+            <div class="target-picker" id="teacherPicker" style="display:none">
+              <div class="recipient-toolbar" style="grid-template-columns:1fr">
+                <input id="teacherSearch" type="search" placeholder="Search by teacher name or staff ID…">
+              </div>
+              <div class="recipient-list" id="teacherList"><div class="recipient-empty">Start searching for a teacher.</div></div>
+              <div class="recipient-count" id="teacherCount"></div>
+            </div>
+          </div>
+
+          <div class="field" id="classField" style="display:none">
+            <label>Class</label>
+            <select name="class_id" id="classId"><option value="">Select class</option></select>
+          </div>
+
+          <div class="field">
+            <label>Message <span class="required">*</span></label>
+            <textarea name="body" id="body" maxlength="10000" required placeholder="Write the full announcement here…">${editingAnnouncement?escapeHtml(editingAnnouncement.body):''}</textarea>
+          </div>
+
+          <div class="publish-box">
+            <div class="publish-row">
+              <input type="checkbox" id="published" name="published" ${editingAnnouncement?.published?'checked':''}>
+              <div><strong>Publish immediately</strong><span>Published announcements can be displayed to the selected audience. Leave this off to save it as a draft.</span></div>
+            </div>
+          </div>
+
+          <div class="composer-bottom">
+            <span class="save-note" id="statusNote">Required fields are marked with *.</span>
+            <button class="btn btn-primary" id="saveBtn" type="submit">${editingAnnouncement?'Save Changes':'Create Announcement'}</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="compose-card">
+        <h2 class="section-title">Live preview</h2>
+        <div class="preview">
+          <div class="preview-badge">SCHOOL ANNOUNCEMENT</div>
+          <h3 id="previewTitle">Your announcement title</h3>
+          <p id="previewBody">Your announcement message will appear here as you type.</p>
+          <div class="preview-meta">
+            <span id="previewAudience">EVERYONE</span>
+            <span id="previewTarget">ALL RECIPIENTS</span>
+            <span id="previewStatus">DRAFT</span>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:14px"><strong>Tip:</strong> For student or teacher announcements, use <strong>Specific</strong> when only one person should receive the notice. Student search can also be narrowed by class.</div>
+      </aside>
+    </div>
+  </div>`;
+
+  const form=document.querySelector('#announcement-form');
+  const title=document.querySelector('#title');
+  const body=document.querySelector('#body');
+  const audience=document.querySelector('#audience');
+  const classField=document.querySelector('#classField');
+  const classId=document.querySelector('#classId');
+  const published=document.querySelector('#published');
+  const studentTargetPanel=document.querySelector('#studentTargetPanel');
+  const teacherTargetPanel=document.querySelector('#teacherTargetPanel');
+  const studentPicker=document.querySelector('#studentPicker');
+  const teacherPicker=document.querySelector('#teacherPicker');
+
+  let classes=[];
+  let students=[];
+  let teachers=[];
+  let studentsLoaded=false;
+  let teachersLoaded=false;
+  let selectedStudentId=editingAnnouncement?.student_id||'';
+  let selectedTeacherId=editingAnnouncement?.teacher_id||'';
+
+  function studentName(s){
+    return [s.first_name,s.middle_name,s.last_name].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  }
+  function teacherInitials(name){
+    return String(name||'T').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'T';
+  }
+  function studentInitials(name){
+    return String(name||'S').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'S';
+  }
+
+  async function loadClasses(){
+    if(classes.length)return;
+    const {data,error}=await supabase.from('classes').select('id,name').order('name');
+    if(error)throw error;
+    classes=data||[];
+    classId.innerHTML='<option value="">Select class</option>'+classes.map(x=>`<option value="${x.id}">${escapeHtml(x.name)}</option>`).join('');
+    document.querySelector('#studentClassFilter').innerHTML='<option value="">All classes</option>'+classes.map(x=>`<option value="${x.id}">${escapeHtml(x.name)}</option>`).join('');
+  }
+
+  async function loadStudents(){
+    if(studentsLoaded)return;
+    const [{data:studentRows,error:studentError},{data:enrollmentRows,error:enrollmentError}]=await Promise.all([
+      supabase.from('students').select('id,student_id,first_name,middle_name,last_name,status').order('first_name'),
+      supabase.from('enrollments').select('student_id,class_id,status,created_at').eq('status','ACTIVE').order('created_at',{ascending:false})
+    ]);
+    if(studentError)throw studentError;
+    if(enrollmentError)throw enrollmentError;
+
+    const classById=new Map(classes.map(x=>[x.id,x.name]));
+    const currentClass=new Map();
+    for(const e of (enrollmentRows||[])){
+      if(!currentClass.has(e.student_id))currentClass.set(e.student_id,e.class_id);
+    }
+    students=(studentRows||[])
+      .filter(s=>String(s.status||'').toUpperCase()==='ACTIVE')
+      .map(s=>({...s,class_id:currentClass.get(s.id)||'',class_name:classById.get(currentClass.get(s.id)||'')||'Not assigned'}))
+      .sort((a,b)=>studentName(a).localeCompare(studentName(b)));
+    studentsLoaded=true;
+    renderStudentList();
+  }
+
+  async function loadTeachers(){
+    if(teachersLoaded)return;
+    const {data,error}=await supabase.from('teachers').select('id,staff_id,full_name,school_email,secondary_email,is_active').eq('is_active',true).order('full_name');
+    if(error)throw error;
+    teachers=(data||[]).sort((a,b)=>String(a.full_name||'').localeCompare(String(b.full_name||'')));
+    teachersLoaded=true;
+    renderTeacherList();
+  }
+
+  function renderStudentList(){
+    const q=String(document.querySelector('#studentSearch').value||'').trim().toLowerCase();
+    const cls=document.querySelector('#studentClassFilter').value;
+    const list=document.querySelector('#studentList');
+    const filtered=students.filter(s=>{
+      const name=studentName(s).toLowerCase();
+      const id=String(s.student_id||'').toLowerCase();
+      return (!q||name.includes(q)||id.includes(q))&&(!cls||s.class_id===cls);
+    });
+    document.querySelector('#studentCount').textContent=filtered.length+` student${filtered.length===1?'':'s'} found`;
+    if(!filtered.length){
+      list.innerHTML='<div class="recipient-empty">No students match the current search or class filter.</div>';
+      return;
+    }
+    list.innerHTML=filtered.map(s=>{
+      const name=studentName(s);
+      return `<label class="recipient-card ${selectedStudentId===s.id?'selected':''}">
+        <input type="radio" name="selectedStudent" value="${s.id}" ${selectedStudentId===s.id?'checked':''}>
+        <div class="recipient-avatar">${escapeHtml(studentInitials(name))}</div>
+        <div class="recipient-main"><div class="recipient-name">${escapeHtml(name)}</div><div class="recipient-meta">${escapeHtml(s.student_id||'')} · ${escapeHtml(s.class_name||'Not assigned')}</div></div>
+      </label>`;
+    }).join('');
+    list.querySelectorAll('input[name="selectedStudent"]').forEach(input=>input.addEventListener('change',()=>{
+      selectedStudentId=input.value;
+      renderStudentList();
+      updatePreview();
+    }));
+  }
+
+  function renderTeacherList(){
+    const q=String(document.querySelector('#teacherSearch').value||'').trim().toLowerCase();
+    const list=document.querySelector('#teacherList');
+    const filtered=teachers.filter(t=>{
+      const name=String(t.full_name||'').toLowerCase();
+      const staff=String(t.staff_id||'').toLowerCase();
+      const email=String(t.school_email||t.secondary_email||'').toLowerCase();
+      return !q||name.includes(q)||staff.includes(q)||email.includes(q);
+    });
+    document.querySelector('#teacherCount').textContent=filtered.length+` teacher${filtered.length===1?'':'s'} found`;
+    if(!filtered.length){
+      list.innerHTML='<div class="recipient-empty">No teachers match the current search.</div>';
+      return;
+    }
+    list.innerHTML=filtered.map(t=>{
+      const name=t.full_name||'Unnamed teacher';
+      return `<label class="recipient-card ${selectedTeacherId===t.id?'selected':''}">
+        <input type="radio" name="selectedTeacher" value="${t.id}" ${selectedTeacherId===t.id?'checked':''}>
+        <div class="recipient-avatar">${escapeHtml(teacherInitials(name))}</div>
+        <div class="recipient-main"><div class="recipient-name">${escapeHtml(name)}</div><div class="recipient-meta">${escapeHtml(t.staff_id||'')} · ${escapeHtml(t.school_email||t.secondary_email||'No email')}</div></div>
+      </label>`;
+    }).join('');
+    list.querySelectorAll('input[name="selectedTeacher"]').forEach(input=>input.addEventListener('change',()=>{
+      selectedTeacherId=input.value;
+      renderTeacherList();
+      updatePreview();
+    }));
+  }
+
+  function activeStudentMode(){
+    return document.querySelector('input[name="studentTargetMode"]:checked')?.value||'ALL';
+  }
+  function activeTeacherMode(){
+    return document.querySelector('input[name="teacherTargetMode"]:checked')?.value||'ALL';
+  }
+
+  async function updateAudienceUI(){
+    classField.style.display=audience.value==='CLASS'?'block':'none';
+    studentTargetPanel.style.display=(audience.value==='STUDENTS')?'block':'none';
+    teacherTargetPanel.style.display=(audience.value==='TEACHERS')?'block':'none';
+
+    if(audience.value==='STUDENTS'){
+      await loadClasses();
+      await loadStudents();
+      const specific=activeStudentMode()==='SPECIFIC';
+      studentPicker.style.display=specific?'block':'none';
+      if(!specific)selectedStudentId='';
+      if(specific)renderStudentList();
+    }else if(audience.value==='TEACHERS'){
+      await loadTeachers();
+      const specific=activeTeacherMode()==='SPECIFIC';
+      teacherPicker.style.display=specific?'block':'none';
+      if(!specific)selectedTeacherId='';
+      if(specific)renderTeacherList();
+    }else{
+      selectedStudentId='';
+      selectedTeacherId='';
+    }
+
+    updatePreview();
+  }
+
+  function currentTargetLabel(){
+    if(audience.value==='ALL')return 'ALL RECIPIENTS';
+    if(audience.value==='CLASS'){
+      const name=classId.options[classId.selectedIndex]?.textContent;
+      return name&&name!=='Select class'?name.toUpperCase():'CLASS NOT SELECTED';
+    }
+    if(audience.value==='STUDENTS'){
+      return activeStudentMode()==='SPECIFIC'
+        ? (students.find(s=>s.id===selectedStudentId)?studentName(students.find(s=>s.id===selectedStudentId)):'SPECIFIC STUDENT')
+        : 'ALL STUDENTS';
+    }
+    if(audience.value==='TEACHERS'){
+      return activeTeacherMode()==='SPECIFIC'
+        ? (teachers.find(t=>t.id===selectedTeacherId)?.full_name||'SPECIFIC TEACHER')
+        : 'ALL TEACHERS';
+    }
+    return 'ALL RECIPIENTS';
+  }
+
+  function updatePreview(){
+    document.querySelector('#previewTitle').textContent=title.value.trim()||'Your announcement title';
+    document.querySelector('#previewBody').textContent=body.value.trim()||'Your announcement message will appear here as you type.';
+    document.querySelector('#previewAudience').textContent=audience.options[audience.selectedIndex]?.textContent?.toUpperCase()||'EVERYONE';
+    document.querySelector('#previewTarget').textContent=currentTargetLabel();
+    document.querySelector('#previewStatus').textContent=published.checked?'PUBLISHED':'DRAFT';
+  }
+
+  title.oninput=updatePreview;
+  body.oninput=updatePreview;
+  published.onchange=updatePreview;
+  classId.onchange=updatePreview;
+
+  document.querySelector('#studentSearch').oninput=renderStudentList;
+  document.querySelector('#studentClassFilter').onchange=renderStudentList;
+  document.querySelector('#teacherSearch').oninput=renderTeacherList;
+
+  document.querySelectorAll('input[name="studentTargetMode"]').forEach(input=>input.addEventListener('change',async()=>{
+    const specific=activeStudentMode()==='SPECIFIC';
+    studentPicker.style.display=specific?'block':'none';
+    if(!specific){selectedStudentId='';}
+    else{await loadStudents();renderStudentList();}
+    updatePreview();
+  }));
+
+  document.querySelectorAll('input[name="teacherTargetMode"]').forEach(input=>input.addEventListener('change',async()=>{
+    const specific=activeTeacherMode()==='SPECIFIC';
+    teacherPicker.style.display=specific?'block':'none';
+    if(!specific){selectedTeacherId='';}
+    else{await loadTeachers();renderTeacherList();}
+    updatePreview();
+  }));
+
+  audience.onchange=async()=>{
+    try{await updateAudienceUI();}
+    catch(error){console.error('Recipient list load failed:',error);toast(error.message||'Could not load recipients.','error');}
+  };
+
+  await loadClasses();
+
+  if(editingAnnouncement){
+    const savedAudience=editingAnnouncement.audience||'ALL';
+    audience.value=savedAudience==='STUDENT'?'STUDENTS':savedAudience==='TEACHER'?'TEACHERS':savedAudience;
+    classId.value=editingAnnouncement.class_id||'';
+    if(savedAudience==='STUDENT'){
+      document.querySelector('input[name="studentTargetMode"][value="SPECIFIC"]').checked=true;
+    }
+    if(savedAudience==='TEACHER'){
+      document.querySelector('input[name="teacherTargetMode"][value="SPECIFIC"]').checked=true;
+    }
+    await updateAudienceUI();
+  }
+
+  form.onsubmit=async e=>{
+    e.preventDefault();
+
+    if(!title.value.trim()||!body.value.trim()){
+      toast('Please complete the required title and message.','error');
+      return;
+    }
+
+    if(audience.value==='CLASS'&&!classId.value){
+      toast('Please select a class for this announcement.','error');
+      return;
+    }
+
+    if(audience.value==='STUDENTS'&&activeStudentMode()==='SPECIFIC'&&!selectedStudentId){
+      toast('Please select a specific student.','error');
+      return;
+    }
+
+    if(audience.value==='TEACHERS'&&activeTeacherMode()==='SPECIFIC'&&!selectedTeacherId){
+      toast('Please select a specific teacher.','error');
+      return;
+    }
+
+    const btn=document.querySelector('#saveBtn');
+    setLoading(btn,true,'Saving…');
+
+    try{
+      const isSpecificStudent=audience.value==='STUDENTS'&&activeStudentMode()==='SPECIFIC';
+      const isSpecificTeacher=audience.value==='TEACHERS'&&activeTeacherMode()==='SPECIFIC';
+      const savedAudience=isSpecificStudent?'STUDENT':isSpecificTeacher?'TEACHER':audience.value;
+
+      const payload={
+        title:title.value.trim(),
+        body:body.value.trim(),
+        audience:savedAudience,
+        class_id:audience.value==='CLASS'?classId.value:null,
+        student_id:isSpecificStudent?selectedStudentId:null,
+        teacher_id:isSpecificTeacher?selectedTeacherId:null,
+        published:published.checked,
+        published_at:published.checked?new Date().toISOString():null,
+        created_by:user.id
+      };
+
+      const res=editingAnnouncement
+        ?await supabase.from('announcements').update(payload).eq('id',editingAnnouncement.id)
+        :await supabase.from('announcements').insert(payload);
+
+      if(res.error)throw res.error;
+
+      toast(editingAnnouncement
+        ?(published.checked?'Announcement updated and published.':'Announcement updated successfully.')
+        :(published.checked?'Announcement published successfully.':'Announcement saved as draft.')
+      );
+      location.href='announcements.html';
+    }catch(err){
+      console.error(err);
+      toast(err.message||'Could not save announcement.','error');
+      document.querySelector('#statusNote').textContent='The announcement could not be saved.';
+    }finally{
+      setLoading(btn,false);
+    }
+  };
+
+  updatePreview();
+  pageLoading(false);
 }
-host.innerHTML=`<div class="compose"><section class="compose-hero"><div><div class="compose-kicker">SCHOOL COMMUNICATION</div><h1>${editingAnnouncement?'Edit Announcement':'Create New Announcement'}</h1><p>${editingAnnouncement?'Update the announcement and save your changes.':'Write a clear notice and choose who should receive it.'}</p></div><div class="compose-actions"><a class="btn secondary" href="announcements.html">← Back</a></div></section>
- <div class="compose-layout"><section class="compose-card"><h2 class="section-title">Announcement details</h2><form id="announcement-form">
- <div class="field"><label>Announcement Title <span class="required">*</span></label><input name="title" id="title" maxlength="160" required value="${editingAnnouncement?escapeHtml(editingAnnouncement.title):''}" placeholder="e.g. Parents' Meeting — Important Notice"></div>
- <div class="field"><label>Audience</label><select name="audience" id="audience"><option value="ALL">Everyone</option><option value="STUDENTS">Students</option><option value="TEACHERS">Teachers</option><option value="CLASS">A Specific Class</option></select></div>
- <div class="field" id="classField" style="display:none"><label>Class</label><select name="class_id" id="classId"><option value="">Select class</option></select></div>
- <div class="field"><label>Message <span class="required">*</span></label><textarea name="body" id="body" maxlength="10000" required placeholder="Write the full announcement here…">${editingAnnouncement?escapeHtml(editingAnnouncement.body):''}</textarea></div>
- <div class="publish-box"><div class="publish-row"><input type="checkbox" id="published" name="published" ${editingAnnouncement?.published?'checked':''}><div><strong>Publish immediately</strong><span>Published announcements can be displayed to the selected audience. Leave this off to save it as a draft.</span></div></div></div>
- <div class="composer-bottom"><span class="save-note" id="statusNote">Required fields are marked with *.</span><button class="btn btn-primary" id="saveBtn" type="submit">${editingAnnouncement?'Save Changes':'Create Announcement'}</button></div>
- </form></section>
- <aside class="compose-card"><h2 class="section-title">Live preview</h2><div class="preview"><div class="preview-badge">SCHOOL ANNOUNCEMENT</div><h3 id="previewTitle">Your announcement title</h3><p id="previewBody">Your announcement message will appear here as you type.</p><div class="preview-meta"><span id="previewAudience">EVERYONE</span><span id="previewStatus">DRAFT</span></div></div><div class="tip" style="margin-top:14px"><strong>Tip:</strong> Keep the title short and put dates, times, venues and important instructions clearly in the message.</div></aside></div></div>`;
- const form=document.querySelector('#announcement-form'),title=document.querySelector('#title'),body=document.querySelector('#body'),audience=document.querySelector('#audience'),classField=document.querySelector('#classField'),classId=document.querySelector('#classId'),published=document.querySelector('#published');
- const classes=await supabase.from('classes').select('id,name').order('name'); if(classes.error)console.warn('Classes could not be loaded',classes.error); if(classes.data)classId.innerHTML='<option value="">Select class</option>'+classes.data.map(x=>`<option value="${x.id}" ${editingAnnouncement?.class_id===x.id?'selected':''}>${escapeHtml(x.name)}</option>`).join(''); if(editingAnnouncement){audience.value=editingAnnouncement.audience||'ALL';classField.style.display=audience.value==='CLASS'?'block':'none';classId.value=editingAnnouncement.class_id||'';}
- function updatePreview(){document.querySelector('#previewTitle').textContent=title.value.trim()||'Your announcement title';document.querySelector('#previewBody').textContent=body.value.trim()||'Your announcement message will appear here as you type.';document.querySelector('#previewAudience').textContent=audience.options[audience.selectedIndex]?.textContent?.toUpperCase()||'EVERYONE';document.querySelector('#previewStatus').textContent=published.checked?'PUBLISHED':'DRAFT';}
- title.oninput=updatePreview;body.oninput=updatePreview;published.onchange=updatePreview;audience.onchange=()=>{classField.style.display=audience.value==='CLASS'?'block':'none';updatePreview()};
- form.onsubmit=async e=>{e.preventDefault();if(audience.value==='CLASS'&&!classId.value){toast('Please select a class for this announcement.','error');return;}const btn=document.querySelector('#saveBtn');setLoading(btn,true,'Saving…');try{const p={title:title.value.trim(),body:body.value.trim(),audience:audience.value,class_id:audience.value==='CLASS'?classId.value:null,published:published.checked,published_at:published.checked?new Date().toISOString():null,created_by:user.id};const res=editingAnnouncement?await supabase.from('announcements').update(p).eq('id',editingAnnouncement.id):await supabase.from('announcements').insert(p);if(res.error)throw res.error;toast(editingAnnouncement?(published.checked?'Announcement updated and published.':'Announcement updated successfully.'): (published.checked?'Announcement published successfully.':'Announcement saved as draft.'));location.href='announcements.html';}catch(err){console.error(err);toast(err.message||'Could not create announcement.','error');document.querySelector('#statusNote').textContent='The announcement could not be saved.';}finally{setLoading(btn,false)}};
- updatePreview();pageLoading(false);
-}
-</script></body></html>
+</script>
+</body>
+</html>

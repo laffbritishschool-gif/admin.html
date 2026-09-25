@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">Laff British Montessori School</title>
+<desc id="desc">Blue school emblem with an open book and yellow accent.</desc>
+<defs><linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123d8f"/><stop offset="1" stop-color="#0a66c2"/></linearGradient></defs>
+<circle cx="128" cy="128" r="121" fill="#fff" stroke="#123d8f" stroke-width="10"/>
+<circle cx="128" cy="128" r="101" fill="url(#blue)"/>
+<path d="M70 92c18-13 39-19 58-19s40 6 58 19v69c-18-13-39-19-58-19s-40 6-58 19z" fill="#fff"/>
+<path d="M128 82v60" fill="none" stroke="#123d8f" stroke-width="6"/>
+<path d="M73 98c17-10 35-14 55-14M183 98c-17-10-35-14-55-14" fill="none" stroke="#0a66c2" stroke-width="5" stroke-linecap="round"/>
+<circle cx="128" cy="53" r="12" fill="#f4c400"/>
+<text x="128" y="194" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="800" fill="#fff">LBMS</text>
+<text x="128" y="216" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="700" letter-spacing="1.35" fill="#f4c400">MONTESSORI SCHOOL</text>
+</svg>

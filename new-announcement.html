@@ -284,7 +284,7 @@ if(user){
     }
     list.innerHTML=filtered.map(s=>{
       const name=studentName(s);
-      return `<label class="recipient-card ${selectedStudentId===s.id?'selected':''}">
+      return `<label class="recipient-card ${selectedStudentIds.has(s.id)?'selected':''}">
         <input type="checkbox" name="selectedStudent" value="${s.id}" ${selectedStudentIds.has(s.id)?'checked':''}>
         <div class="recipient-avatar">${escapeHtml(studentInitials(name))}</div>
         <div class="recipient-main"><div class="recipient-name">${escapeHtml(name)}</div><div class="recipient-meta">${escapeHtml(s.student_id||'')} · ${escapeHtml(s.class_name||'Not assigned')}</div></div>
@@ -313,7 +313,7 @@ if(user){
     }
     list.innerHTML=filtered.map(t=>{
       const name=t.full_name||'Unnamed teacher';
-      return `<label class="recipient-card ${selectedTeacherId===t.id?'selected':''}">
+      return `<label class="recipient-card ${selectedTeacherIds.has(t.id)?'selected':''}">
         <input type="checkbox" name="selectedTeacher" value="${t.id}" ${selectedTeacherIds.has(t.id)?'checked':''}>
         <div class="recipient-avatar">${escapeHtml(teacherInitials(name))}</div>
         <div class="recipient-main"><div class="recipient-name">${escapeHtml(name)}</div><div class="recipient-meta">${escapeHtml(t.staff_id||'')} · ${escapeHtml(t.school_email||t.secondary_email||'No email')}</div></div>

@@ -70,6 +70,11 @@ if(user){
  const classSelect=document.querySelector('#assignment-class'),subjectPicker=document.querySelector('#subject-picker'),assignmentList=document.querySelector('#assignment-list'),addAssignmentButton=document.querySelector('#add-assignment'); let subjectCatalog=[],subjectGroups=[],standaloneSubjects=[],subjectById=new Map();
  let teacherId=id,existingPhoto='',selectedAssignments=[];let generatedStaffId='';let generatedSchoolEmail='';
  function initials(name){return (name||'Teacher').trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase()||'T'}
+ function clearSubjectPickerSelection(){
+  if(!subjectPicker)return;
+  subjectPicker.querySelectorAll('input[data-subject-id]').forEach(input=>{input.checked=false;});
+  subjectPicker.querySelectorAll('.teacher-subject-board').forEach(board=>board.classList.remove('has-selection'));
+ }
  function renderAssignments(){if(!selectedAssignments.length){assignmentList.innerHTML='<div class="assignment-empty">No assignments added yet.</div>';return}assignmentList.innerHTML=selectedAssignments.map((a,i)=>{const s=subjectById.get(a.subjectId);const group=s?.parent_subject_id?subjectById.get(s.parent_subject_id):null;const groupLabel=group?(group.code||group.name)+' · ':'';return '<div class="assignment-row"><div class="assignment-main"><div class="assignment-icon">◈</div><div class="assignment-copy"><strong>'+escapeHtml(a.className)+'</strong><small>'+escapeHtml(a.level||'')+' · '+escapeHtml(groupLabel+(a.subjectName||s?.name||'Subject'))+(a.subjectCode?' · '+escapeHtml(a.subjectCode):'')+'</small></div></div><button type="button" class="remove-assignment" data-index="'+i+'">Remove</button></div>'}).join('');assignmentList.querySelectorAll('.remove-assignment').forEach(b=>b.onclick=()=>{selectedAssignments.splice(Number(b.dataset.index),1);renderAssignments();syncSubjectPickerState();})}
  function slugName(name){return String(name||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9\\s]/g,'').trim().split(/\\s+/).filter(Boolean)}
 let schoolEmailGenerationToken=0;

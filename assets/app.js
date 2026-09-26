@@ -201,5 +201,5 @@ export function mountShell(user){
 
 export function renderStats(items=[]){return `<div class="stats-grid">${items.map(x=>`<article class="stat-card"><div class="stat-icon">${x.icon||'•'}</div><div><span>${escapeHtml(x.label)}</span><strong>${escapeHtml(x.value??'—')}</strong><small>${escapeHtml(x.meta||'')}</small></div></article>`).join('')}</div>`}
 
-window.addEventListener('error',e=>{console.error(e.error||e.message);toast('Something went wrong. Please refresh and try again.','error')});
+window.addEventListener('error',e=>{if(e?.target&&e.target!==window)return;console.error(e.error||e.message||e);toast('Something went wrong. Please refresh and try again.','error')});
 window.addEventListener('unhandledrejection',e=>{console.error(e.reason);toast('The request could not be completed. Please try again.','error')});

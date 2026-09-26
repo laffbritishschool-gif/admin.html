@@ -258,8 +258,13 @@ document.querySelector('#teacher-remove-bg')?.addEventListener('click',removeTea
     else toast(added+' subject assignment'+(added===1?'':'s')+' added.');
   });
   classSelect.addEventListener('change',()=>{
-    clearSubjectPickerSelection();
-    syncSubjectPickerState();
+    try{
+      clearSubjectPickerSelection();
+      syncSubjectPickerState();
+    }catch(err){
+      console.error('Teacher class selection:',err);
+      toast(err?.message||'Could not change the class. Please try again.','error');
+    }
   });
  async function uploadPhoto(){const file=photoInput.files?.[0];if(!file)return existingPhoto||null;const ext=file.name.split('.').pop().toLowerCase();const path=`${teacherId||crypto.randomUUID()}/${Date.now()}.${ext}`;const {error}=await supabase.storage.from('teacher-photos').upload(path,file,{upsert:false,contentType:file.type});if(error)throw error;return path}
 function teacherCropClamp(){const size=teacherCropStage.clientWidth;teacherCropRect.w=Math.max(50,Math.min(size-8,teacherCropRect.w));teacherCropRect.h=Math.max(50,Math.min(size-8,teacherCropRect.h));teacherCropRect.x=Math.max(4,Math.min(size-teacherCropRect.w-4,teacherCropRect.x));teacherCropRect.y=Math.max(4,Math.min(size-teacherCropRect.h-4,teacherCropRect.y))}

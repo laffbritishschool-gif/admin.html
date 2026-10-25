@@ -11,7 +11,7 @@
 <body data-title="Register Teacher">
 <div id="app-shell" data-content="<div class='teacher-form-page'><div class='loading-inline'>Loading…</div></div>"></div><div id="toast-host"></div>
 <script type="module">
-import {requireAdmin,mountShell,supabase,escapeHtml,pageLoading,setLoading,toast} from './assets/app.js?v=20260926-2';
+import {requireAdmin,mountShell,supabase,escapeHtml,pageLoading,setLoading,toast} from './assets/app.js?v=20261025-1';
 const user=await requireAdmin();
 if(user){
  async function invokeTeacherFunction(name,options={},attempts=3){

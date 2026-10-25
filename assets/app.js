@@ -58,7 +58,8 @@ function mergeSettings(settings={}){
 }
 
 export function getCachedSchoolSettings(){
-  try{return mergeSettings(JSON.parse(localStorage.getItem('laff-school-settings')||'{}'));}catch{return mergeSettings();}
+  try{return {...mergeSettings(JSON.parse(localStorage.getItem('laff-school-settings')||'{}')),logo_url:SCHOOL_LOGO_URL};}
+  catch{return {...mergeSettings(),logo_url:SCHOOL_LOGO_URL};}
 }
 
 function injectGlobalUiStyles(){

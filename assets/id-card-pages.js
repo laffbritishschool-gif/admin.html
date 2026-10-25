@@ -1,6 +1,4 @@
-import { supabase, escapeHtml, toast, pageLoading } from './app.js';
-
-const LOGO_URL = 'https://i.ibb.co/whtP8S5v/image.png';
+import { supabase, escapeHtml, toast, pageLoading, SCHOOL_LOGO_URL } from './app.js';
 
 function fullName(s){ return [s.first_name,s.middle_name,s.last_name].filter(Boolean).join(' '); }
 function initials(s){ return [s.first_name,s.last_name].filter(Boolean).map(x=>x[0]).join('').toUpperCase() || 'ST'; }
@@ -110,7 +108,7 @@ export async function renderIdCardDetailsPage(){
       <div class="id-print-note no-print"><strong>Print setup:</strong><span>Use portrait/landscape settings that preserve scale. The front and back are separated below with matching dimensions for two-sided printing.</span></div>
       <div class="id-card-sheet-grid">
         <article class="print-card-shell print-front-card"><div class="print-card-label no-print">FRONT • STUDENT IDENTITY</div><div class="pro-id-card front-card" style="--card-primary:${escapeHtml(primary)};--card-secondary:${escapeHtml(secondary)}">
-          <div class="pro-card-top"><div class="pro-brand"><img src="${escapeHtml(settings?.logo_url||LOGO_URL)}" alt="${escapeHtml(schoolName)}"><div><strong>${escapeHtml(schoolName)}</strong><span>${escapeHtml(motto)}</span></div></div><span class="pro-card-type">STUDENT ID</span></div>
+          <div class="pro-card-top"><div class="pro-brand"><img src="${escapeHtml(SCHOOL_LOGO_URL)}" alt="${escapeHtml(schoolName)}"><div><strong>${escapeHtml(schoolName)}</strong><span>${escapeHtml(motto)}</span></div></div><span class="pro-card-type">STUDENT ID</span></div>
           <div class="pro-card-body"><div class="pro-passport">${photo?`<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)} passport">`:`<span>${escapeHtml(initials(student))}</span>`}</div><div class="pro-identity"><span class="pro-label">FULL NAME</span><h2>${escapeHtml(name)}</h2><div class="pro-data-grid"><div><span>STUDENT ID</span><strong>${escapeHtml(student.student_id||'—')}</strong></div><div><span>EXAM NUMBER</span><strong>${escapeHtml(student.exam_number||'—')}</strong></div><div><span>GENDER</span><strong>${escapeHtml(student.gender||'—')}</strong></div><div><span>DATE OF BIRTH</span><strong>${student.date_of_birth?escapeHtml(new Date(student.date_of_birth).toLocaleDateString('en-GB')):'—'}</strong></div></div></div></div>
           <div class="pro-card-bottom"><span>VALID UNTIL ${escapeHtml(expiry)}</span><strong>${escapeHtml(card.card_number||'')}</strong></div>
         </div></article>

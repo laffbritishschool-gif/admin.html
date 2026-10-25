@@ -6,8 +6,10 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 });
 
+export const SCHOOL_LOGO_URL = new URL('./school-logo.svg', import.meta.url).href;
+
 export const DEFAULT_SCHOOL_SETTINGS = {
-  school_name: 'Laff British Montessori School', motto: '', logo_url: '/assets/school-logo.svg',
+  school_name: 'Laff British Montessori School', motto: '', logo_url: SCHOOL_LOGO_URL,
   primary_color: '#0b5ed7', secondary_color: '#f4c20d',
   ui_settings: { navigation: 'sidebar', theme: 'light', compact_sidebar: false, show_breadcrumbs: true },
   result_settings: { show_position: true, publish_requires_approval: true },

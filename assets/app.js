@@ -78,7 +78,7 @@ function injectGlobalUiStyles(){
 }
 
 export function applySchoolSettings(raw={}){
-  const s=mergeSettings(raw);if(!s.logo_url||/^https?:\/\/i\.ibb\.co\//i.test(String(s.logo_url)))s.logo_url=DEFAULT_SCHOOL_SETTINGS.logo_url;injectGlobalUiStyles();
+  const s=mergeSettings(raw);s.logo_url=SCHOOL_LOGO_URL;injectGlobalUiStyles();
   document.documentElement.style.setProperty('--school-primary',s.primary_color||DEFAULT_SCHOOL_SETTINGS.primary_color);
   document.documentElement.style.setProperty('--school-secondary',s.secondary_color||DEFAULT_SCHOOL_SETTINGS.secondary_color);
   document.body.classList.toggle('school-dark',s.ui_settings.theme==='dark');

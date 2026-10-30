@@ -1,4 +1,5 @@
 import { supabase, escapeHtml, toast } from './app.js';
+import { renderStudentIdCardPreview } from './id-card-pages.js';
 const esc = escapeHtml;
 const text = (v) => esc(v ?? '—');
 const fullName = (s) => [s?.first_name, s?.middle_name, s?.last_name].filter(Boolean).join(' ') || 'Unnamed Student';
@@ -46,13 +47,15 @@ export async function renderStudentDetailsClean() {
     ]);
     results=rr.data||[];attendance=aa.data||[];
   }
-  const [feesR,payR,cardsR,credsR]=await Promise.all([
+  const [feesR,payR,cardsR,credsR,schoolR]=await Promise.all([
     supabase.from('fees').select('id,title,amount,due_date,created_at').eq('student_id',id).order('created_at',{ascending:false}),
     supabase.from('payments').select('id,reference,amount,status,provider,paid_at,created_at').eq('student_id',id).order('created_at',{ascending:false}),
-    supabase.from('id_cards').select('id,card_number,issued_at,expires_at,is_active,created_at').eq('student_id',id).order('created_at',{ascending:false}),
-    supabase.from('result_access_credentials').select('id,serial_number,is_active,expires_at,created_at').eq('student_id',id).order('created_at',{ascending:false})
+    supabase.from('id_cards').select('id,card_number,issued_at,expires_at,is_active,created_at').eq('student_id',id).order('issued_at',{ascending:false}),
+    supabase.from('result_access_credentials').select('id,serial_number,is_active,expires_at,created_at').eq('student_id',id).order('created_at',{ascending:false}),
+    supabase.from('school_settings').select('school_name,motto,logo_url,address,phone,email,website').limit(1).maybeSingle()
   ]);
-  const fees=feesR.data||[],payments=payR.data||[],cards=cardsR.data||[],creds=credsR.data||[];
+  const fees=feesR.data||[],payments=payR.data||[],cards=cardsR.data||[],creds=credsR.data||[],school=schoolR.data||null;
+  const activeCard=cards.find(c=>c.is_active!==false)||null;
   const active=en.find(x=>x.status==='ACTIVE')||en[0];
   const feeTotal=fees.reduce((n,x)=>n+Number(x.amount||0),0);
   const paidTotal=payments.filter(x=>x.status==='PAID').reduce((n,x)=>n+Number(x.amount||0),0);
@@ -110,7 +113,7 @@ export async function renderStudentDetailsClean() {
 
       <div class="student-clean-heading"><span class="num">03</span><div><h2>School Services</h2><p>ID cards, result access and payment history</p></div></div>
       <div class="student-clean-grid">
-        <section class="student-clean-panel"><div class="student-clean-panel-head"><h3>ID Cards</h3><span>${cards.length}</span></div><div class="student-clean-panel-body">${cards.length?cards.map(c=>'<div style="padding:12px 0;border-bottom:1px solid var(--border,#e5e7eb)"><strong>'+text(c.card_number)+'</strong><div style="color:#64748b;font-size:11px;margin-top:4px">Issued '+dateFmt(c.issued_at)+' · Expires '+dateFmt(c.expires_at)+' · '+(c.is_active?'ACTIVE':'INACTIVE')+'</div></div>').join(''):'<div class="student-clean-empty">No ID card records.</div>'}</div></section>
+        <section class="student-clean-panel student-clean-id-card-panel"><div class="student-clean-panel-head"><h3>Issued Student ID Card</h3><span class="student-clean-badge">${activeCard?'CARD ISSUED':'NOT ISSUED'}</span></div><div class="student-clean-panel-body">${activeCard?`<div><strong>Card number: ${text(activeCard.card_number)}</strong><div style="color:#64748b;font-size:11px;margin-top:4px">Issued ${dateFmt(activeCard.issued_at)} · Expires ${dateFmt(activeCard.expires_at)}</div></div>${renderStudentIdCardPreview({student:s,card:activeCard,photo:photoSrc,settings:school})}<div class="student-clean-id-card-actions"><a class="student-clean-btn light" href="/id-card-details?student=${encodeURIComponent(s.id)}">Open Full Card &amp; Print</a></div>`:'<div class="student-clean-empty">No active student ID card has been issued. The issued card will appear here after it is generated.</div><a class="student-clean-btn light" href="/id-cards">Open ID Card Management</a>'}${cards.some(c=>c.is_active===false)?'<div class="student-clean-empty">Previous inactive cards: '+cards.filter(c=>c.is_active===false).map(c=>text(c.card_number)).join(' · ')+'</div>':''}</div></section>
         <section class="student-clean-panel"><div class="student-clean-panel-head"><h3>Result Access</h3><span>${creds.length}</span></div><div class="student-clean-panel-body">${creds.length?creds.map(c=>'<div style="padding:12px 0;border-bottom:1px solid var(--border,#e5e7eb)"><strong>'+text(c.serial_number)+'</strong><div style="color:#64748b;font-size:11px;margin-top:4px">Expires '+dateFmt(c.expires_at)+' · '+(c.is_active?'ACTIVE':'INACTIVE')+'</div></div>').join(''):'<div class="student-clean-empty">No result access credentials.</div>'}</div></section>
       </div>
       <section class="student-clean-panel" style="margin-top:16px"><div class="student-clean-panel-head"><h3>Payment History</h3><span>${payments.length}</span></div><div class="student-clean-table-wrap">${payments.length?'<table><thead><tr><th>Reference</th><th>Amount</th><th>Status</th><th>Provider</th><th>Paid At</th></tr></thead><tbody>'+payments.map(p=>'<tr><td>'+text(p.reference)+'</td><td>'+money(p.amount)+'</td><td>'+text(p.status)+'</td><td>'+text(p.provider)+'</td><td>'+dateFmt(p.paid_at)+'</td></tr>').join('')+'</tbody></table>':'<div class="student-clean-empty">No payment records.</div>'}</div></section>

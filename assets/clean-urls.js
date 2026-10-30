@@ -1,0 +1,1 @@
+(()=>{const path=window.location.pathname;let target=path;if(/\/index\.html$/i.test(path)){target=path.replace(/index\.html$/i,"")||"/";}else if(/\.html$/i.test(path)){target=path.slice(0,-5)||"/";}if(target!==path){window.location.replace(target+window.location.search+window.location.hash);}})();

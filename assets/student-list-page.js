@@ -35,7 +35,7 @@ export async function renderStudentsList() {
           <h2>Student Directory</h2>
           <p>View, search and manage every student record from one place. Class placement, student IDs and account details stay together in the directory.</p>
           <div class="students-hero-actions">
-            <a class="btn students-hero-btn" href="register-student.html">+ Register Student</a>
+            <a class="btn students-hero-btn" href="/register-student">+ Register Student</a>
             <button class="btn secondary students-hero-secondary" id="student-refresh-top" type="button">Refresh Records</button>
           </div>
         </div>
@@ -173,8 +173,8 @@ export async function renderStudentsList() {
           <div class="student-directory-footer">
             <span>${s.session_name ? esc(s.session_name) : 'No session'}</span>
             <div>
-              <a class="btn btn-sm btn-ghost" href="student-details.html?id=${encodeURIComponent(s.id)}">View</a>
-              <a class="btn btn-sm btn-primary" href="register-student.html?id=${encodeURIComponent(s.id)}">Edit</a>
+              <a class="btn btn-sm btn-ghost" href="/student-details?id=${encodeURIComponent(s.id)}">View</a>
+              <a class="btn btn-sm btn-primary" href="/register-student?id=${encodeURIComponent(s.id)}">Edit</a>
             </div>
           </div>
         </article>`;

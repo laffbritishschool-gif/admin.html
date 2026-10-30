@@ -57,7 +57,7 @@ async function generate(studentId,button){
     if(existing?.length){
       updateStage(el,'ID card already exists — opening it…',100,true);
       await wait(900);
-      location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`;
+      location.href=`/id-card-details?student=${encodeURIComponent(studentId)}`;
       return;
     }
 
@@ -70,7 +70,7 @@ async function generate(studentId,button){
     updateStage(el,'ID card ready!',100,true);
     await wait(1100);
     toast('Student ID card generated successfully.','success');
-    location.href=`id-card-details.html?student=${encodeURIComponent(studentId)}`;
+    location.href=`/id-card-details?student=${encodeURIComponent(studentId)}`;
   }catch(e){
     console.error('Animated ID card generation failed',e);
     el.querySelector('.id-draw-title').textContent='Generation could not be completed';

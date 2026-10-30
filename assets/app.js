@@ -20,11 +20,11 @@ export const DEFAULT_SCHOOL_SETTINGS = {
 };
 
 const nav = [
-  ['index.html','Dashboard','▦'], ['students.html','Students','♙'], ['register-student.html','Register Student','＋'],
-  ['teachers.html','Teachers','♟'], ['register-teacher.html','Register Teacher','＋'], ['classes.html','Classes','▤'],
-  ['subjects.html','Subjects','◈'], ['results.html','Results','✓'], ['attendance.html','Attendance','◷'],
-  ['timetable.html','Timetable','▦'], ['announcements.html','Announcements','◉'], ['fees.html','Fees & Payments','₦'],
-  ['id-cards.html','ID Cards','▣'], ['settings.html','Settings','⚙']
+  ['/','Dashboard','▦'], ['/students','Students','♙'], ['/register-student','Register Student','＋'],
+  ['/teachers','Teachers','♟'], ['/register-teacher','Register Teacher','＋'], ['/classes','Classes','▤'],
+  ['/subjects','Subjects','◈'], ['/results','Results','✓'], ['/attendance','Attendance','◷'],
+  ['/timetable','Timetable','▦'], ['/announcements','Announcements','◉'], ['/fees','Fees & Payments','₦'],
+  ['/id-cards','ID Cards','▣'], ['/settings','Settings','⚙']
 ];
 
 export function toast(message, type='success') {
@@ -119,16 +119,16 @@ export async function getAdminProfile(userId){
 
 export async function requireAdmin(){
   const {data:{session}}=await supabase.auth.getSession();
-  if(!session){location.replace('login.html');return null;}
+  if(!session){location.replace('/login');return null;}
   try{
     const profile=await getAdminProfile(session.user.id);
-    if(!profile){await supabase.auth.signOut();location.replace('login.html?error=access');return null;}
+    if(!profile){await supabase.auth.signOut();location.replace('/login?error=access');return null;}
     return {...session.user, profile};
-  }catch(e){console.error('Admin access verification failed',e);await supabase.auth.signOut();location.replace('login.html?error=verify');return null;}
+  }catch(e){console.error('Admin access verification failed',e);await supabase.auth.signOut();location.replace('/login?error=verify');return null;}
 }
-export async function signOut(){await supabase.auth.signOut();location.replace('login.html');}
+export async function signOut(){await supabase.auth.signOut();location.replace('/login');}
 export function mountShell(user){
-  const path=location.pathname.split('/').pop()||'index.html';
+  const path=location.pathname.split('/').pop()||'/';
   const active=nav.findIndex(n=>n[0]===path);
   const shell=document.querySelector('#app-shell'); if(!shell)return;
   const s=getCachedSchoolSettings();applySchoolSettings(s);
@@ -160,7 +160,7 @@ export function mountShell(user){
         <div class="profile-menu-backdrop" id="profile-menu-backdrop"></div>
         <div class="profile-menu" id="profile-menu" role="menu" aria-label="Profile menu">
           <div class="profile-menu-head"><strong>${escapeHtml(fullName)}</strong><span>${escapeHtml(displayRole)} · ${escapeHtml(email)}</span></div>
-          <a class="profile-menu-item" role="menuitem" href="profile.html">
+          <a class="profile-menu-item" role="menuitem" href="/profile">
             <span class="profile-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg></span>
             <span>View Profile</span>
           </a>

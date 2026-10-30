@@ -18,7 +18,7 @@ export async function renderStudentDetailsClean() {
   const id = new URLSearchParams(location.search).get('id');
   if (!root) return;
   if (!id) {
-    root.innerHTML = '<div class="student-clean-empty"><h2>No student selected</h2><a href="students.html">Return to Students</a></div>';
+    root.innerHTML = '<div class="student-clean-empty"><h2>No student selected</h2><a href="/students">Return to Students</a></div>';
     return;
   }
 
@@ -30,7 +30,7 @@ export async function renderStudentDetailsClean() {
   const {data:s,error} = await supabase.from('students').select('*').eq('id',id).maybeSingle();
   if(error || !s){
     console.error('Student details load failed:', error);
-    root.innerHTML = '<div class="student-clean-empty"><h2>Student record could not be loaded</h2><p>Please return to the Students directory and try again.</p><a href="students.html">Return to Students</a></div>';
+    root.innerHTML = '<div class="student-clean-empty"><h2>Student record could not be loaded</h2><p>Please return to the Students directory and try again.</p><a href="/students">Return to Students</a></div>';
     toast('Could not load student details.','error');
     return;
   }
@@ -77,7 +77,7 @@ export async function renderStudentDetailsClean() {
           <h1>${esc(fullName(s))}</h1>
           <p>Complete student information, academic history, attendance, fees and school services.</p>
           <div class="student-clean-tags"><span class="student-clean-tag">${text(s.student_id)}</span><span class="student-clean-tag">${text(s.exam_number)}</span><span class="student-clean-tag">${text(s.status)}</span></div>
-          <div class="student-clean-actions"><a class="student-clean-btn light" href="students.html">← Students</a><a class="student-clean-btn ghost" href="register-student.html?edit=${encodeURIComponent(s.id)}">✎ Edit Student</a><button class="student-clean-btn gold" id="student-print-clean">Print Profile</button></div>
+          <div class="student-clean-actions"><a class="student-clean-btn light" href="/students">← Students</a><a class="student-clean-btn ghost" href="/register-student?edit=${encodeURIComponent(s.id)}">✎ Edit Student</a><button class="student-clean-btn gold" id="student-print-clean">Print Profile</button></div>
         </div>
         <div class="student-clean-photo"><div class="student-clean-ring"></div><div class="student-clean-avatar">${photoSrc?'<img src="'+esc(photoSrc)+'" alt="'+esc(photoAlt)+'" loading="eager" decoding="async">':'<span>'+esc(initials)+'</span>'}</div></div>
       </section>

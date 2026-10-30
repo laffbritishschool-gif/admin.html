@@ -251,7 +251,7 @@ export async function renderSubjectsPage() {
           <p>${rowsToRender.length ? 'Try a different search or filter.' : 'Create your first subject to start organising the curriculum.'}</p>
           <button class="btn btn-primary" id="empty-add-subject">+ Add New Subject</button>
         </div>`;
-      root.querySelector('#empty-add-subject')?.addEventListener('click', () => location.href='new-subject.html');
+      root.querySelector('#empty-add-subject')?.addEventListener('click', () => location.href='/new-subject');
       return;
     }
 
@@ -308,7 +308,7 @@ export async function renderSubjectsPage() {
     }
   }
 
-  root.querySelector('#add-subject').onclick = () => location.href='new-subject.html';
+  root.querySelector('#add-subject').onclick = () => location.href='/new-subject';
   root.querySelector('#subject-refresh').onclick = refresh;
   search.oninput = () => render(rows);
   status.onchange = () => render(rows);
@@ -319,8 +319,8 @@ export async function renderSubjectsPage() {
     const toggleBtn = e.target.closest('.toggle-subject');
     const del = e.target.closest('.delete-subject');
 
-    if (edit) location.href = `new-subject.html?id=${encodeURIComponent(edit.dataset.id)}`;
-    else if (move) location.href = `new-subject.html?id=${encodeURIComponent(move.dataset.id)}&focus=group`;
+    if (edit) location.href = `/new-subject?id=${encodeURIComponent(edit.dataset.id)}`;
+    else if (move) location.href = `/new-subject?id=${encodeURIComponent(move.dataset.id)}&focus=group`;
     else if (toggleBtn) await toggle(toggleBtn.dataset.id, toggleBtn.dataset.active === 'true', toggleBtn);
     else if (del) await remove(del.dataset.id, del.dataset.name, del);
   });

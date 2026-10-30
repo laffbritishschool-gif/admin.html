@@ -29,7 +29,7 @@ export async function renderClassesPage(){
     <section class="class-page">
       <div class="class-hero">
         <div><span class="eyebrow">ACADEMIC MANAGEMENT</span><h1>Classes</h1><p>Organise your school classes, students, subjects and teaching assignments from one place.</p></div>
-        <a class="btn btn-primary" href="new-class.html">+ Register New Class</a>
+        <a class="btn btn-primary" href="/new-class">+ Register New Class</a>
       </div>
       <div class="class-metrics" id="class-metrics"><div class="metric-skeleton"></div><div class="metric-skeleton"></div><div class="metric-skeleton"></div><div class="metric-skeleton"></div></div>
       <div class="class-toolbar"><div class="class-search"><span>⌕</span><input id="class-search" placeholder="Search class name or level…"></div><button class="btn btn-ghost" id="class-refresh">↻ Refresh</button></div>
@@ -46,8 +46,8 @@ export async function renderClassesPage(){
       const filtered=rows.filter(r=>!q || `${r.name} ${r.level||''}`.toLowerCase().includes(q));
       const totals={classes:rows.length,students:rows.reduce((a,r)=>a+r.studentCount,0),subjects:rows.reduce((a,r)=>a+r.subjectCount,0),teachers:new Set(rows.flatMap(r=>r.assignments.map(x=>x.teacher_id).filter(Boolean))).size};
       document.querySelector('#class-metrics').innerHTML=`<div class="class-metric"><span>Classes</span><strong>${totals.classes}</strong><small>Academic groups</small></div><div class="class-metric"><span>Active Students</span><strong>${totals.students}</strong><small>Current enrolments</small></div><div class="class-metric"><span>Subjects</span><strong>${totals.subjects}</strong><small>Assigned across classes</small></div><div class="class-metric"><span>Teachers</span><strong>${totals.teachers}</strong><small>Currently assigned</small></div>`;
-      if(!filtered.length){ list.innerHTML='<div class="class-empty"><div class="empty-icon">⌂</div><h3>No classes found</h3><p>Register a new class or change your search.</p><a class="btn btn-primary" href="new-class.html">Register New Class</a></div>'; return; }
-      list.innerHTML=filtered.map((r,i)=>`<article class="class-card" style="--delay:${i*70}ms"><div class="class-card-top"><div class="class-avatar">${esc(initials(r.name))}</div><span class="class-level">${esc(r.level||'Class')}</span></div><div class="class-card-body"><h2>${esc(r.name)}</h2><p>${esc(r.description||'No class description added yet.')}</p><div class="class-counts"><div><strong>${r.studentCount}</strong><span>Students</span></div><div><strong>${r.subjectCount}</strong><span>Subjects</span></div><div><strong>${r.teacherCount}</strong><span>Teachers</span></div></div></div><div class="class-card-footer"><span>${r.studentCount ? 'Active class' : 'No active students'}</span><a class="btn btn-sm btn-ghost" href="class-details.html?id=${encodeURIComponent(r.id)}">View Class</a></div></article>`).join('');
+      if(!filtered.length){ list.innerHTML='<div class="class-empty"><div class="empty-icon">⌂</div><h3>No classes found</h3><p>Register a new class or change your search.</p><a class="btn btn-primary" href="/new-class">Register New Class</a></div>'; return; }
+      list.innerHTML=filtered.map((r,i)=>`<article class="class-card" style="--delay:${i*70}ms"><div class="class-card-top"><div class="class-avatar">${esc(initials(r.name))}</div><span class="class-level">${esc(r.level||'Class')}</span></div><div class="class-card-body"><h2>${esc(r.name)}</h2><p>${esc(r.description||'No class description added yet.')}</p><div class="class-counts"><div><strong>${r.studentCount}</strong><span>Students</span></div><div><strong>${r.subjectCount}</strong><span>Subjects</span></div><div><strong>${r.teacherCount}</strong><span>Teachers</span></div></div></div><div class="class-card-footer"><span>${r.studentCount ? 'Active class' : 'No active students'}</span><a class="btn btn-sm btn-ghost" href="/class-details?id=${encodeURIComponent(r.id)}">View Class</a></div></article>`).join('');
     }catch(e){ console.error(e); list.innerHTML='<div class="class-empty"><h3>Unable to load classes</h3><p>Please refresh and try again.</p></div>'; toast('Could not load classes.','error'); }
   }
   search.addEventListener('input',refresh); document.querySelector('#class-refresh').addEventListener('click',refresh); await refresh();
@@ -191,14 +191,14 @@ export async function renderClassDetails(){
   const root=document.querySelector('.page-content');
   const id=new URLSearchParams(location.search).get('id');
   root.innerHTML='<div class="loading-inline">Loading class profile…</div>';
-  if(!id){root.innerHTML='<div class="class-empty"><h3>Class not found</h3><p>No class identifier was provided.</p><a class="btn btn-primary" href="classes.html">Back to Classes</a></div>';return;}
+  if(!id){root.innerHTML='<div class="class-empty"><h3>Class not found</h3><p>No class identifier was provided.</p><a class="btn btn-primary" href="/classes">Back to Classes</a></div>';return;}
   try{
     const {row,students,assignments,timetable,subjectGroups}=await loadClass(id);
     const active=students.filter(x=>x.status==='ACTIVE');
     const subjectCount=new Set(assignments.map(x=>x.subject_id)).size;
     const teacherCount=new Set(assignments.map(x=>x.teacher_id).filter(Boolean)).size;
     root.innerHTML=`<section class="class-profile-page">
-      <div class="profile-topbar"><a class="profile-back" href="classes.html">← Classes</a><div class="profile-actions"><a class="btn btn-ghost" href="classes.html">Close</a><a class="btn btn-primary" href="new-class.html?id=${encodeURIComponent(id)}">Edit Class</a></div></div>
+      <div class="profile-topbar"><a class="profile-back" href="/classes">← Classes</a><div class="profile-actions"><a class="btn btn-ghost" href="/classes">Close</a><a class="btn btn-primary" href="/new-class?id=${encodeURIComponent(id)}">Edit Class</a></div></div>
       <div class="profile-hero">
         <div class="profile-hero-pattern"></div>
         <div class="profile-avatar">${esc(initials(row.name))}</div>
@@ -223,11 +223,11 @@ export async function renderClassDetails(){
         </div>
         <div class="profile-column">
           <section class="profile-panel reveal"><div class="profile-panel-head"><div><span class="panel-kicker">WEEKLY ROUTINE</span><h2>Class Timetable</h2><p>Your current timetable entries for this class.</p></div><span class="panel-count">${timetable.length}</span></div>${timetable.length?`<div class="timetable-profile-list">${timetable.map((t,i)=>`<div class="timetable-profile-row" style="--i:${i}"><div class="time-chip"><strong>${esc(String(t.start_time||'').slice(0,5))}</strong><span>${esc(String(t.end_time||'').slice(0,5))}</span></div><div class="timetable-main"><strong>${esc(t.subjects?.name||'Untitled subject')}</strong><span>${esc(t.teachers?.full_name||'No teacher')} ${t.room?`• ${esc(t.room)}`:''}</span></div><div class="day-chip">${esc(DAYS[t.day_of_week]||'—')}</div></div>`).join('')}</div>`:'<div class="empty-profile">No timetable entries have been added for this class.</div>'}</section>
-          <section class="profile-panel profile-note-panel reveal"><div class="profile-note-icon">i</div><div><span class="panel-kicker">CLASS INFORMATION</span><h2>About this class</h2><p>${esc(row.description||'This class is ready for students, subjects, teachers and timetable information.')}</p><a class="text-link" href="new-class.html?id=${encodeURIComponent(id)}">Update class information →</a></div></section>
+          <section class="profile-panel profile-note-panel reveal"><div class="profile-note-icon">i</div><div><span class="panel-kicker">CLASS INFORMATION</span><h2>About this class</h2><p>${esc(row.description||'This class is ready for students, subjects, teachers and timetable information.')}</p><a class="text-link" href="/new-class?id=${encodeURIComponent(id)}">Update class information →</a></div></section>
         </div>
       </div>
     </section>`;
-  }catch(e){console.error(e);root.innerHTML=`<div class="class-empty"><h3>Could not load this class</h3><p>${esc(e.message||'Please try again.')}</p><a class="btn btn-primary" href="classes.html">Back to Classes</a></div>`;}
+  }catch(e){console.error(e);root.innerHTML=`<div class="class-empty"><h3>Could not load this class</h3><p>${esc(e.message||'Please try again.')}</p><a class="btn btn-primary" href="/classes">Back to Classes</a></div>`;}
 }
 
 async function options(){
@@ -271,12 +271,12 @@ export async function renderRegisterClass(){
 
     root.innerHTML=`<section class="edit-class-page">
       <div class="edit-class-header">
-        <div class="edit-breadcrumb"><a href="classes.html">Classes</a><span>/</span><strong>${existing?'Edit Class':'Register Class'}</strong></div>
+        <div class="edit-breadcrumb"><a href="/classes">Classes</a><span>/</span><strong>${existing?'Edit Class':'Register Class'}</strong></div>
         <div class="edit-header-main">
           <div class="edit-class-badge">${existing?'EDIT':'NEW'}</div>
           <div><span class="eyebrow">ACADEMIC MANAGEMENT</span><h1>${existing?'Edit Class':'Register New Class'}</h1><p>${existing?'Update the class details and choose the subjects that belong to this class.':'Create the class, then choose its combined subjects and individual subjects.'}</p></div>
         </div>
-        <div class="edit-header-actions"><a class="btn btn-ghost" href="classes.html">Cancel</a><button form="class-form" class="btn btn-primary" type="submit">${existing?'Save Changes':'Create Class'}</button></div>
+        <div class="edit-header-actions"><a class="btn btn-ghost" href="/classes">Cancel</a><button form="class-form" class="btn btn-primary" type="submit">${existing?'Save Changes':'Create Class'}</button></div>
       </div>
 
       <form id="class-form" class="edit-class-layout">
@@ -556,7 +556,7 @@ export async function renderRegisterClass(){
         }
 
         toast(existing?'Class updated successfully.':'Class registered successfully.');
-        location.href=`class-details.html?id=${encodeURIComponent(classId)}`;
+        location.href=`/class-details?id=${encodeURIComponent(classId)}`;
       }catch(err){
         console.error(err);
         toast(err.message||'Could not save class.','error');
@@ -564,6 +564,6 @@ export async function renderRegisterClass(){
     };
   }catch(e){
     console.error(e);
-    root.innerHTML=`<div class="class-empty"><h3>Unable to open class editor</h3><p>${esc(e.message||'Please try again.')}</p><a class="btn btn-primary" href="classes.html">Back to Classes</a></div>`;
+    root.innerHTML=`<div class="class-empty"><h3>Unable to open class editor</h3><p>${esc(e.message||'Please try again.')}</p><a class="btn btn-primary" href="/classes">Back to Classes</a></div>`;
   }
 }

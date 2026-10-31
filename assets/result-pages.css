@@ -33,3 +33,22 @@
   .student-result-page .result-table-panel table{font-size:9px!important}
   .student-result-page .result-table-panel th,.student-result-page .result-table-panel td{padding:2.7mm!important}
 }
+
+
+/* Student report sheets follow the school's navy and gold result palette. */
+.student-result-page .result-hero{background:linear-gradient(135deg,#062c62,#0757b8)}
+.student-result-page .hero-kicker{color:#ffd21c}
+.student-result-page .result-term-list{display:grid;gap:18px}
+.student-result-page .result-term-panel .panel-head{gap:12px;align-items:center}
+.student-result-page .result-term-panel .result-term-stats{grid-template-columns:repeat(6,minmax(0,1fr));margin:0;padding:0 18px 18px}
+.student-result-page .result-term-panel .table-wrap{overflow-x:auto}
+.student-result-page .result-term-panel table{min-width:700px}
+@media(max-width:900px){.student-result-page .result-term-panel .result-term-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.student-result-page .result-term-panel .result-term-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media print{
+  .student-result-page .result-term-list{gap:6mm}
+  .student-result-page .result-term-panel{break-inside:avoid;border-color:#d9e0ea!important}
+  .student-result-page .result-term-panel .result-term-stats{grid-template-columns:repeat(3,1fr)!important}
+  .student-result-page .result-term-panel .panel-head h2{color:#062c62!important}
+  .student-result-page .result-term-panel th{background:#062c62!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}

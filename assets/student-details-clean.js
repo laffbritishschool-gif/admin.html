@@ -1,6 +1,10 @@
 import { supabase, escapeHtml, toast } from './app.js';
 import { renderStudentIdCardPreview } from './id-card-pages.js';
 const esc = escapeHtml;
+const icon = (name) => {
+ const paths={back:'<path d="m15 18-6-6 6-6"/><path d="M20 12H9"/>',edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/>',print:'<path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/>',phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72l.4 2.8a2 2 0 0 1-.57 1.7L7.1 10.1a16 16 0 0 0 6 6l1.88-1.84a2 2 0 0 1 1.7-.57l2.8.4A2 2 0 0 1 22 16.92Z"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'};
+ return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="'+(paths[name]||paths.back)+'"/></svg>';
+};
 const text = (v) => esc(v ?? '—');
 const fullName = (s) => [s?.first_name, s?.middle_name, s?.last_name].filter(Boolean).join(' ') || 'Unnamed Student';
 const dateFmt = (v) => v ? new Date(v).toLocaleDateString('en-NG', {day:'2-digit', month:'short', year:'numeric'}) : '—';
@@ -80,10 +84,12 @@ export async function renderStudentDetailsClean() {
           <h1>${esc(fullName(s))}</h1>
           <p>Complete student information, academic history, attendance, fees and school services.</p>
           <div class="student-clean-tags"><span class="student-clean-tag">${text(s.student_id)}</span><span class="student-clean-tag">${text(s.exam_number)}</span><span class="student-clean-tag">${text(s.status)}</span></div>
-          <div class="student-clean-actions"><a class="student-clean-btn light" href="/students">← Students</a><a class="student-clean-btn ghost" href="/register-student?edit=${encodeURIComponent(s.id)}">✎ Edit Student</a><button class="student-clean-btn gold" id="student-print-clean">Print Profile</button></div>
+          <div class="student-clean-actions"><a class="student-clean-btn light" href="/students">${icon('back')}<span>Students</span></a><a class="student-clean-btn ghost" href="/register-student?edit=${encodeURIComponent(s.id)}">${icon('edit')}<span>Edit Student</span></a><button class="student-clean-btn gold" id="student-print-clean">${icon('print')}<span>Print Profile</span></button></div>
         </div>
         <div class="student-clean-photo"><div class="student-clean-ring"></div><div class="student-clean-avatar">${photoSrc?'<img src="'+esc(photoSrc)+'" alt="'+esc(photoAlt)+'" loading="eager" decoding="async">':'<span>'+esc(initials)+'</span>'}</div></div>
       </section>
+
+      ${(s.guardian_phone||s.guardian_email)?`<div class="student-clean-contact">${s.guardian_phone?`<a href="tel:${encodeURIComponent(s.guardian_phone)}">${icon("phone")}<span>Call guardian</span></a>`:""}${s.guardian_email?`<a href="mailto:${encodeURIComponent(s.guardian_email)}">${icon("mail")}<span>Email guardian</span></a>`:""}</div>`:""}
 
       <div class="student-clean-summary">
         <div class="student-clean-stat"><span>Current Class</span><strong>${text(active?.classes?.name||'Not enrolled')}</strong><small>${text(active?.classes?.level||'')}</small></div>

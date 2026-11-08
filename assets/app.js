@@ -19,13 +19,29 @@ export const DEFAULT_SCHOOL_SETTINGS = {
   ]
 };
 
+const navIcons = {
+  dashboard:'<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/>',
+  students:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  add:'<path d="M12 5v14M5 12h14"/>',
+  teachers:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8h5M19.5 5.5v5"/>',
+  classes:'<path d="M3 6.5 12 2l9 4.5v11L12 22l-9-4.5z"/><path d="M3 6.5 12 11l9-4.5M12 11v11"/>',
+  subjects:'<path d="M5 3h14a2 2 0 0 1 2 2v16H7a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2z"/><path d="M7 17h14M8 7h8M8 11h6"/>',
+  results:'<path d="M4 19V5M4 19h17"/><path d="M8 15v-3m4 3V7m4 8v-5m4 5V4"/>',
+  attendance:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m4 4 2 2 4-4"/>',
+  timetable:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 9h18M8 13h3m-3 4h8"/>',
+  announcements:'<path d="M3 11v2a2 2 0 0 0 2 2h3l10 5V4L8 9H5a2 2 0 0 0-2 2z"/><path d="M8 15l1.5 5M21 9l-2 2 2 2"/>',
+  fees:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M7 15h3m5 0h2"/>',
+  cards:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M6 16c.7-2 5.3-2 6 0m3-6h3m-3 4h3"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.7-1.4-2.4L7.3 15a8 8 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.7 1.4 2.4-1.4 1.1a8 8 0 0 1-.1 2z"/>'
+};
 const nav = [
-  ['/','Dashboard','▦'], ['/students','Students','♙'], ['/register-student','Register Student','＋'],
-  ['/teachers','Teachers','♟'], ['/register-teacher','Register Teacher','＋'], ['/classes','Classes','▤'],
-  ['/subjects','Subjects','◈'], ['/results','Results','✓'], ['/attendance','Attendance','◷'],
-  ['/timetable','Timetable','▦'], ['/announcements','Announcements','◉'], ['/fees','Fees & Payments','₦'],
-  ['/id-cards','ID Cards','▣'], ['/settings','Settings','⚙']
+  ['/','Dashboard','dashboard'], ['/students','Students','students'], ['/register-student','Register Student','add'],
+  ['/teachers','Teachers','teachers'], ['/register-teacher','Register Teacher','add'], ['/classes','Classes','classes'],
+  ['/subjects','Subjects','subjects'], ['/results','Results','results'], ['/attendance','Attendance','attendance'],
+  ['/timetable','Timetable','timetable'], ['/announcements','Announcements','announcements'], ['/fees','Fees & Payments','fees'],
+  ['/id-cards','ID Cards','cards'], ['/settings','Settings','settings']
 ];
+const navIcon=(name)=>`<span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">${navIcons[name]||navIcons.dashboard}</svg></span>`;
 
 export function toast(message, type='success') {
   let host = document.querySelector('#toast-host');
@@ -142,7 +158,7 @@ export function mountShell(user){
 
   shell.innerHTML=`<aside class="sidebar" id="sidebar">
     <div class="brand"><img src="${escapeHtml(s.logo_url)}" alt="${escapeHtml(s.school_name)}"><div><strong>${escapeHtml((s.school_name||'Laff British').replace(/\s+Montessori.*$/i,'').trim()||'Laff British')}</strong><small>Montessori School</small></div></div>
-    <nav>${nav.map((n,i)=>`<a class="nav-item ${i===active?'active':''}" href="${n[0]}"><span>${n[2]}</span><em>${n[1]}</em></a>`).join('')}</nav>
+    <nav>${nav.map((n,i)=>`<a class="nav-item ${i===active?'active':''}" href="${n[0]}">${navIcon(n[2])}<em>${n[1]}</em></a>`).join('')}</nav>
     <button class="logout" id="logout"><span>↪</span> Sign out</button>
   </aside>
   <main class="main">

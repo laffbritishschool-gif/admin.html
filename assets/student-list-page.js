@@ -9,7 +9,7 @@ const svg = (name) => {
     camera:'<path d="M14 4h-4l-2 3H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
     search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
     home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/>',
-    refresh:'<path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.6-2L20 12M4 12l2.8 5a7 7 0 0 0 11.6-2"/>' , plus:'<path d="M12 5v14M5 12h14"/>' , close:'<path d="m18 6-12 12M6 6l12 12"/>''
+    refresh:'<path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.6-2L20 12M4 12l2.8 5a7 7 0 0 0 11.6-2"/>' , plus:'<path d="M12 5v14M5 12h14"/>' , close:'<path d="m18 6-12 12M6 6l12 12"/>'
   };
   return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g>'+(paths[name]||paths.students)+'</g></svg>';
 };

@@ -16,3 +16,14 @@
 @media(max-width:1100px){.students-directory{grid-template-columns:repeat(2,minmax(0,1fr))}.students-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.students-command-fields{grid-template-columns:1fr 180px 160px}}
 @media(max-width:760px){.students-hero{padding:23px;flex-direction:column}.students-hero-side{grid-template-columns:1fr 1fr;min-width:0}.students-stat-grid{grid-template-columns:1fr 1fr}.students-command-head{align-items:flex-start}.students-command-fields{grid-template-columns:1fr}.students-directory{grid-template-columns:1fr}}
 @media(max-width:480px){.students-stat-grid{grid-template-columns:1fr}.students-hero-side{grid-template-columns:1fr}.students-hero-actions{flex-direction:column}.students-hero-actions .btn{width:100%;text-align:center}.student-directory-head{grid-template-columns:auto minmax(0,1fr)}.student-directory-head>.badge{grid-column:2;justify-self:start;margin-top:-5px}}
+
+/* Student login account status and bulk activation */
+.students-hero-actions .students-hero-secondary{border:1px solid rgba(255,255,255,.24);cursor:pointer;font-weight:800;padding:11px 14px;border-radius:11px}
+.students-hero-actions .students-hero-secondary:disabled{opacity:.55;cursor:not-allowed}
+.students-hero-actions #student-activate-all{background:#f4c20d!important;color:#17345f!important;border-color:#f4c20d!important}
+.student-name-line{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.student-name-line h3{min-width:0}
+.student-login-badge,.student-login-active{display:inline-flex;align-items:center;flex:0 0 auto;padding:4px 7px;border-radius:999px;font-size:7px;font-weight:900;letter-spacing:.45px;line-height:1}
+.student-login-badge{background:#fff0ed;color:#b42318;border:1px solid #ffd3cc}
+.student-login-active{background:#e9f8ef;color:#167044;border:1px solid #c5ebd3}
+@media(max-width:760px){.students-hero-actions .students-hero-secondary{width:100%}.student-name-line{align-items:flex-start;flex-direction:column;gap:5px}}

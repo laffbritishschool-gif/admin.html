@@ -27,3 +27,53 @@
 .student-login-badge{background:#fff0ed;color:#b42318;border:1px solid #ffd3cc}
 .student-login-active{background:#e9f8ef;color:#167044;border:1px solid #c5ebd3}
 @media(max-width:760px){.students-hero-actions .students-hero-secondary{width:100%}.student-name-line{align-items:flex-start;flex-direction:column;gap:5px}}
+
+
+/* Refined student directory: consistent inline SVGs and practical admin layout */
+.students-page{gap:16px}
+.students-hero{padding:26px 28px;border-radius:18px;box-shadow:0 12px 30px rgba(18,61,143,.12);background:linear-gradient(112deg,#123d78 0%,#145da5 68%,#2676b6 100%)}
+.students-hero:before{width:240px;height:240px;border-width:32px;right:-90px;top:-145px}
+.students-hero h2{font-size:clamp(25px,3vw,34px);letter-spacing:-.8px}
+.students-hero p{font-size:12px;max-width:650px}
+.students-hero-side{min-width:155px;gap:8px}
+.students-hero-total,.students-hero-mini{border-radius:12px;background:rgba(255,255,255,.11);backdrop-filter:none}
+.students-stat-grid{gap:11px}
+.student-stat{padding:15px;border-radius:13px;box-shadow:0 3px 12px rgba(19,43,88,.035)}
+.student-stat:hover{transform:translateY(-2px);box-shadow:0 9px 20px rgba(19,43,88,.07)}
+.student-stat-icon{width:39px;height:39px;border-radius:11px}
+.student-stat-icon svg,.student-search-icon svg,.class-icon svg,.students-empty-icon svg,.students-hero-actions svg,.students-command-head button svg,.student-search-box button svg{width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.students-command{padding:18px 19px;border:1px solid #e7edf4;border-radius:14px;box-shadow:0 4px 15px rgba(19,43,88,.035)}
+.students-command-head h3{font-size:15px}
+.students-command-head p{font-size:10px}
+.students-command-fields{grid-template-columns:minmax(0,1fr) 205px 165px;gap:9px}
+.student-search-box{min-height:42px;background:#fff}
+.student-search-icon{display:grid;place-items:center;color:#7b8ba1}
+.student-search-box button{display:grid;place-items:center;width:28px;height:28px;border-radius:8px}
+.student-search-box button:hover{background:#fff0f0}
+.students-command-fields select{min-height:42px;background:#fff}
+.students-directory{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.student-directory-card{padding:15px;border-radius:14px;box-shadow:0 4px 14px rgba(19,43,88,.04)}
+.student-directory-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(19,43,88,.075)}
+.student-directory-avatar{width:52px;height:52px;border-radius:13px}
+.student-directory-identity h3{font-size:13px;line-height:1.35}
+.student-directory-class{margin-top:12px;background:#f7f9fc}
+.class-icon{width:28px;height:28px}
+.student-directory-grid{gap:7px}
+.student-directory-grid>div{padding:8px;background:#fff}
+.student-directory-grid span{font-size:7px;letter-spacing:.25px}
+.student-directory-grid strong{font-size:9px}
+.student-directory-footer{padding-top:11px}
+.students-hero-actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:10px 13px;border-radius:9px;font-size:10px}
+.students-hero-actions svg{width:15px;height:15px}
+.students-hero-actions .students-hero-btn{font-weight:800}
+.students-command-head button{display:inline-flex;align-items:center;gap:7px}
+.students-command-head button svg{width:15px;height:15px}
+.students-empty-icon{font-size:0}
+.students-empty-icon svg{width:23px;height:23px}
+.students-loading{border:1px solid #e7edf4;border-radius:14px}
+.student-directory-footer .btn{border-radius:8px}
+.student-directory-footer .btn-primary{box-shadow:none}
+@media(max-width:1100px){.students-directory{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.students-hero{padding:22px}.students-command-fields{grid-template-columns:1fr}.students-directory{grid-template-columns:1fr}.students-hero-side{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.students-hero-side{grid-template-columns:1fr}.students-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-stat{padding:12px}.student-stat-icon{width:34px;height:34px}.student-stat strong{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.students-page,.student-directory-card,.student-stat{animation:none!important;transition:none!important}}

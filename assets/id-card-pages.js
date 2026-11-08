@@ -88,37 +88,35 @@ export function renderStudentIdCardPreview({student,card,photo='',settings={},pr
   const s=student||{}, c=card||{}, school=settings||{};
   const name=fullName(s)||'Student';
   const schoolName=school.school_name||'Laff British Montessori School';
-  const motto=school.motto||'Learning · Character · Excellence';
-  const address=school.address||'Molipa';
   const logo=school.logo_url||SCHOOL_LOGO_URL;
   const studentId=s.student_id||'—';
   const examNumber=s.exam_number||'—';
-  const gender=s.gender||'—';
-  const dob=formatCardDate(s.date_of_birth);
+  const className=s.class_name||s.class||s.grade||s.current_class||'—';
   const issued=formatCardDate(c.issued_at);
   const expiry=formatCardDate(c.expires_at);
   const cardNumber=c.card_number||'—';
-  const status=c.is_active===false?'CARD INACTIVE':'CARD ISSUED';
   const website=school.website||'https://laffbritishmontessorischool.com/';
+  const phone=school.phone||'';
+  const email=school.email||'';
+  const address=school.address||'Molipa, Ogun State, Nigeria';
   const photoMarkup=photo
     ? '<img src="'+escapeHtml(photo)+'" alt="'+escapeHtml(name)+' passport photograph" loading="eager">'
     : '<span>'+escapeHtml(initials(s))+'</span>';
-  const front=`<div class="id-card front-card"><div class="gold-edge"></div><div class="card-yellow-line"></div><div class="front-inner">
-    <div class="school-header"><img class="school-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(schoolName)}"><div class="school-header-main"><strong>${escapeHtml(schoolName)}</strong><div class="school-address">${escapeHtml(address)}</div></div><div class="school-motto"><b>SCHOOL MOTTO</b>${escapeHtml(motto)}</div></div>
-    <div class="front-body"><div class="student-photo">${photoMarkup}</div><div><div class="identity-kicker">OFFICIAL STUDENT IDENTIFICATION</div><h2 class="student-name">${escapeHtml(name)}</h2>
-      <div class="detail-grid"><div class="detail"><small>STUDENT ID</small><b>${escapeHtml(studentId)}</b></div><div class="detail"><small>EXAM NUMBER</small><b>${escapeHtml(examNumber)}</b></div><div class="detail"><small>GENDER</small><b>${escapeHtml(gender)}</b></div><div class="detail"><small>DATE OF BIRTH</small><b>${escapeHtml(dob)}</b></div></div>
-      <span class="status-pill"><span class="status-dot"></span><b>${escapeHtml(status)}</b></span>
-    </div></div>
-    <div class="front-bottom"><div class="front-bottom-left"><span>Official Student Identity Card</span><span>Issued ${escapeHtml(issued)} · Expires ${escapeHtml(expiry)}</span></div><div class="front-card-no"><b>CARD NUMBER</b><span>${escapeHtml(cardNumber)}</span></div></div>
+  const front=`<div class="id-card front-card">
+    <div class="idc-topline"></div>
+    <div class="idc-front-inner">
+      <header class="idc-brand"><img class="idc-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(schoolName)} logo"><div class="idc-school"><strong>${escapeHtml(schoolName)}</strong><span>STUDENT IDENTITY CARD</span></div><span class="idc-year">STUDENT</span></header>
+      <div class="idc-front-main"><div class="idc-photo">${photoMarkup}</div><div class="idc-person"><span class="idc-eyebrow">IDENTIFICATION</span><h2>${escapeHtml(name)}</h2><div class="idc-fields"><div><small>STUDENT ID</small><b>${escapeHtml(studentId)}</b></div><div><small>CLASS</small><b>${escapeHtml(className)}</b></div><div><small>EXAM NUMBER</small><b>${escapeHtml(examNumber)}</b></div><div><small>VALID UNTIL</small><b>${escapeHtml(expiry)}</b></div></div></div></div>
+      <footer class="idc-front-footer"><span>OFFICIAL SCHOOL IDENTIFICATION</span><span>${escapeHtml(cardNumber)}</span></footer>
+    </div>
+  </div>`;
+  const back=`<div class="id-card back-card"><div class="idc-back-inner">
+    <header class="idc-back-brand"><img class="idc-logo" src="${escapeHtml(logo)}" alt=""><div><strong>${escapeHtml(schoolName)}</strong><span>IMPORTANT CARD INFORMATION</span></div></header>
+    <div class="idc-back-message"><span class="idc-eyebrow">PROPERTY OF THE SCHOOL</span><h3>If found, please return this card to the school office.</h3><p>This card is issued to the student named on the front and must not be transferred to another person.</p></div>
+    <div class="idc-contact-grid"><div><small>SCHOOL ADDRESS</small><b>${escapeHtml(address)}</b></div>${phone?`<div><small>TELEPHONE</small><b>${escapeHtml(phone)}</b></div>`:''}${email?`<div><small>EMAIL</small><b>${escapeHtml(email)}</b></div>`:''}<div><small>WEBSITE</small><b>${escapeHtml(website.replace(/^https?:\/\//i,'').replace(/\/$/,''))}</b></div></div>
+    <footer class="idc-back-footer"><span>CARD NO. ${escapeHtml(cardNumber)}</span><span>ISSUED ${escapeHtml(issued)} · EXPIRES ${escapeHtml(expiry)}</span></footer>
   </div></div>`;
-  const back=`<div class="id-card back-card"><div class="back-inner">
-    <div class="back-school"><img class="school-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(schoolName)}"><div><strong>${escapeHtml(schoolName)}</strong><span>${escapeHtml(address)} · OFFICIAL STUDENT IDENTIFICATION</span></div></div>
-    <div class="back-grid"><div><div class="back-title">Student Identification</div><div class="back-sub">Keep this card safe. These details identify the cardholder and connect the card with the school record.</div><div class="identity-list">
-      <div class="identity-box"><small>Student ID</small><b>${escapeHtml(studentId)}</b></div><div class="identity-box"><small>Exam Number</small><b>${escapeHtml(examNumber)}</b></div><div class="identity-box"><small>ID Card Number</small><b>${escapeHtml(cardNumber)}</b></div><div class="identity-box"><small>Issued</small><b>${escapeHtml(issued)}</b></div>
-    </div><div class="back-note">This card remains the property of ${escapeHtml(schoolName)}.</div></div><div class="barcode-panel"><div class="barcode-title">Card reference</div><div class="barcode" aria-hidden="true"></div><div class="barcode-label">${escapeHtml(studentId)} · ${escapeHtml(cardNumber)}</div></div></div>
-    <div class="return-note">If found, please return this card to the school office.</div><div class="website"><span class="website-label">School website</span><a href="${escapeHtml(website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(website.replace(/^https?:\/\//i,'').replace(/\/$/,''))}</a></div>
-  </div></div>`;
-  return `<div class="card-stack shared-id-card-stack">${printLabels?'<article class="print-card-shell print-front-card"><div class="print-card-label no-print">FRONT • STUDENT IDENTITY</div>':''}${front}${printLabels?'</article><article class="print-card-shell print-back-card"><div class="print-card-label no-print">BACK • SCHOOL INFORMATION</div>':''}${back}${printLabels?'</article>':''}</div>`;
+  return `<div class="card-stack shared-id-card-stack idc-print-layout">${printLabels?`<article class="print-card-shell print-front-card"><div class="print-card-label no-print">FRONT</div>${front}</article><article class="print-card-shell print-back-card"><div class="print-card-label no-print">BACK</div>${back}</article>`:front+back}</div>`;
 }
 
 export async function renderIdCardDetailsPage(){
@@ -153,8 +151,8 @@ export async function renderIdCardDetailsPage(){
     const expiry=formatCardDate(card.expires_at);
     const cardStatus=card.is_active===false?'INACTIVE':'ACTIVE';
     host.innerHTML=`<section class="id-details-page">
-      <div class="id-print-header no-print"><div><a href="/id-cards">← Back to ID Cards</a><span class="section-kicker">PRINT-READY ID CARD</span><h1>${escapeHtml(name)}</h1><p>Student ID: ${escapeHtml(student.student_id||'—')} · Issued ${escapeHtml(issued)}</p></div><div class="id-print-actions"><button class="btn secondary" id="print-both">Print Front & Back</button><button class="btn" id="print-front">Print Front</button><button class="btn secondary" id="delete-card">Delete Card</button></div></div>
-      <div class="id-print-note no-print"><strong>Print setup:</strong><span>The front and back use the student portal card design and matched dimensions for clean two-sided printing.</span></div>
+      <div class="id-print-header no-print"><div><a href="/id-cards">← Back to ID Cards</a><span class="section-kicker">PRINT-READY ID CARD</span><h1>${escapeHtml(name)}</h1><p>Student ID: ${escapeHtml(student.student_id||'—')} · Issued ${escapeHtml(issued)}</p></div><div class="id-print-actions"><button class="btn secondary" id="print-both">Print / Save PDF</button><button class="btn" id="print-front">Print Front Only</button><button class="btn secondary" id="delete-card">Delete Card</button></div></div>
+      <div class="id-print-note no-print"><strong>Print setup:</strong><span>The front and back are laid out at standard ID-card size. Choose Print / Save PDF to open your browser print preview, then select Save as PDF or your card printer.</span></div>
       <div class="id-card-sheet-grid">${renderStudentIdCardPreview({student,card,photo,settings,printLabels:true})}</div>
       <div class="id-record-summary no-print"><div><span>CARD NUMBER</span><strong>${escapeHtml(card.card_number||'—')}</strong></div><div><span>STATUS</span><b class="badge ${card.is_active===false?'status-inactive':'status-active'}">${cardStatus}</b></div><div><span>ISSUED</span><strong>${escapeHtml(issued)}</strong></div><div><span>EXPIRES</span><strong>${escapeHtml(expiry)}</strong></div></div>
       <section class="id-student-record no-print"><div class="section-kicker">STUDENT RECORD</div><div class="student-record-grid"><div><span>Full Name</span><strong>${escapeHtml(name)}</strong></div><div><span>Student ID</span><strong>${escapeHtml(student.student_id||'—')}</strong></div><div><span>Guardian</span><strong>${escapeHtml(student.guardian_name||'—')}</strong></div><div><span>Guardian Phone</span><strong>${escapeHtml(student.guardian_phone||'—')}</strong></div></div></section>

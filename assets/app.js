@@ -8,6 +8,21 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 
 export const SCHOOL_LOGO_URL = new URL('./school-logo.svg', import.meta.url).href;
 
+function ensureSchoolFavicon(){
+  if(typeof document==='undefined') return;
+  const href=SCHOOL_LOGO_URL+'?v=school-logo-20261108';
+  let icon=document.querySelector('link#school-brand-favicon');
+  if(!icon){icon=document.createElement('link');icon.id='school-brand-favicon';icon.rel='icon';document.head.appendChild(icon);}
+  icon.type='image/svg+xml';icon.sizes='any';icon.href=href;
+  let shortcut=document.querySelector('link#school-brand-shortcut');
+  if(!shortcut){shortcut=document.createElement('link');shortcut.id='school-brand-shortcut';shortcut.rel='shortcut icon';document.head.appendChild(shortcut);}
+  shortcut.href=href;
+  let touch=document.querySelector('link#school-brand-touch');
+  if(!touch){touch=document.createElement('link');touch.id='school-brand-touch';touch.rel='apple-touch-icon';document.head.appendChild(touch);}
+  touch.href=href;
+}
+ensureSchoolFavicon();
+
 export const DEFAULT_SCHOOL_SETTINGS = {
   school_name: 'Laff British Montessori School', motto: '', logo_url: SCHOOL_LOGO_URL,
   primary_color: '#0b5ed7', secondary_color: '#f4c20d',

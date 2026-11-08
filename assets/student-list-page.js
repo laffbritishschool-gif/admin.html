@@ -187,7 +187,7 @@ export async function renderStudentsList() {
     }catch(error){
       console.error('Student account activation request failed:',error);
       toast(error?.message||'Unable to activate student logins. Please sign in again and retry.','error');
-    }finally{activating=false;activateAll.disabled=false;activateAll.textContent='Activate All Student Logins';}
+    }finally{activating=false;const stillPending=rows.filter(s=>!s.user_id&&String(s.status||'ACTIVE').toUpperCase()==='ACTIVE').length;activateAll.disabled=stillPending===0;activateAll.textContent=stillPending?'Activate All Student Logins ('+stillPending+')':'All Student Logins Active';}
   };
 
   search.addEventListener('input',draw);searchClear.addEventListener('click',()=>{search.value='';draw();search.focus();});

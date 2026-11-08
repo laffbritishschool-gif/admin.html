@@ -66,3 +66,94 @@
  .id-details-page .shared-id-card-stack .barcode{height:14mm}
  .print-front-only .print-back-card{display:none!important}
 }
+
+/* Clean ID card workspace and print preview */
+.id-page.id-redesign{max-width:1180px;margin:0 auto;padding:8px 0 36px;color:#203653}
+.id-hero-redesign{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 190px;align-items:center;gap:18px;min-height:0;padding:24px 26px;border:1px solid #e5ebf2;border-radius:14px;background:#fff;box-shadow:0 4px 18px rgba(20,40,75,.04);overflow:hidden}
+.id-hero-orb{display:none}
+.id-hero-kicker,.id-page .section-kicker{color:#3972a8;font-size:9px;font-weight:800;letter-spacing:.12em}
+.id-hero-copy h1{margin:8px 0 6px;color:#1d3553;font-size:clamp(24px,3vw,32px);letter-spacing:-.6px}
+.id-hero-copy p{max-width:560px;margin:0;color:#7b899b;font-size:12px;line-height:1.6}
+.id-hero-labels{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.id-hero-labels span{padding:5px 8px;border:1px solid #e7edf4;border-radius:6px;background:#f8fafc;color:#718198;font-size:8px;font-weight:750;letter-spacing:.04em}
+.id-hero-visual{display:flex;justify-content:center}
+.hero-id-mini{width:155px;padding:12px;border:1px solid #dfe7f0;border-radius:10px;background:#f8fafc;box-shadow:none;transform:none}
+.hero-id-mini-top{display:flex;justify-content:space-between;align-items:center;color:#315f8c}
+.hero-id-mini-top span{font-weight:850;font-size:13px}
+.hero-id-mini-top small{font-size:7px;color:#8794a5}
+.hero-id-mini-body{display:flex;align-items:center;gap:10px;margin:12px 0}
+.hero-photo-placeholder{width:38px;height:45px;border-radius:5px;background:#e7eef6;color:#47739c;display:grid;place-items:center;font-size:11px;font-weight:800}
+.hero-id-mini-body>div:last-child{flex:1;display:grid;gap:6px}
+.hero-id-mini-body i{height:5px;border-radius:4px;background:#dce5ef}
+.hero-id-mini-footer{height:5px;border-radius:5px;background:#e7edf4}
+.id-hero-actions{position:absolute;right:26px;bottom:18px}
+.id-hero-actions .btn{min-height:32px;padding:0 10px;border:1px solid #dfe7f0;border-radius:7px;background:#fff;color:#456789;font-size:10px}
+.id-summary-section{margin:20px 0}
+.id-summary-heading h2,.id-directory-head h2{margin:4px 0;color:#243b58;font-size:16px}
+.id-summary-heading p,.id-directory-head p{margin:3px 0 0;color:#8794a5;font-size:11px}
+.id-card-metrics{gap:10px}
+.id-card-metrics .metric-card{min-height:0;padding:13px 15px;border:1px solid #e7ecf2;border-radius:11px;background:#fff;box-shadow:none}
+.id-card-metrics .overview-icon{width:30px;height:30px;border-radius:8px;background:#edf4fa;color:#386c9c;font-size:10px}
+.id-card-metrics .metric-card small{color:#8592a3;font-size:9px}
+.id-card-metrics .metric-card strong{margin:5px 0;color:#203653;font-size:21px}
+.id-card-metrics .metric-card span{color:#98a3b1;font-size:9px}
+.id-directory.panel{padding:17px;border:1px solid #e7ecf2;border-radius:12px;background:#fff;box-shadow:none}
+.id-toolbar-redesign{display:flex;gap:9px;margin:13px 0}
+.id-search-wrap{flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:0 11px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#8492a4}
+.id-search-wrap>span{font-size:15px}
+.id-search-redesign{width:100%;min-height:38px;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;color:#334963;font-size:11px}
+.id-filter-redesign{min-width:145px;min-height:38px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#53677f;font-size:11px}
+.id-card-student-grid{gap:9px}
+.id-card-modern{grid-template-columns:minmax(220px,1.5fr) minmax(145px,.8fr) auto;gap:12px;padding:13px 14px;border:1px solid #edf0f4;border-radius:10px;box-shadow:none;animation:none;transition:border-color .15s,background .15s}
+.id-card-modern:hover{transform:none;box-shadow:none;border-color:#cddbea;background:#fcfdff}
+.id-student-avatar{width:42px;height:42px;overflow:hidden;background:#edf3f9;color:#38658f;font-size:12px}
+.id-student-avatar img{width:100%;height:100%;object-fit:cover}
+.id-student-copy .student-label{color:#8b98a9;font-size:8px;font-weight:800;letter-spacing:.08em}
+.id-student-main h3{margin:3px 0 0;color:#2b405b;font-size:12px}
+.id-student-main p{margin:4px 0 0;color:#8794a5;font-size:10px}
+.id-student-status{gap:4px}
+.id-student-status small{color:#98a3b1;font-size:9px}
+.id-student-actions{gap:6px}
+.id-student-actions .btn{min-height:30px;padding:0 9px;border-radius:7px;font-size:9px;font-weight:700;box-shadow:none}
+.id-student-actions .btn.secondary{border:1px solid #dfe7f0;background:#fff;color:#42678c}
+.id-student-actions .generate-id{background:#245d94;color:#fff}
+.id-empty-modern{padding:28px 15px;border:1px dashed #e1e8f0;border-radius:10px;background:#fbfcfe}
+.id-empty-modern .empty-art{display:none}
+.id-empty-modern h3{color:#334b68;font-size:13px}
+.id-empty-modern p{color:#8a97a7;font-size:10px}
+.id-details-page{max-width:1180px;margin:0 auto;padding:8px 0 36px;color:#203653}
+.id-print-header{align-items:center;gap:16px;padding:18px 20px;border:1px solid #e7ecf2;border-radius:12px;background:#fff;box-shadow:none}
+.id-print-header a{color:#47749e;font-size:10px;font-weight:700;text-decoration:none}
+.id-print-header .section-kicker{display:block;margin-top:10px;color:#47749e;font-size:9px;letter-spacing:.1em}
+.id-print-header h1{margin:5px 0;color:#203653;font-size:24px;letter-spacing:-.4px}
+.id-print-header p{margin:0;color:#8794a5;font-size:11px}
+.id-print-actions{gap:7px}
+.id-print-actions .btn{min-height:34px;padding:0 11px;border:1px solid #dfe7f0;border-radius:7px;background:#fff;color:#41678e;font-size:10px;box-shadow:none}
+.id-print-actions #print-both{background:#245d94;border-color:#245d94;color:#fff}
+.id-print-actions #delete-card{color:#a44c4c}
+.id-print-note{display:flex;gap:7px;margin:11px 0;padding:10px 12px;border:1px solid #e7edf4;border-radius:8px;background:#f8fafc;color:#7c8b9d;font-size:10px}
+.id-print-note strong{color:#506a87}
+.id-card-sheet-grid{margin-top:12px}
+.shared-id-card-stack{gap:16px;padding:16px;border:1px solid #e7ecf2;border-radius:12px;background:#f8fafc;box-shadow:none}
+.shared-id-card-stack .id-card{box-shadow:0 7px 20px rgba(22,48,78,.10);border-radius:12px}
+.shared-id-card-stack .front-card{background:linear-gradient(135deg,#12385f,#1d5684 68%,#143b62);border:1px solid #d1b15c}
+.shared-id-card-stack .card-yellow-line{height:4px;background:#d9b75b!important;box-shadow:none}
+.shared-id-card-stack .front-card:before,.shared-id-card-stack .front-card:after,.shared-id-card-stack .back-card:before,.shared-id-card-stack .back-card:after{opacity:.45}
+.shared-id-card-stack .school-logo{border-radius:8px;box-shadow:none}
+.shared-id-card-stack .student-photo{border-radius:8px;border:2px solid #d9b75b;box-shadow:none}
+.shared-id-card-stack .student-name{font-size:21px;letter-spacing:0}
+.shared-id-card-stack .status-pill{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35)}
+.shared-id-card-stack .back-card{box-shadow:0 7px 20px rgba(22,48,78,.08);border-color:#dce4ed}
+.id-record-summary{gap:9px;margin:13px 0}
+.id-record-summary>div{padding:11px 12px;border:1px solid #e7ecf2;border-radius:9px;background:#fff}
+.id-record-summary span{font-size:8px;color:#8794a5}
+.id-record-summary strong{font-size:11px;color:#2d4561}
+.id-student-record{padding:15px;border:1px solid #e7ecf2;border-radius:10px;background:#fff;box-shadow:none}
+.id-student-record .section-kicker{color:#47749e;font-size:9px}
+.student-record-grid{gap:8px}
+.student-record-grid>div{padding:10px;border:1px solid #edf0f4;border-radius:8px}
+.student-record-grid span{font-size:8px;color:#8996a6}
+.student-record-grid strong{font-size:10px;color:#334963}
+@media(max-width:800px){.id-hero-redesign{grid-template-columns:1fr 125px;padding:18px}.id-hero-actions{position:static;grid-column:1/-1;justify-self:start}.id-card-modern{grid-template-columns:1fr auto}.id-student-status{grid-column:1}.id-student-actions{grid-column:2;grid-row:1/3}.id-print-header{align-items:flex-start;flex-direction:column}}
+@media(max-width:560px){.id-hero-redesign{grid-template-columns:1fr;padding:16px}.id-hero-visual{display:none}.id-toolbar-redesign{flex-direction:column}.id-filter-redesign{width:100%}.id-card-modern{grid-template-columns:1fr;padding:12px}.id-student-status,.id-student-actions{grid-column:auto;grid-row:auto;justify-content:flex-start}.id-print-actions{width:100%;flex-wrap:wrap}.id-print-actions .btn{flex:1 1 auto}.id-record-summary,.student-record-grid{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.id-card-modern,.id-card-modern:hover{transition:none;animation:none}}
